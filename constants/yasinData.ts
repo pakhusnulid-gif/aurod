@@ -95,8 +95,8 @@ export const yasinFadhilahData: YasinContent[] = [
 
   {
     id: "sisipan_3", type: "sisipan", position: "Setelah Ayat 38", title: "Doa Mohon Kecukupan", repeat: "3x (Doa) & 1x (Sholawat)",
-    arabic: "(اَللَّهُمَّ إِنِّي أَسْأَلُكَ مِنْ فَضْلِكَ الْوَاسِعِ وَجُوْدِكَ السَّابِغِ مَا تُغْنِيْنِيْ بِهِ عَنْ جَمِيْعِ خَلْقِكَ) ×٣\n\nاللَّهُمَّ صَلِّ وَسَلِّمْ وَبَارِكْ عَلَى سَيِّدِنَا وَمَوْلَانَا مُحَمَّدٍ ۨالشَّافِعِ الْمُشَفَّعِ يَوْمَ الدِّينِ وَعَلَى آلِهِ وَأَصْحَابِهِ أَجْمَعِينَ",
-    translation: "Yaa Allah aku meminta padamu dari karuniamu yang luas dan kemurahanmu yang melimpah, sesuatu yang dapat mencukupkan aku dari semua makhluk-Mu."
+    arabic: "(اَللَّهُمَّ إِنِّي أَسْأَلُكَ مِنْ فَضْلِكَ الْوَاسِعِ وَجُوْدِكَ السَّابِغِ مَا تُغْنِيْنِيْ بِهِ عَنْ جَمِيْعِ خَلْقِكَ) ×٣\n\nاللَّهُمَّ صَلِّ وَسَلِّمْ وَبَارِكْ عَلَى سَيِّدِنَا وَمَوْلَانَا مُحَمَّدٍ ۨالشَّافِعِ الْمُشَفَّعِ يَوْمَ الْقِيَامَةِ وَأَعْطِهِ الْوَسِيلَةَ الْفَضِيلَةَ الدَّرَجَةَ الرَّفِيعَةَ وَابْعَثْهُ مَقَامًا مَحْمُودًا لِعُظْمَى الشَّفَاعَةِ وَأَنْزِلْهُ الْمَنْزِلَ الْمُقَرَّبَ عِنْدَكَ يَوْمَ الْقِيَامَةِ وَعَلَى آلِهِ وَصَحْبِهِ حَقَّ دَرَجَاتِهِ الْعَظِيمَةِ",
+    translation: "Yaa Allah aku meminta padamu dari karuniamu yang luas dan kemurahanmu yang melimpah, sesuatu yang dapat mencukupkan aku dari semua makhluk-Mu.\n\nYaa Allah, curahkanlah rahmat-Mu, serta salam dan barokah atas tuan kami Nabi Muhammad yang memberi syafa'at dan yang diterima permintaan syafa'atnya di hari kiamat. Berikan wasilah (perantara) dan keutamaan serta derajat yang tinggi pada beliau. Dan utuslah (bangkitkanlah) beliau pada kedudukan yang dipuji untuk memberikan syafa'at terbesar. Dan tempatkanlah beliau pada tempat yang dekat di sisi-Mu ketika hari kiamat. Juga semoga rahmat-Mu tercurah pada keluarga dan sahabat-sahabat beliau dengan derajat beliau yang tinggi."
   },
 
   // Expanded quran_block range 39-57
@@ -129,8 +129,8 @@ export const yasinFadhilahData: YasinContent[] = [
 
   {
     id: "sisipan_4", type: "sisipan", position: "Setelah Ayat 58", title: "Doa Keselamatan", repeat: "14x (Doa) & 1x (Sholawat)",
-    arabic: "(اَللَّهُمَّ سَلِّمْنِيْ مِنْ آفَاتِ الدُّنْيَا وَالْآخِرَةِ وَفِتْنَتِهَا) ×١٤\n\nاَللَّهُمَّ صَلِّ وَسَلِّمْ وَبَارِكْ عَلَى سَيِّدِنَا مُحَمَّدٍ وَعَلَى آلِهِ وَصَحْبِهِ وَسَلِّمْ",
-    translation: "Yaa Allah selamatkanlah aku dari perkara-perkara yang membahayakan dunia dan akhirat serta fitnah-fitnah yang ada."
+    arabic: "(اَللَّهُمَّ سَلِّمْنِيْ مِنْ آفَاتِ الدُّنْيَا وَالْآخِرَةِ وَفِتْنَتِهَا) ×١٤\n\nاَللَّهُمَّ صَلِّ وَسَلِّمْ وَبَارِكْ عَلَى سَيِّدِنَا مُحَمَّدٍ صَلَاةً تُسَهِّلُ لِيْ وَتُكَثِّرُ لِيْ وَتُبَارِكُ لِيْ مِدْرَارَ أَمْوَالِي وَأَرْزَاقِي وَنَعْمَائِي، وَعَلَى آلِهِ وَصَحْبِهِ وَسَلِّمْ تَسْلِيمًا مِدْرَارًا",
+    translation: "Yaa Allah selamatkanlah aku dari perkara-perkara yang membahayakan dunia dan akhirat serta fitnah-fitnah yang ada.\n\nYaa Allah Curahkanlah rahmat salam dan barokah atas Nabi Muhammad SAW. Keluarga serta sahabat-sahabat beliau dengan sholawat yang menjadi sebab mudahkanlah serta berilah banyak dan barokah padaku atas derasnya harta, rizki dan ni'mat-ni'matmu."
   },
 
   // Expanded quran_block range 59-80

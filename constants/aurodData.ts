@@ -94,13 +94,6 @@ export const aurodData: AurodSection[] = [
   },
   {
     id: 7,
-    title: "SHOLAWAT SYIFA",
-    notes: "Shalawat Syifa li Syeikh Ahmad Musyaffa' bin Ma'shum",
-    arabic: "اللَّهُمَّ صَلِّ وَسَلِّمْ وَبَارِكْ عَلَى سَيِّدِنَا وَمَوْلَانَا مُحَمَّدٍ ۨالشَّافِعِ الْمُشَفَّعِ\nيَوْمَ الْقِيَامَةِ وَأَعْطِهِ الْوَسِيلَةَ الْفَضِيلَةَ الدَّرَجَةَ الرَّفِيعَةَ وَابْعَثْهُ\nمَقَامًا مَحْمُودًا لِعُظْمَى الشَّفَاعَةِ وَأَنْزِلْهُ الْمَنْزِلَ الْمُقَرَّبَ عِنْدَكَ\nيَوْمَ الْقِيَامَةِ وَعَلَى آلِهِ وَصَحْبِهِ حَقَّ دَرَجَاتِهِ الْعَظِيمَةِ",
-    meaning: "Artinya : Yaa Allah, curahkanlah rahmat-Mu, serta salam dan barokah atas tuan kami Nabi Muhammad yang memberi syafa'at dan yang diterima permintaan syafa'atnya di hari kiamat. Berikan wasilah (perantara) dan keutamaan serta derajat yang tinggi pada beliau. Dan utuslah (bangkitkanlah) beliau pada kedudukan yang dipuji untuk memberikan syafa'at terbesar. Dan tempatkanlah beliau pada tempat yang dekat di sisi-Mu ketika hari kiamat. Juga semoga rahmat-Mu tercurah pada keluarga dan sahabat-sahabat beliau dengan derajat beliau yang tinggi."
-  },
-  {
-    id: 8,
     title: "TIAP HARI WAJIB & HAILALAH JUM'AT",
     notes: [
       "Fadhilah: Kuburnya diberi pintu Tembus pada kubur Nabi Muhammad SAW.",
@@ -115,21 +108,14 @@ export const aurodData: AurodSection[] = [
     ]
   },
   {
-    id: 9,
+    id: 8,
     title: "DO'A",
     arabic: "اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ النَّبِيِّ الْأُمِّيِّ الْحَبِيْبِ الْعَالِي الْقَدْرِ الْعَظِيْمِ الْجَاهِ وَعَلَى آلِهِ وَصَحْبِهِ وَسَلِّمْ",
     latin: "Allahumma sholli 'ala sayyidinaa Muhammadin annabiyyil ummiyyil habiibil 'alil qodaril 'adhiimil jaahi wa 'alaa aalihi washohbihi wasallim",
     meaning: "Artinya : Yaa Allah berikanlah Rahmat keagungan atas baginda kami Nabi Muhammad SAW..."
   },
   {
-    id: 10,
-    title: "SHOLAWAT KELANCARAN REZEKI",
-    notes: "Sholawat untuk memohon kemudahan, perbanyakan, dan keberkahan harta serta rezeki.",
-    arabic: "اَللَّهُمَّ صَلِّ وَسَلِّمْ وَبَارِكْ عَلَى سَيِّدِنَا مُحَمَّدٍ صَلَاةً تُسَهِّلُ لِيْ وَتُكَثِّرُ لِيْ وَتُبَارِكُ لِيْ مِدْرَارَ أَمْوَالِي وَأَرْزَاقِي وَنَعْمَائِي، وَعَلَى آلِهِ وَصَحْبِهِ وَسَلِّمْ تَسْلِيمًا مِدْرَارًا",
-    meaning: "Artinya : Yaa Allah Curahkanlah rahmat salam dan barokah atas Nabi Muhammad SAW. Keluarga serta sahabat-sahabat beliau dengan sholawat yang menjadi sebab mudahkanlah serta berilah banyak dan barokah padaku atas derasnya harta, rizki dan ni'mat-ni'matmu."
-  },
-  {
-    id: 11,
+    id: 9,
     title: "SILSILAH SANAD",
     notes: "SILSILAH SANAD AUROD WIRID LAZIMAH THORIQOH PONPES AN-NIDZOMIYYAH TUBAN",
     list: [
