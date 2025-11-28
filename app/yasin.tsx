@@ -51,6 +51,9 @@ export default function YasinScreen() {
   };
 
   const renderSisipan = (item: YasinSisipan) => {
+    const arabicParts = item.arabic.split('\n\n');
+    const hasSeparateTranslations = item.doa_translation && item.sholawat_translation;
+
     return (
       <View key={item.id} style={[styles.sisipanContainer, { backgroundColor: '#d1fae5', borderColor: '#10b981' }]}>
         <View style={styles.sisipanHeader}>
@@ -67,13 +70,32 @@ export default function YasinScreen() {
           </View>
         </View>
 
-        <Text style={[styles.sisipanArabic, { color: '#065f46', fontSize: fontSize + 2 }]}>
-          {item.arabic}
-        </Text>
+        {hasSeparateTranslations ? (
+          <>
+            <Text style={[styles.sisipanArabic, { color: '#065f46', fontSize: fontSize + 2 }]}>
+              {arabicParts[0]}
+            </Text>
+            <Text style={[styles.sisipanTranslation, { color: '#065f46', fontSize: fontSize - 4, marginBottom: 12 }]}>
+              {item.doa_translation}
+            </Text>
 
-        <Text style={[styles.sisipanTranslation, { color: '#065f46', fontSize: fontSize - 4 }]}>
-          {item.translation}
-        </Text>
+            <Text style={[styles.sisipanArabic, { color: '#065f46', fontSize: fontSize + 2 }]}>
+              {arabicParts[1]}
+            </Text>
+            <Text style={[styles.sisipanTranslation, { color: '#065f46', fontSize: fontSize - 4 }]}>
+              {item.sholawat_translation}
+            </Text>
+          </>
+        ) : (
+          <>
+            <Text style={[styles.sisipanArabic, { color: '#065f46', fontSize: fontSize + 2 }]}>
+              {item.arabic}
+            </Text>
+            <Text style={[styles.sisipanTranslation, { color: '#065f46', fontSize: fontSize - 4 }]}>
+              {item.translation}
+            </Text>
+          </>
+        )}
       </View>
     );
   };
