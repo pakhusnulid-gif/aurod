@@ -135,10 +135,10 @@ export const yasinFadhilahData: YasinContent[] = [
 
   {
     id: "sisipan_4", type: "sisipan", position: "Setelah Ayat 58", title: "Doa Keselamatan", repeat: "14x (Doa) & 1x (Sholawat)",
-    arabic: "(اَللَّهُمَّ سَلِّمْنِيْ مِنْ آفَاتِ الدُّنْيَا وَالْآخِرَةِ وَفِتْنَتِهَا) ×١٤\n\nاَللَّهُمَّ صَلِّ وَسَلِّمْ وَبَارِكْ عَلَى سَيِّدِنَا مُحَمَّدٍ صَلَاةً تُسَهِّلُ لِيْ وَتُكَثِّرُ لِيْ وَتُبَارِكُ لِيْ مِدْرَارَ أَمْوَالِي وَأَرْزَاقِي وَنَعْمَائِي، وَعَلَى آلِهِ وَصَحْبِهِ وَسَلِّمْ تَسْلِيمًا مِدْرَارًا",
+    arabic: "(اَللَّهُمَّ سَلِّمْنِيْ مِنْ آفَاتِ الدُّنْيَا وَالْآخِرَةِ وَفِتْنَتِهَا) ×١٤\n\nاَللَّهُمَّ صَلِّ وَسَلِّمْ وَبَارِكْ عَلَى سَيِّدِنَا مُحَمَّدٍ صَلَاةً تُسَهِّلُنِيْ وَتُكَثِّرُنِيْ وَتُبَارِكُنِيْ مِدْرَارَ أَمْوَالِي وَأَرْزَاقِي وَنَعْمَائِي، وَعَلَى آلِهِ وَصَحْبِهِ وَسَلِّمْ تَسْلِيمًا مِدْرَارًا",
     translation: "Yaa Allah selamatkanlah aku dari perkara-perkara yang membahayakan dunia dan akhirat serta fitnah-fitnah yang ada.",
     doa_translation: "Yaa Allah selamatkanlah aku dari perkara-perkara yang membahayakan dunia dan akhirat serta fitnah-fitnah yang ada.",
-    sholawat_translation: "Yaa Allah Curahkanlah rahmat salam dan barokah atas Nabi Muhammad SAW. Keluarga serta sahabat-sahabat beliau dengan sholawat yang menjadi sebab mudahkanlah serta berilah banyak dan barokah padaku atas derasnya harta, rizki dan ni'mat-ni'matmu."
+    sholawat_translation: "Yaa Allah Curahkanlah rahmat salam dan barokah atas Nabi Muhammad SAW. Keluarga serta sahabat-sahabat beliau dengan sholawat yang menjadi sebab Engkau mudahkan aku, Engkau perbanyak (hartaku) padaku, dan Engkau berkahi aku atas derasnya harta, rizki dan ni'mat-ni'mat-Mu."
   },
 
   // Expanded quran_block range 59-80
