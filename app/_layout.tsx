@@ -52,6 +52,16 @@ export default function RootLayout() {
       metaApple.name = 'apple-mobile-web-app-capable';
       metaApple.content = 'yes';
       document.head.appendChild(metaApple);
+
+      const metaViewport = document.querySelector('meta[name="viewport"]');
+      if (metaViewport) {
+        metaViewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover');
+      }
+
+      document.body.style.overscrollBehaviorY = 'contain';
+      document.body.style.overscrollBehaviorX = 'none';
+      document.documentElement.style.overscrollBehaviorY = 'contain';
+      document.documentElement.style.overscrollBehaviorX = 'none';
     }
   }, []);
 

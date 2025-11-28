@@ -15,7 +15,19 @@
   scrollbar-width: none;
 }
 
-body {
+html, body {
   overflow-y: scroll;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  overscroll-behavior-x: none;
+}
+
+body {
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
+#root {
+  overscroll-behavior-y: contain;
+  overscroll-behavior-x: none;
 }
