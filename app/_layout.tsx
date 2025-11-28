@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { Platform } from 'react-native';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { useFonts, Amiri_400Regular, Amiri_700Bold } from '@expo-google-fonts/amiri';
@@ -21,6 +22,38 @@ export default function RootLayout() {
       SplashScreen.hideAsync();
     }
   }, [fontsLoaded, fontError]);
+
+  useEffect(() => {
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {
+              console.log('✅ Service Worker registered:', registration);
+            })
+            .catch((error) => {
+              console.log('❌ Service Worker registration failed:', error);
+            });
+        });
+      }
+
+      const link = document.createElement('link');
+      link.rel = 'manifest';
+      link.href = '/manifest.json';
+      document.head.appendChild(link);
+
+      const metaTheme = document.createElement('meta');
+      metaTheme.name = 'theme-color';
+      metaTheme.content = '#10B981';
+      document.head.appendChild(metaTheme);
+
+      const metaApple = document.createElement('meta');
+      metaApple.name = 'apple-mobile-web-app-capable';
+      metaApple.content = 'yes';
+      document.head.appendChild(metaApple);
+    }
+  }, []);
 
   if (!fontsLoaded && !fontError) {
     return null;
