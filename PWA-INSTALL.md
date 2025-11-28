@@ -28,20 +28,42 @@
 
 - `public/manifest.json` - Konfigurasi PWA
 - `public/sw.js` - Service Worker untuk offline support
-- `public/index.html` - Landing page dengan instruksi install
 - `public/icon-192.png` - Icon 192x192px
 - `public/icon-512.png` - Icon 512x512px
 
+## PENTING: Cara Deploy yang Benar
+
+**❌ JANGAN deploy folder `public/`!**
+
+**✅ Deploy folder `dist/` setelah build:**
+
+```bash
+# 1. Build aplikasi
+npm run build:web
+
+# 2. Copy file PWA ke dist
+cp public/manifest.json dist/
+cp public/sw.js dist/
+cp public/icon-192.png dist/
+cp public/icon-512.png dist/
+
+# 3. Deploy folder dist/ ke Netlify/Vercel
+```
+
+### Setting Netlify:
+- Build command: `npm run build:web && cp public/manifest.json public/sw.js public/*.png dist/`
+- Publish directory: `dist`
+
 ## Testing PWA
 
-1. Build aplikasi web: `npm run build:web`
-2. Serve dari folder dist
-3. Buka di browser HP untuk test instalasi
-4. Check di Chrome DevTools > Application > Manifest & Service Workers
+1. Build: `npm run build:web`
+2. Copy PWA files: `cp public/*.{json,js,png} dist/`
+3. Serve: `npx serve dist`
+4. Test di Chrome DevTools > Application > Manifest & Service Workers
 
 ## Deploy
 
-Deploy folder `public/` ke hosting yang support HTTPS:
+Deploy folder **`dist/`** (bukan `public/`) ke hosting HTTPS:
 - Vercel
 - Netlify
 - Firebase Hosting
