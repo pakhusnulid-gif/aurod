@@ -3,6 +3,7 @@ export interface YasinAyat {
   type: "ayat";
   nomor_ayat: number;
   arabic: string;
+  repeat?: string;
   instruction?: string;
   wirid_instruction?: string;
   wirid_arabic?: string;
@@ -42,10 +43,10 @@ export const yasinFadhilahData: YasinContent[] = [
   { id: 6, type: "ayat", nomor_ayat: 6, arabic: "لِتُنذِرَ قَوْمًا مَّآ أُنذِرَ ءَابَآؤُهُمْ فَهُمْ غَٰفِلُونَ" },
   { id: 7, type: "ayat", nomor_ayat: 7, arabic: "لَقَدْ حَقَّ ٱلْقَوْلُ عَلَىٰٓ أَكْثَرِهِمْ فَهُمْ لَا يُؤْمِنُونَ" },
   { id: 8, type: "ayat", nomor_ayat: 8, arabic: "إِنَّا جَعَلْنَا فِىٓ أَعْنَٰقِهِمْ أَغْلَٰلًا فَهِىَ إِلَى ٱلْأَذْقَانِ فَهُم مُّقْمَحُونَ" },
-  { id: 9, type: "ayat", nomor_ayat: 9, arabic: "وَجَعَلْنَا مِنۢ بَيْنِ أَيْدِيهِمْ سَدًّا وَمِنْ خَلْفِهِمْ سَدًّا فَأَغْشَيْنَٰهُمْ فَهُمْ لَا يُبْصِرُونَ" },
+  { id: 9, type: "ayat", nomor_ayat: 9, arabic: "وَجَعَلْنَا مِنۢ بَيْنِ أَيْدِيهِمْ سَدًّا وَمِنْ خَلْفِهِمْ سَدًّا فَأَغْشَيْنَٰهُمْ فَهُمْ لَا يُبْصِرُونَ", repeat: "Diulang 7x" },
 
   {
-    id: "sisipan_1", type: "sisipan", position: "Setelah Ayat 9", title: "Doa Nurul Sirri & Sholawat Fatih", repeat: "Diulang 7x",
+    id: "sisipan_1", type: "sisipan", position: "Setelah Ayat 9", title: "Doa Nurul Sirri & Sholawat Fatih", repeat: "Dibaca 3x",
     arabic: "(اَللَّهُمَّ يَا مَنْ نُوْرُهُ فِي سِرِّهِ وَسِرُّهُ فِي خَلْقِهِ، اِحْفَظِيْ مِنْ أَعْيُنِ النَّاظِرِينَ الْحَاسِدِينَ وَالْبَاغِينَ، كَمَا حَفَظْتَ الرُّوْحَ فِي الْجَسَدِ، إِنَّكَ عَلَى كُلِّ شَيْءٍ قَدِيْرٌ) ×٣\n\n(اَللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ ۨالْفَاتِحِ لِمَا أُغْلِقَ وَالْخَاتِمِ لِمَا سَبَقَ، نَاصِرِ الْحَقِّ بِالْحَقِّ وَالْهَادِي إِلَى صِرَاطِكَ الْمُسْتَقِيمِ، وَعَلَى آلِهِ حَقَّ قَدْرِهِ وَمِقْدَارِهِ الْعَظِيمِ) ×٣",
     translation: "Wahai Dzat yang cahayanya di dalam rahasianya dan rahasianya di dalam makhluknya, lindungilah aku dari mata orang-orang yang melihat, yang hasad dan yang zalim, sebagaimana Engkau melindungi ruh di dalam jasad, sesungguhnya Engkau Maha Kuasa atas segala sesuatu.",
     doa_translation: "Wahai Dzat yang cahayanya di dalam rahasianya dan rahasianya di dalam makhluknya, lindungilah aku dari mata orang-orang yang melihat, yang hasad dan yang zalim, sebagaimana Engkau melindungi ruh di dalam jasad, sesungguhnya Engkau Maha Kuasa atas segala sesuatu.",

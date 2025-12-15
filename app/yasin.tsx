@@ -24,6 +24,14 @@ export default function YasinScreen() {
           {item.arabic}
         </Text>
 
+        {item.repeat && (
+          <View style={[styles.repeatBadge, { backgroundColor: '#f0fdf4', borderColor: '#22c55e' }]}>
+            <Text style={[styles.repeatText, { color: '#166534', fontSize: fontSize - 6 }]}>
+              🔄 {item.repeat}
+            </Text>
+          </View>
+        )}
+
         {item.instruction && (
           <View style={[styles.instructionBadge, { backgroundColor: '#fef3c7', borderColor: '#f59e0b' }]}>
             <Text style={[styles.instructionText, { color: '#92400e', fontSize: fontSize - 6 }]}>
@@ -285,15 +293,14 @@ const styles = StyleSheet.create({
     userSelect: 'none',
   },
   repeatBadge: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    borderRadius: borderRadius.full,
-    marginBottom: spacing.sm,
+    padding: spacing.sm,
+    borderRadius: borderRadius.md,
+    borderWidth: 1,
+    marginTop: spacing.sm,
   },
   repeatText: {
-    color: '#FFFFFF',
     fontWeight: '600',
+    textAlign: 'center',
     userSelect: 'none',
   },
   sisipanArabic: {
