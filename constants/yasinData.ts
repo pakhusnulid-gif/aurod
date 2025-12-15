@@ -174,9 +174,9 @@ export const yasinFadhilahData: YasinContent[] = [
 
   {
     id: "sisipan_5", type: "sisipan", position: "Tengah Ayat 81", title: "Doa Keyakinan & Sholawat Al-Azhim", repeat: "3x (Doa) & 10x (Sholawat)",
-    arabic: "( بَلَى وَاللهُ قَادِرٌ عَلَى أَنْ يَقْضِيَ لِي حَاجَتِي وَيَفْعَلَ بِيَ الْخَيْرَاتِ وَيُصَرِّفَنِيْ عَنِ الشِّرَارِ وَالْآفَاتِ ) ×٣\n\nصَلَّى اللهُ الْعَظِيمُ عَلَى سَيِّدِنَا مُحَمَّدٍ ×١٠",
-    translation: "Ya benar Allah itu maha kuasa untuk mengijabahi hajatku dan berbuat kebaikan-kebaikan padaku, serta menjauhkan dariku kejelekan-kejelekan dan bahaya-bahaya.",
-    doa_translation: "Ya benar Allah itu maha kuasa untuk mengijabahi hajatku dan berbuat kebaikan-kebaikan padaku, serta menjauhkan dariku kejelekan-kejelekan dan bahaya-bahaya.",
+    arabic: "( بَلَى وَاللهُ قَادِرٌ عَلَى أَنْ يَقْضِيَ لِي حَاجَتِي وَيَفْعَلُ بِي الْخَيْرَاتِ وَيُصَرِّفُنِيْ عَنِ الشِّرَارِ وَالْآفَاتِ ) ×٣\n\nصَلَّى اللهُ الْعَظِيمُ عَلَى سَيِّدِنَا مُحَمَّدٍ ×١٠",
+    translation: "Benar, dan Allah Maha Kuasa untuk mengabulkan hajatku, dan melakukan kebaikan bagiku, serta memalingkan aku dari kejahatan dan bencana.",
+    doa_translation: "Benar, dan Allah Maha Kuasa untuk mengabulkan hajatku, dan melakukan kebaikan bagiku, serta memalingkan aku dari kejahatan dan bencana.",
     sholawat_translation: "Semoga Allah yang agung selalu mencurahkan Rahmat dan Ta'dhimnya atas tuan kami Nabi Muhammad SAW."
   },
 
