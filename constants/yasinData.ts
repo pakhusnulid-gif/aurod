@@ -45,8 +45,8 @@ export const yasinFadhilahData: YasinContent[] = [
   { id: 9, type: "ayat", nomor_ayat: 9, arabic: "وَجَعَلْنَا مِنۢ بَيْنِ أَيْدِيهِمْ سَدًّا وَمِنْ خَلْفِهِمْ سَدًّا فَأَغْشَيْنَٰهُمْ فَهُمْ لَا يُبْصِرُونَ" },
 
   {
-    id: "sisipan_1", type: "sisipan", position: "Setelah Ayat 9", title: "Doa Nurul Sirri & Sholawat Fatih", repeat: "Dibaca 3x",
-    arabic: "(اَللَّهُمَّ يَا مَنْ نُوْرُهُ فِي سِرِّهِ وَسِرُّهُ فِي خَلْقِهِ، اِحْفَظْنِيْ مِنْ أَعْيُنِ النَّاظِرِينَ الْحَاسِدِينَ وَالْبَاغِينَ، كَمَا حَفَظْتَ الرُّوْحَ فِي الْجَسَدِ، إِنَّكَ عَلَى كُلِّ شَيْءٍ قَدِيْرٌ) ×٣\n\n(اَللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ ۨالْفَاتِحِ لِمَا أُغْلِقَ وَالْخَاتِمِ لِمَا سَبَقَ، نَاصِرِ الْحَقِّ بِالْحَقِّ وَالْهَادِي إِلَى صِرَاطِكَ الْمُسْتَقِيمِ، وَعَلَى آلِهِ حَقَّ قَدْرِهِ وَمِقْدَارِهِ الْعَظِيمِ) ×٣",
+    id: "sisipan_1", type: "sisipan", position: "Setelah Ayat 9", title: "Doa Nurul Sirri & Sholawat Fatih", repeat: "Diulang 7x",
+    arabic: "(اَللَّهُمَّ يَا مَنْ نُوْرُهُ فِي سِرِّهِ وَسِرُّهُ فِي خَلْقِهِ، اِحْفَظِيْ مِنْ أَعْيُنِ النَّاظِرِينَ الْحَاسِدِينَ وَالْبَاغِينَ، كَمَا حَفَظْتَ الرُّوْحَ فِي الْجَسَدِ، إِنَّكَ عَلَى كُلِّ شَيْءٍ قَدِيْرٌ) ×٣\n\n(اَللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ ۨالْفَاتِحِ لِمَا أُغْلِقَ وَالْخَاتِمِ لِمَا سَبَقَ، نَاصِرِ الْحَقِّ بِالْحَقِّ وَالْهَادِي إِلَى صِرَاطِكَ الْمُسْتَقِيمِ، وَعَلَى آلِهِ حَقَّ قَدْرِهِ وَمِقْدَارِهِ الْعَظِيمِ) ×٣",
     translation: "Wahai Dzat yang cahayanya di dalam rahasianya dan rahasianya di dalam makhluknya, lindungilah aku dari mata orang-orang yang melihat, yang hasad dan yang zalim, sebagaimana Engkau melindungi ruh di dalam jasad, sesungguhnya Engkau Maha Kuasa atas segala sesuatu.",
     doa_translation: "Wahai Dzat yang cahayanya di dalam rahasianya dan rahasianya di dalam makhluknya, lindungilah aku dari mata orang-orang yang melihat, yang hasad dan yang zalim, sebagaimana Engkau melindungi ruh di dalam jasad, sesungguhnya Engkau Maha Kuasa atas segala sesuatu.",
     sholawat_translation: "Semoga Allah melimpahkan rahmat ta'dzimnya atas Nabi Muhammad (Beliau) adalah orang yang membuka sesuatu yang tertutup dan penutup bagi apa yang telah lalu, pembela kebenaran dengan kebenaran, dan pemberi petunjuk ke jalan-Mu yang lurus. Dan semoga rahmat juga tercurahkan atas keluarga beliau dengan haq kedudukan dan derajad Beliau yang agung"
@@ -74,7 +74,7 @@ export const yasinFadhilahData: YasinContent[] = [
 
   {
     id: "sisipan_2", type: "sisipan", position: "Setelah Ayat 27", title: "Doa Qodho Hajat", repeat: "Dibaca 1x",
-    arabic: "( اَللَّهُمَّ أَكْرِمْنِي بِقَضَاءِ حَاجَتِي وَأَلْزِمْنِي بِطَاعَتِكَ )",
+    arabic: "( اَللَّهُمَّ أَكْرِمْنِي بِقَضَاءِ حَاجَتِي وَأَلْزِمْنِي بِطَاعَتِكَ )\n\nLalu sebutkan hajatnya",
     translation: "Yaa Allah mulyakanlah aku dengan mengijabahi do'aku dan tetapkanlah aku untuk selalu taat kepadamu."
   },
 
@@ -172,9 +172,11 @@ export const yasinFadhilahData: YasinContent[] = [
   },
 
   {
-    id: "sisipan_5", type: "sisipan", position: "Tengah Ayat 81", title: "Doa Keyakinan", repeat: "3x (Doa) & 10x (Sholawat)",
-    arabic: "( بَلَى وَاللهُ قَادِرٌ عَلَى أَنْ يَقْضِيَ لِي حَاجَتِي وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ ) ×٣\n\nصَلَّى اللهُ الْعَظِيمُ عَلَى سَيِّدِنَا مُحَمَّدٍ ×١٠",
-    translation: "Ya benar, Allah itu maha kuasa untuk mengijabahi hajatku dan Dia Maha Kuasa atas segala sesuatu."
+    id: "sisipan_5", type: "sisipan", position: "Tengah Ayat 81", title: "Doa Keyakinan & Sholawat Al-Azhim", repeat: "3x (Doa) & 10x (Sholawat)",
+    arabic: "( بَلَى وَاللهُ قَادِرٌ عَلَى أَنْ يَقْضِيَ لِي حَاجَتِي وَيَفْعَلَ بِيَ الْخَيْرَاتِ وَيُصَرِّفَنِيْ عَنِ الشِّرَارِ وَالْآفَاتِ ) ×٣\n\nصَلَّى اللهُ الْعَظِيمُ عَلَى سَيِّدِنَا مُحَمَّدٍ ×١٠",
+    translation: "Ya benar Allah itu maha kuasa untuk mengijabahi hajatku dan berbuat kebaikan-kebaikan padaku, serta menjauhkan dariku kejelekan-kejelekan dan bahaya-bahaya.",
+    doa_translation: "Ya benar Allah itu maha kuasa untuk mengijabahi hajatku dan berbuat kebaikan-kebaikan padaku, serta menjauhkan dariku kejelekan-kejelekan dan bahaya-bahaya.",
+    sholawat_translation: "Semoga Allah yang agung selalu mencurahkan Rahmat dan Ta'dhimnya atas tuan kami Nabi Muhammad SAW."
   },
 
   {
