@@ -16,6 +16,7 @@ import { TasbihModal } from '@/components/TasbihModal';
 import { Footer } from '@/components/Footer';
 import { useTheme } from '@/contexts/ThemeContext';
 import { colors, spacing, borderRadius } from '@/constants/theme';
+import { getArabicFontFamily } from '@/constants/arabicFonts';
 import { aurodData, AurodSection, AurodListItem } from '@/constants/aurodData';
 import { parseRepeatTarget } from '@/utils/repeatTarget';
 
@@ -39,7 +40,9 @@ const ID_TO_KEY: Record<number, string> = {
 
 export default function AurodScreen() {
   const { section: targetSection } = useLocalSearchParams<{ section?: string }>();
-  const { theme, fontSize, showTranslation, showLatin } = useTheme();
+  const { theme, fontSize, arabicFont, showTranslation, showLatin } = useTheme();
+  const arabicFontRegular = getArabicFontFamily(arabicFont, 'regular');
+  const arabicFontBold = getArabicFontFamily(arabicFont, 'bold');
   const { width } = useWindowDimensions();
   const themeColors = colors[theme];
   const scrollViewRef = useRef<ScrollView>(null);
@@ -145,6 +148,7 @@ export default function AurodScreen() {
             styles.arabicText,
             {
               color: themeColors.text,
+              fontFamily: arabicFontRegular,
               fontSize: arabicSectionSize,
               lineHeight: arabicSectionLineHeight,
             },
@@ -256,6 +260,7 @@ export default function AurodScreen() {
                       styles.arabicText,
                       {
                         color: themeColors.text,
+                        fontFamily: arabicFontRegular,
                         fontSize: listArabicSize,
                         lineHeight: listArabicLineHeight,
                       },
@@ -379,6 +384,7 @@ export default function AurodScreen() {
             styles.mainTitle,
             {
               color: themeColors.primary,
+              fontFamily: arabicFontBold,
               fontSize: fontSize + 8,
               lineHeight: Math.round((fontSize + 8) * 1.5),
             },

@@ -2,11 +2,34 @@ import { useEffect, useState } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Platform } from 'react-native';
+import { Asset } from 'expo-asset';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 import { colors } from '@/constants/theme';
 import { useFonts, Amiri_400Regular, Amiri_700Bold } from '@expo-google-fonts/amiri';
+import {
+  ScheherazadeNew_400Regular,
+  ScheherazadeNew_700Bold,
+} from '@expo-google-fonts/scheherazade-new';
 import * as SplashScreen from 'expo-splash-screen';
+
+const UTHMANIC_FONT_ASSET = require('@/assets/fonts/UthmanicHafs.ttf');
+const LPMQ_FONT_ASSET = require('@/assets/fonts/LPMQ-IsepMisbah.ttf');
+
+function resolveFontUri(source: unknown): string | null {
+  if (typeof source === 'string') return source || null;
+  if (typeof source === 'number') {
+    const resolved = Asset.fromModule(source);
+    return resolved.uri || resolved.localUri || null;
+  }
+  if (typeof source === 'object' && source !== null) {
+    const obj = source as { uri?: unknown; localUri?: string; default?: string };
+    if (typeof obj.uri === 'number') return resolveFontUri(obj.uri);
+    if (typeof obj.uri === 'string') return obj.uri;
+    return obj.localUri || obj.default || null;
+  }
+  return null;
+}
 
 SplashScreen.preventAutoHideAsync();
 
@@ -52,24 +75,78 @@ function RootLayoutContent() {
 export default function RootLayout() {
   useFrameworkReady();
   const [fontTimedOut, setFontTimedOut] = useState(false);
+  const [uthmanicReady, setUthmanicReady] = useState(Platform.OS !== 'web');
 
-  const [fontsLoaded, fontError] = useFonts({
-    'Amiri-Regular': Amiri_400Regular,
-    'Amiri-Bold': Amiri_700Bold,
-  });
+  // UthmanicHafs lacks Latin 'BESbswy' test glyphs used by FontFaceObserver on web,
+  // so register it natively via FontFace API on web while native loads all faces directly.
+  const [fontsLoaded, fontError] = useFonts(
+    Platform.OS === 'web'
+      ? {
+          'Amiri-Regular': Amiri_400Regular,
+          'Amiri-Bold': Amiri_700Bold,
+          'ScheherazadeNew-Regular': ScheherazadeNew_400Regular,
+          'ScheherazadeNew-Bold': ScheherazadeNew_700Bold,
+          'LPMQ-IsepMisbah': LPMQ_FONT_ASSET,
+        }
+      : {
+          'Amiri-Regular': Amiri_400Regular,
+          'Amiri-Bold': Amiri_700Bold,
+          'ScheherazadeNew-Regular': ScheherazadeNew_400Regular,
+          'ScheherazadeNew-Bold': ScheherazadeNew_700Bold,
+          'UthmanicHafs': UTHMANIC_FONT_ASSET,
+          'LPMQ-IsepMisbah': LPMQ_FONT_ASSET,
+        }
+  );
+
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof window === 'undefined') return;
+    const uri = resolveFontUri(UTHMANIC_FONT_ASSET);
+    if (!uri) {
+      setUthmanicReady(true);
+      return;
+    }
+
+    const styleEl = ensureHeadTag('style#aurod-custom-fonts', () => {
+      const el = document.createElement('style');
+      el.id = 'aurod-custom-fonts';
+      return el;
+    });
+    styleEl.textContent = `@font-face{font-family:"UthmanicHafs";src:url("${uri}");font-display:swap;}`;
+
+    let cancelled = false;
+    if (typeof FontFace !== 'undefined') {
+      const face = new FontFace('UthmanicHafs', `url("${uri}")`, { display: 'swap' });
+      face
+        .load()
+        .then((loaded) => {
+          (document.fonts as unknown as { add?: (f: FontFace) => void }).add?.(loaded);
+          if (!cancelled) setUthmanicReady(true);
+        })
+        .catch(() => {
+          if (!cancelled) setUthmanicReady(true);
+        });
+    } else {
+      setUthmanicReady(true);
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setFontTimedOut(true);
-    }, 2500);
+    }, 4000);
     return () => clearTimeout(timer);
   }, []);
 
+  const allFontsReady = ((fontsLoaded || Boolean(fontError)) && uthmanicReady) || fontTimedOut;
+
   useEffect(() => {
-    if (fontsLoaded || fontError || fontTimedOut) {
+    if (allFontsReady) {
       SplashScreen.hideAsync().catch(() => {});
     }
-  }, [fontsLoaded, fontError, fontTimedOut]);
+  }, [allFontsReady]);
 
   useEffect(() => {
     if (Platform.OS === 'web' && typeof window !== 'undefined') {
@@ -151,7 +228,7 @@ export default function RootLayout() {
     }
   }, []);
 
-  if (!fontsLoaded && !fontError && !fontTimedOut) {
+  if (!allFontsReady) {
     return null;
   }
 

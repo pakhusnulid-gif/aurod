@@ -8,13 +8,15 @@ import { TasbihModal } from '@/components/TasbihModal';
 import { Footer } from '@/components/Footer';
 import { useTheme } from '@/contexts/ThemeContext';
 import { colors, spacing, borderRadius } from '@/constants/theme';
+import { getArabicFontFamily } from '@/constants/arabicFonts';
 import { tawassulData } from '@/constants/tawassulData';
 import { parseRepeatTarget } from '@/utils/repeatTarget';
 
 export default function TawassulScreen() {
-  const { theme, fontSize } = useTheme();
+  const { theme, fontSize, arabicFont } = useTheme();
   const { width } = useWindowDimensions();
   const themeColors = colors[theme];
+  const arabicFontFamily = getArabicFontFamily(arabicFont, 'regular');
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [tasbihState, setTasbihState] = useState<{ label: string; target: number } | null>(null);
 
@@ -34,7 +36,7 @@ export default function TawassulScreen() {
         contentContainerStyle={[styles.content, { paddingHorizontal: horizontalPad }]}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={[styles.arabicText, { color: themeColors.text, fontSize, lineHeight: arabicLineHeight }]}>
+        <Text style={[styles.arabicText, { color: themeColors.text, fontFamily: arabicFontFamily, fontSize, lineHeight: arabicLineHeight }]}>
           بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
         </Text>
 
@@ -42,7 +44,7 @@ export default function TawassulScreen() {
           const target = parseRepeatTarget(item.title);
           return (
             <View key={item.id} style={styles.itemContainer}>
-              <Text style={[styles.arabicText, { color: themeColors.text, fontSize, lineHeight: arabicLineHeight }]}>
+              <Text style={[styles.arabicText, { color: themeColors.text, fontFamily: arabicFontFamily, fontSize, lineHeight: arabicLineHeight }]}>
                 {item.text}
               </Text>
               {target && (
@@ -71,15 +73,15 @@ export default function TawassulScreen() {
 
         <View style={[styles.divider, { backgroundColor: themeColors.border }]} />
 
-        <Text style={[styles.arabicText, { color: themeColors.text, fontSize, lineHeight: arabicLineHeight }]}>
+        <Text style={[styles.arabicText, { color: themeColors.text, fontFamily: arabicFontFamily, fontSize, lineHeight: arabicLineHeight }]}>
           بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
         </Text>
 
-        <Text style={[styles.arabicText, { color: themeColors.text, fontSize, lineHeight: arabicLineHeight }]}>
+        <Text style={[styles.arabicText, { color: themeColors.text, fontFamily: arabicFontFamily, fontSize, lineHeight: arabicLineHeight }]}>
           اَلْحَمْدُ لِلّٰهِ رَبِّ الْعَالَمِيْنَ. الرَّحْمٰنِ الرَّحِيْمِ. مَالِكِ يَوْمِ الدِّيْنِ. إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِيْنُ. اِهْدِنَا الصِّرَاطَ الْمُسْتَقِيْمَ. صِرَاطَ الَّذِيْنَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوْبِ عَلَيْهِمْ وَلَا الضَّآلِّيْنَ
         </Text>
 
-        <Text style={[styles.arabicText, { color: themeColors.text, fontSize, lineHeight: arabicLineHeight }]}>
+        <Text style={[styles.arabicText, { color: themeColors.text, fontFamily: arabicFontFamily, fontSize, lineHeight: arabicLineHeight }]}>
           اٰمِيْن يَا رَبَّ الْعَالَمِيْنَ
         </Text>
 

@@ -1,6 +1,11 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {
+  ArabicFontKey,
+  DEFAULT_ARABIC_FONT,
+  isArabicFontKey,
+} from '@/constants/arabicFonts';
 
 type Theme = 'light' | 'dark';
 
@@ -9,6 +14,8 @@ interface ThemeContextType {
   toggleTheme: () => void;
   fontSize: number;
   setFontSize: (size: number) => void;
+  arabicFont: ArabicFontKey;
+  setArabicFont: (font: ArabicFontKey) => void;
   showTranslation: boolean;
   setShowTranslation: (value: boolean) => void;
   showLatin: boolean;
@@ -25,6 +32,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const systemTheme = useColorScheme();
   const [theme, setTheme] = useState<Theme>(systemTheme === 'dark' ? 'dark' : 'light');
   const [fontSize, setFontSizeState] = useState(DEFAULT_FONT_SIZE);
+  const [arabicFont, setArabicFontState] = useState<ArabicFontKey>(DEFAULT_ARABIC_FONT);
   const [showTranslation, setShowTranslationState] = useState(true);
   const [showLatin, setShowLatinState] = useState(true);
 
@@ -45,6 +53,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         const parsed = Number(savedSize);
         if (Number.isFinite(parsed) && parsed >= MIN_FONT_SIZE && parsed <= MAX_FONT_SIZE) {
           setFontSizeState(parsed);
+        }
+      })
+      .catch(() => {});
+
+    AsyncStorage.getItem('arabicFont')
+      .then((savedFont) => {
+        if (isMounted && isArabicFontKey(savedFont)) {
+          setArabicFontState(savedFont);
         }
       })
       .catch(() => {});
@@ -84,6 +100,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     AsyncStorage.setItem('fontSize', clamped.toString()).catch(() => {});
   };
 
+  const setArabicFont = (font: ArabicFontKey) => {
+    setArabicFontState(font);
+    AsyncStorage.setItem('arabicFont', font).catch(() => {});
+  };
+
   const setShowTranslation = (value: boolean) => {
     setShowTranslationState(value);
     AsyncStorage.setItem('showTranslation', String(value)).catch(() => {});
@@ -101,6 +122,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         toggleTheme,
         fontSize,
         setFontSize,
+        arabicFont,
+        setArabicFont,
         showTranslation,
         setShowTranslation,
         showLatin,

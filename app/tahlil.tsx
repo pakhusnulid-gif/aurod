@@ -14,6 +14,7 @@ import { TasbihModal } from '@/components/TasbihModal';
 import { Footer } from '@/components/Footer';
 import { useTheme } from '@/contexts/ThemeContext';
 import { colors, spacing, borderRadius } from '@/constants/theme';
+import { getArabicFontFamily } from '@/constants/arabicFonts';
 import { tahlilData } from '@/constants/tahlilData';
 
 const JUMP_CHIPS = [
@@ -27,9 +28,11 @@ const JUMP_CHIPS = [
 ];
 
 export default function TahlilScreen() {
-  const { theme, fontSize } = useTheme();
+  const { theme, fontSize, arabicFont } = useTheme();
   const { width } = useWindowDimensions();
   const themeColors = colors[theme];
+  const arabicFontRegular = getArabicFontFamily(arabicFont, 'regular');
+  const arabicFontBold = getArabicFontFamily(arabicFont, 'bold');
   const scrollViewRef = useRef<ScrollView>(null);
   const sectionOffsets = useRef<Record<string, number>>({});
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -100,6 +103,7 @@ export default function TahlilScreen() {
             styles.mainTitle,
             {
               color: themeColors.primary,
+              fontFamily: arabicFontBold,
               fontSize: fontSize + 6,
               lineHeight: Math.round((fontSize + 6) * 1.6),
             },
@@ -134,6 +138,7 @@ export default function TahlilScreen() {
                 item.isColophon ? styles.colophonText : styles.arabicText,
                 {
                   color: item.isColophon ? themeColors.calloutText : themeColors.text,
+                  fontFamily: arabicFontRegular,
                   fontSize: item.isColophon ? Math.max(16, fontSize - 4) : fontSize,
                   lineHeight: item.isColophon
                     ? Math.round(Math.max(16, fontSize - 4) * 1.7)

@@ -30,6 +30,7 @@ import { Footer } from '@/components/Footer';
 import { useTheme } from '@/contexts/ThemeContext';
 import { usePwaInstall } from '@/hooks/usePwaInstall';
 import { colors, spacing, borderRadius } from '@/constants/theme';
+import { getArabicFontFamily } from '@/constants/arabicFonts';
 import { getCurrentLocation, LocationData } from '@/utils/locationService';
 
 const SANAD_IMAGE = require('@/assets/images/sanad-kitab.jpg');
@@ -135,9 +136,10 @@ const DEFAULT_LOCATION: LocationData = {
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { theme } = useTheme();
+  const { theme, arabicFont } = useTheme();
   const { width } = useWindowDimensions();
   const themeColors = colors[theme];
+  const arabicFontBold = getArabicFontFamily(arabicFont, 'bold');
   const [location, setLocation] = useState<LocationData>(DEFAULT_LOCATION);
   const [prayerModalOpen, setPrayerModalOpen] = useState(false);
 
@@ -212,6 +214,7 @@ export default function HomeScreen() {
                   styles.sectionArabicPill,
                   {
                     color: themeColors.primary,
+                    fontFamily: arabicFontBold,
                     backgroundColor: theme === 'dark' ? '#062E22' : '#ECFDF5',
                   },
                 ]}
@@ -265,6 +268,7 @@ export default function HomeScreen() {
                             styles.cardTitleArabic,
                             {
                               color: themeColors.text,
+                              fontFamily: arabicFontBold,
                               fontSize: isCompactWidth ? 12.5 : 13.5,
                               lineHeight: isCompactWidth ? 18 : 20,
                             },

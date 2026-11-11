@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, ViewStyle, StyleProp, Platform } from 'react-native';
 import Svg, { Path, Circle } from 'react-native-svg';
+import { useTheme } from '@/contexts/ThemeContext';
+import { getArabicFontFamily } from '@/constants/arabicFonts';
 import { toArabicDigits } from '@/utils/arabicNumerals';
 
 interface AyahMarkerProps {
@@ -22,6 +24,8 @@ export const AyahMarker: React.FC<AyahMarkerProps> = ({
   textColor,
   style,
 }) => {
+  const { arabicFont } = useTheme();
+  const arabicFontFamily = getArabicFontFamily(arabicFont, 'bold');
   const arabicStr = toArabicDigits(number);
   const isTwoOrMoreDigits = arabicStr.length >= 2;
   const numFontSize = Math.round(size * (isTwoOrMoreDigits ? 0.38 : 0.44));
@@ -62,6 +66,7 @@ export const AyahMarker: React.FC<AyahMarkerProps> = ({
         style={[
           styles.numberText,
           {
+            fontFamily: arabicFontFamily,
             fontSize: numFontSize,
             lineHeight: Math.round(numFontSize * 1.2),
             color: textColor || color,

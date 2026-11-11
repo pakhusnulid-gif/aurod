@@ -16,6 +16,7 @@ import { AyahMarker } from '@/components/AyahMarker';
 import { Footer } from '@/components/Footer';
 import { useTheme } from '@/contexts/ThemeContext';
 import { colors, spacing, borderRadius } from '@/constants/theme';
+import { getArabicFontFamily } from '@/constants/arabicFonts';
 import {
   yasinFadhilahData,
   YasinContent,
@@ -36,7 +37,9 @@ const JUMP_CHIPS = [
 ];
 
 export default function YasinScreen() {
-  const { theme, fontSize, showTranslation } = useTheme();
+  const { theme, fontSize, arabicFont, showTranslation } = useTheme();
+  const arabicFontRegular = getArabicFontFamily(arabicFont, 'regular');
+  const arabicFontBold = getArabicFontFamily(arabicFont, 'bold');
   const { width } = useWindowDimensions();
   const themeColors = colors[theme];
   const scrollViewRef = useRef<ScrollView>(null);
@@ -141,7 +144,12 @@ export default function YasinScreen() {
             <Text
               style={[
                 styles.arabicText,
-                { color: themeColors.text, fontSize: arabicFontSize, lineHeight: arabicLineHeight },
+                {
+                  color: themeColors.text,
+                  fontFamily: arabicFontRegular,
+                  fontSize: arabicFontSize,
+                  lineHeight: arabicLineHeight,
+                },
               ]}
             >
               {item.arabic}
@@ -245,6 +253,7 @@ export default function YasinScreen() {
                   styles.wiridArabic,
                   {
                     color: themeColors.text,
+                    fontFamily: arabicFontRegular,
                     fontSize,
                     lineHeight: Math.round(fontSize * 1.75),
                   },
@@ -319,7 +328,12 @@ export default function YasinScreen() {
             <Text
               style={[
                 styles.sisipanArabic,
-                { color: themeColors.text, fontSize: sisipanArabicSize, lineHeight: sisipanArabicLineHeight },
+                {
+                  color: themeColors.text,
+                  fontFamily: arabicFontRegular,
+                  fontSize: sisipanArabicSize,
+                  lineHeight: sisipanArabicLineHeight,
+                },
               ]}
             >
               {arabicParts[0]}
@@ -343,7 +357,12 @@ export default function YasinScreen() {
             <Text
               style={[
                 styles.sisipanArabic,
-                { color: themeColors.text, fontSize: sisipanArabicSize, lineHeight: sisipanArabicLineHeight },
+                {
+                  color: themeColors.text,
+                  fontFamily: arabicFontRegular,
+                  fontSize: sisipanArabicSize,
+                  lineHeight: sisipanArabicLineHeight,
+                },
               ]}
             >
               {arabicParts[1]}
@@ -368,7 +387,12 @@ export default function YasinScreen() {
             <Text
               style={[
                 styles.sisipanArabic,
-                { color: themeColors.text, fontSize: sisipanArabicSize, lineHeight: sisipanArabicLineHeight },
+                {
+                  color: themeColors.text,
+                  fontFamily: arabicFontRegular,
+                  fontSize: sisipanArabicSize,
+                  lineHeight: sisipanArabicLineHeight,
+                },
               ]}
             >
               {item.arabic}
@@ -484,7 +508,12 @@ export default function YasinScreen() {
             <Text
               style={[
                 styles.arabicText,
-                { color: themeColors.text, fontSize: arabicFontSize, lineHeight: arabicLineHeight },
+                {
+                  color: themeColors.text,
+                  fontFamily: arabicFontRegular,
+                  fontSize: arabicFontSize,
+                  lineHeight: arabicLineHeight,
+                },
               ]}
             >
               {item.arabic}
@@ -597,6 +626,7 @@ export default function YasinScreen() {
               styles.mainTitle,
               {
                 color: themeColors.primary,
+                fontFamily: arabicFontBold,
                 fontSize: Math.min(fontSize + 6, 34),
                 lineHeight: Math.round(Math.min(fontSize + 6, 34) * 1.65),
               },
@@ -621,6 +651,7 @@ export default function YasinScreen() {
               styles.compilerArabic,
               {
                 color: themeColors.textSecondary,
+                fontFamily: arabicFontRegular,
                 fontSize: Math.max(17, Math.min(fontSize - 2, 24)),
                 lineHeight: Math.round(Math.max(17, Math.min(fontSize - 2, 24)) * 1.75),
               },
@@ -635,6 +666,7 @@ export default function YasinScreen() {
             styles.basmalah,
             {
               color: themeColors.text,
+              fontFamily: arabicFontBold,
               fontSize: fontSize + 6,
               lineHeight: Math.round((fontSize + 6) * 1.7),
             },
@@ -652,6 +684,7 @@ export default function YasinScreen() {
             styles.closingText,
             {
               color: themeColors.primary,
+              fontFamily: arabicFontBold,
               fontSize: fontSize + 4,
               lineHeight: Math.round((fontSize + 4) * 1.6),
             },

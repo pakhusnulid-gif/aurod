@@ -14,6 +14,7 @@ import { TasbihModal } from '@/components/TasbihModal';
 import { Footer } from '@/components/Footer';
 import { useTheme } from '@/contexts/ThemeContext';
 import { colors, spacing, borderRadius } from '@/constants/theme';
+import { getArabicFontFamily } from '@/constants/arabicFonts';
 
 const SHOLAWAT_FATIH_LINES = [
   'اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ',
@@ -28,7 +29,8 @@ const SHOLAWAT_FATIH_TRANSLATION =
   'Ya Allah, limpahkanlah rahmat takzim kepada junjungan kami Nabi Muhammad, sang pembuka perkara yang tertutup, penutup para nabi yang terdahulu, pembela kebenaran dengan kebenaran, dan pemberi petunjuk ke jalan-Mu yang lurus. Semoga rahmat-Mu juga tercurah kepada keluarganya sesuai hak derajat dan kedudukannya yang agung.';
 
 export default function SholawatFatihScreen() {
-  const { theme, fontSize, showTranslation } = useTheme();
+  const { theme, fontSize, arabicFont, showTranslation } = useTheme();
+  const arabicFontBold = getArabicFontFamily(arabicFont, 'bold');
   const { width } = useWindowDimensions();
   const themeColors = colors[theme];
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -127,6 +129,7 @@ export default function SholawatFatihScreen() {
                   styles.allahText,
                   {
                     color: inkColor,
+                    fontFamily: arabicFontBold,
                     fontSize: Math.max(19, Math.round(crownHeight * 0.19)),
                     lineHeight: Math.round(Math.max(19, Math.round(crownHeight * 0.19)) * 1.4),
                   },
@@ -153,6 +156,7 @@ export default function SholawatFatihScreen() {
                   styles.headingArabic,
                   {
                     color: headingInkColor,
+                    fontFamily: arabicFontBold,
                     fontSize: Math.max(18, Math.round(crownHeight * 0.2)),
                     lineHeight: Math.round(Math.max(18, Math.round(crownHeight * 0.2)) * 1.5),
                   },
@@ -197,6 +201,7 @@ export default function SholawatFatihScreen() {
                     styles.sholawatLine,
                     {
                       color: inkColor,
+                      fontFamily: arabicFontBold,
                       fontSize: arabicSize,
                       lineHeight: arabicLineHeight,
                     },
