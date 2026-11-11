@@ -7,11 +7,12 @@ import {
   TouchableOpacity,
   useWindowDimensions,
 } from 'react-native';
-import { Repeat, Info, ArrowDown, ChevronRight, ChevronLeft } from 'lucide-react-native';
+import { MoreVertical, Repeat, Info, ArrowDown, ChevronRight, ChevronLeft, Check } from 'lucide-react-native';
 import { AppShell } from '@/components/AppShell';
 import { Navbar } from '@/components/Navbar';
 import { ReadingSettingsModal } from '@/components/ReadingSettingsModal';
 import { TasbihModal } from '@/components/TasbihModal';
+import { AyahMarker } from '@/components/AyahMarker';
 import { Footer } from '@/components/Footer';
 import { useTheme } from '@/contexts/ThemeContext';
 import { colors, spacing, borderRadius } from '@/constants/theme';
@@ -42,6 +43,7 @@ export default function YasinScreen() {
   const sectionOffsets = useRef<Record<string, number>>({});
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [tasbihState, setTasbihState] = useState<{ label: string; target: number } | null>(null);
+  const [copiedAyat, setCopiedAyat] = useState<number | null>(null);
 
   const isCompact = width < 480;
   const horizontalPad = isCompact ? spacing.md : spacing.lg;
@@ -69,45 +71,91 @@ export default function YasinScreen() {
     }
   };
 
+  const handleAyatAction = (item: YasinAyat | YasinAyatParsial) => {
+    const repeatTarget = parseRepeatTarget(
+      ('repeat' in item && item.repeat) ||
+      ('instruction' in item && item.instruction) ||
+      ('wirid_instruction' in item && item.wirid_instruction) ||
+      undefined
+    );
+    if (repeatTarget) {
+      openTasbih(
+        `Ayat ${item.nomor_ayat}`,
+        ('repeat' in item && item.repeat) ||
+        ('instruction' in item && item.instruction) ||
+        ('wirid_instruction' in item && item.wirid_instruction) ||
+        undefined
+      );
+      return;
+    }
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard
+        .writeText(item.arabic)
+        .then(() => {
+          setCopiedAyat(Number(item.nomor_ayat));
+          setTimeout(() => setCopiedAyat(null), 1600);
+        })
+        .catch(() => {});
+    }
+  };
+
   const renderAyat = (item: YasinAyat) => {
     const repeatTarget = parseRepeatTarget(item.repeat);
     const instructionTarget = parseRepeatTarget(item.instruction);
     const wiridTarget = parseRepeatTarget(item.wirid_instruction);
+    const isCopied = copiedAyat === item.nomor_ayat;
+    const markerSize = Math.max(26, Math.min(32, Math.round(arabicFontSize * 0.95)));
+    const markerColor = theme === 'dark' ? '#C5A880' : '#A27B36';
 
     return (
       <View
         key={item.id}
-        style={styles.ayatContainer}
+        style={[
+          styles.ayatContainer,
+          {
+            borderBottomColor:
+              theme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+          },
+        ]}
         onLayout={(e) => {
           sectionOffsets.current[String(item.id)] = e.nativeEvent.layout.y;
         }}
       >
-        <View style={styles.ayatHeader}>
-          <View
-            style={[
-              styles.ayatNumber,
-              {
-                backgroundColor: themeColors.primary,
-                minWidth: ayatBadgeSize,
-                height: ayatBadgeSize,
-                borderRadius: borderRadius.full,
-              },
-            ]}
+        <View style={styles.ayatMainRow}>
+          {/* Action button on far left, matching NU Online */}
+          <TouchableOpacity
+            style={styles.actionBtn}
+            activeOpacity={0.6}
+            onPress={() => handleAyatAction(item)}
+            accessibilityRole="button"
+            accessibilityLabel={`Pilihan Ayat ${item.nomor_ayat}`}
           >
-            <Text style={[styles.ayatNumberText, { color: themeColors.onPrimary, fontSize: badgeFontSize }]}>
-              {item.nomor_ayat}
+            {isCopied ? (
+              <Check size={16} color={themeColors.badgeSuccessText} />
+            ) : (
+              <MoreVertical size={18} color={themeColors.textSecondary} />
+            )}
+          </TouchableOpacity>
+
+          {/* Arabic text flowing RTL with inline AyahMarker at the end */}
+          <View style={styles.arabicContentWrapper}>
+            <Text
+              style={[
+                styles.arabicText,
+                { color: themeColors.text, fontSize: arabicFontSize, lineHeight: arabicLineHeight },
+              ]}
+            >
+              {item.arabic}
+              {'  '}
+              <AyahMarker
+                number={item.nomor_ayat}
+                size={markerSize}
+                color={markerColor}
+                textColor={themeColors.text}
+              />
             </Text>
           </View>
         </View>
-
-        <Text
-          style={[
-            styles.arabicText,
-            { color: themeColors.text, fontSize: arabicFontSize, lineHeight: arabicLineHeight },
-          ]}
-        >
-          {item.arabic}
-        </Text>
 
         {item.repeat && (
           <TouchableOpacity
@@ -348,63 +396,87 @@ export default function YasinScreen() {
 
   const renderAyatParsial = (item: YasinAyatParsial) => {
     const isAwal = item.bagian === 'awal';
+    const markerSize = Math.max(26, Math.min(32, Math.round(arabicFontSize * 0.95)));
+    const markerColor = theme === 'dark' ? '#C5A880' : '#A27B36';
+    const isCopied = copiedAyat === item.nomor_ayat;
+
     return (
       <View
         key={item.id}
-        style={styles.ayatParsialContainer}
+        style={[
+          styles.ayatParsialContainer,
+          {
+            borderBottomColor:
+              theme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+          },
+        ]}
         onLayout={(e) => {
           sectionOffsets.current[String(item.id)] = e.nativeEvent.layout.y;
         }}
       >
-        <View style={styles.ayatHeader}>
-          <View
-            style={[
-              styles.ayatNumber,
-              {
-                backgroundColor: themeColors.primary,
-                minWidth: ayatBadgeSize,
-                height: ayatBadgeSize,
-                borderRadius: borderRadius.full,
-              },
-            ]}
+        <View style={styles.ayatMainRow}>
+          <TouchableOpacity
+            style={styles.actionBtn}
+            activeOpacity={0.6}
+            onPress={() => handleAyatAction(item as any)}
+            accessibilityRole="button"
+            accessibilityLabel={`Pilihan Ayat ${item.nomor_ayat}`}
           >
-            <Text style={[styles.ayatNumberText, { color: themeColors.onPrimary, fontSize: badgeFontSize }]}>
-              {item.nomor_ayat}
-            </Text>
-          </View>
-          <View
-            style={[
-              styles.parsialBadge,
-              {
-                backgroundColor: themeColors.badgeNeutralBg,
-                borderColor: themeColors.badgeNeutralBorder,
-              },
-            ]}
-          >
-            {isAwal ? (
-              <ChevronRight color={themeColors.badgeNeutralText} size={14} />
+            {isCopied ? (
+              <Check size={16} color={themeColors.badgeSuccessText} />
             ) : (
-              <ChevronLeft color={themeColors.badgeNeutralText} size={14} />
+              <MoreVertical size={18} color={themeColors.textSecondary} />
             )}
+          </TouchableOpacity>
+
+          <View style={styles.arabicContentWrapper}>
+            <View style={styles.parsialHeaderRow}>
+              <View
+                style={[
+                  styles.parsialBadge,
+                  {
+                    backgroundColor: themeColors.badgeNeutralBg,
+                    borderColor: themeColors.badgeNeutralBorder,
+                  },
+                ]}
+              >
+                {isAwal ? (
+                  <ChevronRight color={themeColors.badgeNeutralText} size={13} />
+                ) : (
+                  <ChevronLeft color={themeColors.badgeNeutralText} size={13} />
+                )}
+                <Text
+                  style={[
+                    styles.parsialText,
+                    { color: themeColors.badgeNeutralText, fontSize: Math.max(12, badgeFontSize - 1) },
+                  ]}
+                >
+                  {isAwal ? `Awal Ayat ${item.nomor_ayat}` : `Lanjutan Ayat ${item.nomor_ayat}`}
+                </Text>
+              </View>
+            </View>
+
             <Text
               style={[
-                styles.parsialText,
-                { color: themeColors.badgeNeutralText, fontSize: Math.max(12, badgeFontSize - 1) },
+                styles.arabicText,
+                { color: themeColors.text, fontSize: arabicFontSize, lineHeight: arabicLineHeight },
               ]}
             >
-              {isAwal ? 'Awal Ayat' : 'Lanjutan Ayat'}
+              {item.arabic}
+              {!isAwal && (
+                <>
+                  {'  '}
+                  <AyahMarker
+                    number={item.nomor_ayat}
+                    size={markerSize}
+                    color={markerColor}
+                    textColor={themeColors.text}
+                  />
+                </>
+              )}
             </Text>
           </View>
         </View>
-
-        <Text
-          style={[
-            styles.arabicText,
-            { color: themeColors.text, fontSize: arabicFontSize, lineHeight: arabicLineHeight },
-          ]}
-        >
-          {item.arabic}
-        </Text>
 
         {showTranslation && item.translation && (
           <Text
@@ -591,16 +663,35 @@ const styles = StyleSheet.create({
     fontFamily: 'Amiri-Bold',
     textAlign: 'center',
     writingDirection: 'rtl',
-    marginBottom: spacing.xl,
+    marginBottom: spacing.lg,
   },
   ayatContainer: {
-    marginBottom: spacing.lg,
+    paddingVertical: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  ayatMainRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
+  },
+  actionBtn: {
+    width: 28,
+    height: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: borderRadius.full,
+    marginTop: 4,
+    opacity: 0.75,
+  },
+  arabicContentWrapper: {
+    flex: 1,
   },
   ayatHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: spacing.sm,
-    gap: spacing.sm,
+    marginBottom: spacing.xs,
+    gap: spacing.xs,
   },
   ayatNumber: {
     paddingHorizontal: spacing.xs,
@@ -616,18 +707,19 @@ const styles = StyleSheet.create({
     fontFamily: 'Amiri-Regular',
     textAlign: 'right',
     writingDirection: 'rtl',
-    marginBottom: spacing.sm,
   },
   badgeRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: spacing.xs,
-    minHeight: 40,
-    padding: spacing.sm,
+    minHeight: 34,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
     borderRadius: borderRadius.md,
     borderWidth: 1,
-    marginTop: spacing.sm,
+    marginTop: spacing.xs + 2,
+    alignSelf: 'flex-end',
   },
   badgeText: {
     flexShrink: 1,
@@ -636,7 +728,7 @@ const styles = StyleSheet.create({
     writingDirection: 'ltr',
   },
   wiridSection: {
-    marginTop: spacing.sm,
+    marginTop: spacing.xs + 2,
   },
   wiridArabic: {
     fontFamily: 'Amiri-Regular',
@@ -646,7 +738,7 @@ const styles = StyleSheet.create({
   sisipanContainer: {
     borderRadius: borderRadius.lg,
     borderWidth: 1,
-    marginVertical: spacing.lg,
+    marginVertical: spacing.md,
   },
   sisipanHeader: {
     marginBottom: spacing.md,
@@ -690,7 +782,13 @@ const styles = StyleSheet.create({
     writingDirection: 'ltr',
   },
   ayatParsialContainer: {
-    marginBottom: spacing.lg,
+    paddingVertical: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  parsialHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginBottom: spacing.xs,
   },
   parsialBadge: {
     flexDirection: 'row',
@@ -712,7 +810,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    marginVertical: spacing.xl,
+    marginVertical: spacing.md,
   },
   closingText: {
     fontFamily: 'Amiri-Bold',

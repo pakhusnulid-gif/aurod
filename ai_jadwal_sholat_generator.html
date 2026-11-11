@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI Jadwal Sholat Generator</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Spinner Animation */
+        .loader {
+            border: 4px solid #e5e7eb;
+            border-top: 4px solid #165633;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="text-gray-800 pb-24">
+
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-md mx-auto p-4 flex items-center gap-3">
+            <div class="w-10 h-10 bg-green-700 text-white rounded-xl flex items-center justify-center font-bold text-xl shadow-md">
+                <i class="ph-fill ph-magic-wand"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-green-900 leading-tight">AI Poster Generator</h1>
+                <p class="text-xs text-gray-500">Masjid Roudlotul Jannah</p>
+            </div>
+        </div>
+        
+        <!-- Tabs -->
+        <div class="flex border-t border-gray-200 max-w-md mx-auto">
+            <button id="tab-input" onclick="switchTab('input')" class="flex-1 py-3 text-sm font-semibold text-green-700 border-b-2 border-green-700 bg-green-50 transition-colors">
+                1. Input Waktu
+            </button>
+            <button id="tab-preview" onclick="switchTab('preview')" class="flex-1 py-3 text-sm font-semibold text-gray-500 border-b-2 border-transparent hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
+                2. Generate AI
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-md mx-auto p-4 mt-2">
+        <!-- INPUT SECTION -->
+        <section id="section-input" class="space-y-6 block">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                <h2 class="text-sm font-bold text-gray-700 mb-4 flex items-center gap-2">
+                    <i class="ph-fill ph-calendar-blank text-green-600 text-lg"></i> Tanggal Poster
+                </h2>
+                <div>
+                    <input type="date" id="input-date" onchange="handleDateChange(this.value)"
+                        class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-green-600 focus:outline-none transition-all">
+                    <button onclick="setToday()" class="mt-2 text-xs text-green-600 font-semibold hover:underline flex items-center gap-1">
+                        <i class="ph-bold ph-arrow-counter-clockwise"></i> Gunakan Hari Ini
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                <h2 class="text-sm font-bold text-gray-700 mb-4 flex items-center gap-2">
+                    <i class="ph-fill ph-clock text-green-600 text-lg"></i> Waktu Sholat
+                </h2>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <!-- Imsak -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">IMSAK</label>
+                        <input type="time" id="input-imsak" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-lg font-bold focus:ring-2 focus:ring-green-600 focus:outline-none transition-all">
+                    </div>
+                    <!-- Shubuh -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">SHUBUH</label>
+                        <input type="time" id="input-shubuh" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-lg font-bold focus:ring-2 focus:ring-green-600 focus:outline-none transition-all">
+                    </div>
+                    <!-- Dhuha -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">DHUHA</label>
+                        <input type="time" id="input-dhuha" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-lg font-bold focus:ring-2 focus:ring-green-600 focus:outline-none transition-all">
+                    </div>
+                    <!-- Zuhur -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">ZUHUR</label>
+                        <input type="time" id="input-zuhur" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-lg font-bold focus:ring-2 focus:ring-green-600 focus:outline-none transition-all">
+                    </div>
+                    <!-- Ashar -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">ASHAR</label>
+                        <input type="time" id="input-ashar" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-lg font-bold focus:ring-2 focus:ring-green-600 focus:outline-none transition-all">
+                    </div>
+                    <!-- Maghrib -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">MAGHRIB</label>
+                        <input type="time" id="input-maghrib" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-lg font-bold focus:ring-2 focus:ring-green-600 focus:outline-none transition-all">
+                    </div>
+                    <!-- Isya -->
+                    <div class="col-span-2">
+                        <label class="block text-xs font-bold text-gray-500 mb-1">ISYA'</label>
+                        <input type="time" id="input-isya" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-lg font-bold focus:ring-2 focus:ring-green-600 focus:outline-none transition-all">
+                    </div>
+                </div>
+
+                <div class="mt-6 flex justify-end">
+                    <button onclick="switchTab('preview')" class="bg-green-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-green-700/30 hover:bg-green-800 active:scale-95 transition-all w-full flex items-center justify-center gap-2">
+                        Lanjut ke AI Generator <i class="ph-bold ph-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- PREVIEW SECTION -->
+        <section id="section-preview" class="hidden space-y-4">
+            
+            <button id="btn-generate-ai" onclick="generateImageWithAI()" class="w-full bg-gradient-to-r from-green-600 to-green-800 text-white p-4 rounded-2xl font-bold shadow-lg shadow-green-700/40 hover:opacity-90 active:scale-95 transition-all flex flex-col items-center justify-center gap-2">
+                <div class="flex items-center gap-2 text-lg">
+                    <i class="ph-fill ph-magic-wand"></i> Mulai Gambar dengan AI
+                </div>
+                <span class="text-xs font-normal opacity-80 text-center">AI akan membaca jadwal Anda & melukis poster 3:4. Butuh waktu ~15 detik.</span>
+            </button>
+
+            <!-- Loading State -->
+            <div id="ai-loading" class="hidden flex-col items-center justify-center p-12 bg-white rounded-2xl border border-dashed border-gray-300">
+                <div class="loader mb-4"></div>
+                <h3 class="font-bold text-gray-700">AI Sedang Melukis...</h3>
+                <p class="text-sm text-gray-500 text-center mt-2">Menyusun palet warna hijau emas dan merangkai teks jadwal sholat.</p>
+            </div>
+
+            <!-- Result State -->
+            <div id="ai-result-container" class="hidden flex-col gap-4">
+                <div class="bg-green-50 text-green-800 p-3 rounded-xl text-xs font-medium border border-green-200 flex gap-2 items-start">
+                    <i class="ph-fill ph-check-circle text-lg shrink-0"></i>
+                    <p>Poster berhasil digenerate! AI mungkin sesekali memiliki variasi teks, periksa sebelum diunduh.</p>
+                </div>
+                
+                <!-- Display Image -->
+                <div class="w-full rounded-2xl overflow-hidden shadow-lg border border-gray-200 bg-white">
+                    <img id="generated-image" src="" alt="Jadwal Sholat" class="w-full h-auto object-cover aspect-[3/4]">
+                </div>
+
+                <button onclick="downloadImage()" class="w-full bg-gray-900 text-white p-4 rounded-xl font-bold shadow-lg hover:bg-black active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <i class="ph-bold ph-download-simple text-xl"></i> Simpan ke Galeri
+                </button>
+            </div>
+
+        </section>
+    </main>
+
+    <script>
+        // Data Jadwal Sholat Tuban 2026 Hardcoded
+        const rawJadwalData = {
+          "info": {
+            "judul": "Jadwal Waktu Shalat Wilayah Kabupaten Tuban Tahun 2026",
+            "instansi": "Kantor Kementerian Agama Kabupaten Tuban"
+          },
+          "jadwal": [
+            {
+              "bulan": 1,
+              "data": [
+                {"tanggal": "2026-01-01", "imsak": "03:46", "subuh": "03:56", "dhuha": "05:45", "dhuhur": "11:37", "ashar": "15:03", "maghrib": "17:53", "isya": "19:08"},
+                {"tanggal": "2026-01-02", "imsak": "03:46", "subuh": "03:56", "dhuha": "05:46", "dhuhur": "11:37", "ashar": "15:04", "maghrib": "17:53", "isya": "19:09"},
+                {"tanggal": "2026-01-03", "imsak": "03:47", "subuh": "03:57", "dhuha": "05:46", "dhuhur": "11:37", "ashar": "15:04", "maghrib": "17:53", "isya": "19:09"},
+                {"tanggal": "2026-01-04", "imsak": "03:47", "subuh": "03:57", "dhuha": "05:47", "dhuhur": "11:38", "ashar": "15:05", "maghrib": "17:54", "isya": "19:09"},
+                {"tanggal": "2026-01-05", "imsak": "03:48", "subuh": "03:58", "dhuha": "05:47", "dhuhur": "11:38", "ashar": "15:05", "maghrib": "17:54", "isya": "19:10"},
+                {"tanggal": "2026-01-06", "imsak": "03:49", "subuh": "03:59", "dhuha": "05:48", "dhuhur": "11:39", "ashar": "15:05", "maghrib": "17:54", "isya": "19:10"},
+                {"tanggal": "2026-01-07", "imsak": "03:49", "subuh": "03:59", "dhuha": "05:48", "dhuhur": "11:39", "ashar": "15:06", "maghrib": "17:55", "isya": "19:10"},
+                {"tanggal": "2026-01-08", "imsak": "03:50", "subuh": "04:00", "dhuha": "05:49", "dhuhur": "11:40", "ashar": "15:06", "maghrib": "17:55", "isya": "19:11"},
+                {"tanggal": "2026-01-09", "imsak": "03:50", "subuh": "04:00", "dhuha": "05:49", "dhuhur": "11:40", "ashar": "15:06", "maghrib": "17:56", "isya": "19:11"},
+                {"tanggal": "2026-01-10", "imsak": "03:51", "subuh": "04:01", "dhuha": "05:50", "dhuhur": "11:41", "ashar": "15:06", "maghrib": "17:56", "isya": "19:11"},
+                {"tanggal": "2026-01-11", "imsak": "03:52", "subuh": "04:02", "dhuha": "05:50", "dhuhur": "11:41", "ashar": "15:07", "maghrib": "17:56", "isya": "19:11"},
+                {"tanggal": "2026-01-12", "imsak": "03:52", "subuh": "04:02", "dhuha": "05:51", "dhuhur": "11:41", "ashar": "15:07", "maghrib": "17:56", "isya": "19:12"},
+                {"tanggal": "2026-01-13", "imsak": "03:53", "subuh": "04:03", "dhuha": "05:51", "dhuhur": "11:42", "ashar": "15:07", "maghrib": "17:57", "isya": "19:12"},
+                {"tanggal": "2026-01-14", "imsak": "03:53", "subuh": "04:03", "dhuha": "05:52", "dhuhur": "11:42", "ashar": "15:07", "maghrib": "17:57", "isya": "19:12"},
+                {"tanggal": "2026-01-15", "imsak": "03:54", "subuh": "04:04", "dhuha": "05:52", "dhuhur": "11:42", "ashar": "15:07", "maghrib": "17:57", "isya": "19:12"},
+                {"tanggal": "2026-01-16", "imsak": "03:55", "subuh": "04:05", "dhuha": "05:52", "dhuhur": "11:43", "ashar": "15:07", "maghrib": "17:58", "isya": "19:12"},
+                {"tanggal": "2026-01-17", "imsak": "03:55", "subuh": "04:05", "dhuha": "05:53", "dhuhur": "11:43", "ashar": "15:08", "maghrib": "17:58", "isya": "19:12"},
+                {"tanggal": "2026-01-18", "imsak": "03:56", "subuh": "04:06", "dhuha": "05:53", "dhuhur": "11:43", "ashar": "15:08", "maghrib": "17:58", "isya": "19:12"},
+                {"tanggal": "2026-01-19", "imsak": "03:56", "subuh": "04:06", "dhuha": "05:54", "dhuhur": "11:44", "ashar": "15:08", "maghrib": "17:58", "isya": "19:12"},
+                {"tanggal": "2026-01-20", "imsak": "03:57", "subuh": "04:07", "dhuha": "05:54", "dhuhur": "11:44", "ashar": "15:08", "maghrib": "17:58", "isya": "19:13"},
+                {"tanggal": "2026-01-21", "imsak": "03:57", "subuh": "04:07", "dhuha": "05:54", "dhuhur": "11:44", "ashar": "15:08", "maghrib": "17:59", "isya": "19:13"},
+                {"tanggal": "2026-01-22", "imsak": "03:58", "subuh": "04:08", "dhuha": "05:55", "dhuhur": "11:45", "ashar": "15:08", "maghrib": "17:59", "isya": "19:13"},
+                {"tanggal": "2026-01-23", "imsak": "03:59", "subuh": "04:09", "dhuha": "05:55", "dhuhur": "11:45", "ashar": "15:08", "maghrib": "17:59", "isya": "19:13"},
+                {"tanggal": "2026-01-24", "imsak": "03:59", "subuh": "04:09", "dhuha": "05:56", "dhuhur": "11:45", "ashar": "15:08", "maghrib": "17:59", "isya": "19:13"},
+                {"tanggal": "2026-01-25", "imsak": "04:00", "subuh": "04:10", "dhuha": "05:56", "dhuhur": "11:45", "ashar": "15:08", "maghrib": "17:59", "isya": "19:13"},
+                {"tanggal": "2026-01-26", "imsak": "04:00", "subuh": "04:10", "dhuha": "05:56", "dhuhur": "11:46", "ashar": "15:08", "maghrib": "17:59", "isya": "19:13"},
+                {"tanggal": "2026-01-27", "imsak": "04:01", "subuh": "04:11", "dhuha": "05:57", "dhuhur": "11:46", "ashar": "15:07", "maghrib": "17:59", "isya": "19:12"},
+                {"tanggal": "2026-01-28", "imsak": "04:01", "subuh": "04:11", "dhuha": "05:57", "dhuhur": "11:46", "ashar": "15:07", "maghrib": "17:59", "isya": "19:12"},
+                {"tanggal": "2026-01-29", "imsak": "04:02", "subuh": "04:12", "dhuha": "05:57", "dhuhur": "11:46", "ashar": "15:07", "maghrib": "17:59", "isya": "19:12"},
+                {"tanggal": "2026-01-30", "imsak": "04:02", "subuh": "04:12", "dhuha": "05:57", "dhuhur": "11:46", "ashar": "15:07", "maghrib": "17:59", "isya": "19:12"},
+                {"tanggal": "2026-01-31", "imsak": "04:02", "subuh": "04:12", "dhuha": "05:58", "dhuhur": "11:47", "ashar": "15:07", "maghrib": "17:59", "isya": "19:12"}
+              ]
+            },
+            {
+              "bulan": 2,
+              "data": [
+                {"tanggal": "2026-02-01", "imsak": "04:03", "subuh": "04:13", "dhuha": "05:58", "dhuhur": "11:47", "ashar": "15:06", "maghrib": "17:59", "isya": "19:12"},
+                {"tanggal": "2026-02-02", "imsak": "04:03", "subuh": "04:13", "dhuha": "05:58", "dhuhur": "11:47", "ashar": "15:06", "maghrib": "17:59", "isya": "19:12"},
+                {"tanggal": "2026-02-03", "imsak": "04:04", "subuh": "04:14", "dhuha": "05:58", "dhuhur": "11:47", "ashar": "15:06", "maghrib": "17:59", "isya": "19:12"},
+                {"tanggal": "2026-02-04", "imsak": "04:04", "subuh": "04:14", "dhuha": "05:59", "dhuhur": "11:47", "ashar": "15:06", "maghrib": "17:59", "isya": "19:11"},
+                {"tanggal": "2026-02-05", "imsak": "04:05", "subuh": "04:15", "dhuha": "05:59", "dhuhur": "11:47", "ashar": "15:05", "maghrib": "17:59", "isya": "19:11"},
+                {"tanggal": "2026-02-06", "imsak": "04:05", "subuh": "04:15", "dhuha": "05:59", "dhuhur": "11:47", "ashar": "15:05", "maghrib": "17:59", "isya": "19:11"},
+                {"tanggal": "2026-02-07", "imsak": "04:05", "subuh": "04:15", "dhuha": "05:59", "dhuhur": "11:47", "ashar": "15:04", "maghrib": "17:59", "isya": "19:11"},
+                {"tanggal": "2026-02-08", "imsak": "04:06", "subuh": "04:16", "dhuha": "05:59", "dhuhur": "11:47", "ashar": "15:04", "maghrib": "17:59", "isya": "19:11"},
+                {"tanggal": "2026-02-09", "imsak": "04:06", "subuh": "04:16", "dhuha": "06:00", "dhuhur": "11:47", "ashar": "15:03", "maghrib": "17:59", "isya": "19:10"},
+                {"tanggal": "2026-02-10", "imsak": "04:06", "subuh": "04:16", "dhuha": "06:00", "dhuhur": "11:47", "ashar": "15:03", "maghrib": "17:59", "isya": "19:10"},
+                {"tanggal": "2026-02-11", "imsak": "04:07", "subuh": "04:17", "dhuha": "06:00", "dhuhur": "11:47", "ashar": "15:02", "maghrib": "17:58", "isya": "19:10"},
+                {"tanggal": "2026-02-12", "imsak": "04:07", "subuh": "04:17", "dhuha": "06:00", "dhuhur": "11:47", "ashar": "15:02", "maghrib": "17:58", "isya": "19:09"},
+                {"tanggal": "2026-02-13", "imsak": "04:07", "subuh": "04:17", "dhuha": "06:00", "dhuhur": "11:47", "ashar": "15:01", "maghrib": "17:58", "isya": "19:09"},
+                {"tanggal": "2026-02-14", "imsak": "04:08", "subuh": "04:18", "dhuha": "06:00", "dhuhur": "11:47", "ashar": "15:01", "maghrib": "17:58", "isya": "19:09"},
+                {"tanggal": "2026-02-15", "imsak": "04:08", "subuh": "04:18", "dhuha": "06:00", "dhuhur": "11:47", "ashar": "15:00", "maghrib": "17:58", "isya": "19:09"},
+                {"tanggal": "2026-02-16", "imsak": "04:08", "subuh": "04:18", "dhuha": "06:01", "dhuhur": "11:47", "ashar": "15:00", "maghrib": "17:57", "isya": "19:08"},
+                {"tanggal": "2026-02-17", "imsak": "04:08", "subuh": "04:18", "dhuha": "06:01", "dhuhur": "11:47", "ashar": "14:59", "maghrib": "17:57", "isya": "19:08"},
+                {"tanggal": "2026-02-18", "imsak": "04:09", "subuh": "04:19", "dhuha": "06:01", "dhuhur": "11:47", "ashar": "14:58", "maghrib": "17:57", "isya": "19:07"},
+                {"tanggal": "2026-02-19", "imsak": "04:09", "subuh": "04:19", "dhuha": "06:01", "dhuhur": "11:47", "ashar": "14:57", "maghrib": "17:57", "isya": "19:07"},
+                {"tanggal": "2026-02-20", "imsak": "04:09", "subuh": "04:19", "dhuha": "06:01", "dhuhur": "11:47", "ashar": "14:57", "maghrib": "17:56", "isya": "19:07"},
+                {"tanggal": "2026-02-21", "imsak": "04:09", "subuh": "04:19", "dhuha": "06:01", "dhuhur": "11:47", "ashar": "14:56", "maghrib": "17:56", "isya": "19:06"},
+                {"tanggal": "2026-02-22", "imsak": "04:09", "subuh": "04:19", "dhuha": "06:01", "dhuhur": "11:47", "ashar": "14:55", "maghrib": "17:56", "isya": "19:06"},
+                {"tanggal": "2026-02-23", "imsak": "04:10", "subuh": "04:20", "dhuha": "06:01", "dhuhur": "11:47", "ashar": "14:54", "maghrib": "17:55", "isya": "19:05"},
+                {"tanggal": "2026-02-24", "imsak": "04:10", "subuh": "04:20", "dhuha": "06:01", "dhuhur": "11:47", "ashar": "14:53", "maghrib": "17:55", "isya": "19:05"},
+                {"tanggal": "2026-02-25", "imsak": "04:10", "subuh": "04:20", "dhuha": "06:01", "dhuhur": "11:46", "ashar": "14:52", "maghrib": "17:55", "isya": "19:05"},
+                {"tanggal": "2026-02-26", "imsak": "04:10", "subuh": "04:20", "dhuha": "06:01", "dhuhur": "11:46", "ashar": "14:52", "maghrib": "17:54", "isya": "19:04"},
+                {"tanggal": "2026-02-27", "imsak": "04:10", "subuh": "04:20", "dhuha": "06:01", "dhuhur": "11:46", "ashar": "14:51", "maghrib": "17:54", "isya": "19:04"},
+                {"tanggal": "2026-02-28", "imsak": "04:10", "subuh": "04:20", "dhuha": "06:01", "dhuhur": "11:46", "ashar": "14:50", "maghrib": "17:54", "isya": "19:03"}
+              ]
+            },
+            {
+              "bulan": 3,
+              "data": [
+                {"tanggal": "2026-03-01", "imsak": "04:10", "subuh": "04:20", "dhuha": "06:01", "dhuhur": "11:46", "ashar": "14:49", "maghrib": "17:53", "isya": "19:03"},
+                {"tanggal": "2026-03-02", "imsak": "04:10", "subuh": "04:20", "dhuha": "06:01", "dhuhur": "11:45", "ashar": "14:48", "maghrib": "17:53", "isya": "19:02"},
+                {"tanggal": "2026-03-03", "imsak": "04:10", "subuh": "04:20", "dhuha": "06:01", "dhuhur": "11:45", "ashar": "14:47", "maghrib": "17:52", "isya": "19:02"},
+                {"tanggal": "2026-03-04", "imsak": "04:10", "subuh": "04:20", "dhuha": "06:01", "dhuhur": "11:45", "ashar": "14:47", "maghrib": "17:52", "isya": "19:01"},
+                {"tanggal": "2026-03-05", "imsak": "04:11", "subuh": "04:21", "dhuha": "06:01", "dhuhur": "11:45", "ashar": "14:48", "maghrib": "17:52", "isya": "19:01"},
+                {"tanggal": "2026-03-06", "imsak": "04:11", "subuh": "04:21", "dhuha": "06:01", "dhuhur": "11:45", "ashar": "14:48", "maghrib": "17:51", "isya": "19:00"},
+                {"tanggal": "2026-03-07", "imsak": "04:11", "subuh": "04:21", "dhuha": "06:01", "dhuhur": "11:44", "ashar": "14:48", "maghrib": "17:51", "isya": "19:00"},
+                {"tanggal": "2026-03-08", "imsak": "04:11", "subuh": "04:21", "dhuha": "06:01", "dhuhur": "11:44", "ashar": "14:49", "maghrib": "17:50", "isya": "19:00"},
+                {"tanggal": "2026-03-09", "imsak": "04:11", "subuh": "04:21", "dhuha": "06:01", "dhuhur": "11:44", "ashar": "14:49", "maghrib": "17:50", "isya": "18:59"},
+                {"tanggal": "2026-03-10", "imsak": "04:11", "subuh": "04:21", "dhuha": "06:01", "dhuhur": "11:44", "ashar": "14:50", "maghrib": "17:49", "isya": "18:59"},
+                {"tanggal": "2026-03-11", "imsak": "04:11", "subuh": "04:21", "dhuha": "06:00", "dhuhur": "11:43", "ashar": "14:50", "maghrib": "17:49", "isya": "18:58"},
+                {"tanggal": "2026-03-12", "imsak": "04:11", "subuh": "04:21", "dhuha": "06:00", "dhuhur": "11:43", "ashar": "14:50", "maghrib": "17:49", "isya": "18:58"},
+                {"tanggal": "2026-03-13", "imsak": "04:11", "subuh": "04:21", "dhuha": "06:00", "dhuhur": "11:43", "ashar": "14:51", "maghrib": "17:48", "isya": "18:57"},
+                {"tanggal": "2026-03-14", "imsak": "04:10", "subuh": "04:20", "dhuha": "06:00", "dhuhur": "11:43", "ashar": "14:51", "maghrib": "17:48", "isya": "18:57"},
+                {"tanggal": "2026-03-15", "imsak": "04:10", "subuh": "04:20", "dhuha": "06:00", "dhuhur": "11:42", "ashar": "14:51", "maghrib": "17:47", "isya": "18:56"},
+                {"tanggal": "2026-03-16", "imsak": "04:10", "subuh": "04:20", "dhuha": "06:00", "dhuhur": "11:42", "ashar": "14:51", "maghrib": "17:47", "isya": "18:56"},
+                {"tanggal": "2026-03-17", "imsak": "04:10", "subuh": "04:20", "dhuha": "06:00", "dhuhur": "11:42", "ashar": "14:52", "maghrib": "17:46", "isya": "18:55"},
+                {"tanggal": "2026-03-18", "imsak": "04:10", "subuh": "04:20", "dhuha": "06:00", "dhuhur": "11:41", "ashar": "14:52", "maghrib": "17:46", "isya": "18:55"},
+                {"tanggal": "2026-03-19", "imsak": "04:10", "subuh": "04:20", "dhuha": "06:00", "dhuhur": "11:41", "ashar": "14:52", "maghrib": "17:45", "isya": "18:54"},
+                {"tanggal": "2026-03-20", "imsak": "04:10", "subuh": "04:20", "dhuha": "06:00", "dhuhur": "11:41", "ashar": "14:52", "maghrib": "17:45", "isya": "18:54"},
+                {"tanggal": "2026-03-21", "imsak": "04:10", "subuh": "04:20", "dhuha": "06:00", "dhuhur": "11:41", "ashar": "14:52", "maghrib": "17:44", "isya": "18:53"},
+                {"tanggal": "2026-03-22", "imsak": "04:10", "subuh": "04:20", "dhuha": "05:59", "dhuhur": "11:40", "ashar": "14:52", "maghrib": "17:44", "isya": "18:53"},
+                {"tanggal": "2026-03-23", "imsak": "04:10", "subuh": "04:20", "dhuha": "05:59", "dhuhur": "11:40", "ashar": "14:53", "maghrib": "17:43", "isya": "18:52"},
+                {"tanggal": "2026-03-24", "imsak": "04:10", "subuh": "04:20", "dhuha": "05:59", "dhuhur": "11:40", "ashar": "14:53", "maghrib": "17:43", "isya": "18:52"},
+                {"tanggal": "2026-03-25", "imsak": "04:10", "subuh": "04:20", "dhuha": "05:59", "dhuhur": "11:39", "ashar": "14:53", "maghrib": "17:42", "isya": "18:51"},
+                {"tanggal": "2026-03-26", "imsak": "04:09", "subuh": "04:19", "dhuha": "05:59", "dhuhur": "11:39", "ashar": "14:53", "maghrib": "17:42", "isya": "18:51"},
+                {"tanggal": "2026-03-27", "imsak": "04:09", "subuh": "04:19", "dhuha": "05:59", "dhuhur": "11:39", "ashar": "14:53", "maghrib": "17:41", "isya": "18:50"},
+                {"tanggal": "2026-03-28", "imsak": "04:09", "subuh": "04:19", "dhuha": "05:59", "dhuhur": "11:38", "ashar": "14:53", "maghrib": "17:41", "isya": "18:50"},
+                {"tanggal": "2026-03-29", "imsak": "04:09", "subuh": "04:19", "dhuha": "05:59", "dhuhur": "11:38", "ashar": "14:53", "maghrib": "17:40", "isya": "18:49"},
+                {"tanggal": "2026-03-30", "imsak": "04:09", "subuh": "04:19", "dhuha": "05:59", "dhuhur": "11:38", "ashar": "14:53", "maghrib": "17:40", "isya": "18:49"},
+                {"tanggal": "2026-03-31", "imsak": "04:09", "subuh": "04:19", "dhuha": "05:59", "dhuhur": "11:38", "ashar": "14:53", "maghrib": "17:39", "isya": "18:48"}
+              ]
+            },
+            {
+              "bulan": 4,
+              "data": [
+                {"tanggal": "2026-04-01", "imsak": "04:09", "subuh": "04:19", "dhuha": "05:58", "dhuhur": "11:37", "ashar": "14:53", "maghrib": "17:39", "isya": "18:48"},
+                {"tanggal": "2026-04-02", "imsak": "04:09", "subuh": "04:19", "dhuha": "05:58", "dhuhur": "11:37", "ashar": "14:53", "maghrib": "17:38", "isya": "18:47"},
+                {"tanggal": "2026-04-03", "imsak": "04:08", "subuh": "04:18", "dhuha": "05:58", "dhuhur": "11:37", "ashar": "14:53", "maghrib": "17:38", "isya": "18:47"},
+                {"tanggal": "2026-04-04", "imsak": "04:08", "subuh": "04:18", "dhuha": "05:58", "dhuhur": "11:36", "ashar": "14:53", "maghrib": "17:37", "isya": "18:46"},
+                {"tanggal": "2026-04-05", "imsak": "04:08", "subuh": "04:18", "dhuha": "05:58", "dhuhur": "11:36", "ashar": "14:53", "maghrib": "17:37", "isya": "18:46"},
+                {"tanggal": "2026-04-06", "imsak": "04:08", "subuh": "04:18", "dhuha": "05:58", "dhuhur": "11:36", "ashar": "14:53", "maghrib": "17:36", "isya": "18:46"},
+                {"tanggal": "2026-04-07", "imsak": "04:08", "subuh": "04:18", "dhuha": "05:58", "dhuhur": "11:35", "ashar": "14:53", "maghrib": "17:36", "isya": "18:45"},
+                {"tanggal": "2026-04-08", "imsak": "04:08", "subuh": "04:18", "dhuha": "05:58", "dhuhur": "11:35", "ashar": "14:53", "maghrib": "17:36", "isya": "18:45"},
+                {"tanggal": "2026-04-09", "imsak": "04:08", "subuh": "04:18", "dhuha": "05:58", "dhuhur": "11:35", "ashar": "14:53", "maghrib": "17:35", "isya": "18:44"},
+                {"tanggal": "2026-04-10", "imsak": "04:07", "subuh": "04:17", "dhuha": "05:58", "dhuhur": "11:35", "ashar": "14:53", "maghrib": "17:35", "isya": "18:44"},
+                {"tanggal": "2026-04-11", "imsak": "04:07", "subuh": "04:17", "dhuha": "05:58", "dhuhur": "11:34", "ashar": "14:53", "maghrib": "17:34", "isya": "18:44"},
+                {"tanggal": "2026-04-12", "imsak": "04:07", "subuh": "04:17", "dhuha": "05:58", "dhuhur": "11:34", "ashar": "14:53", "maghrib": "17:34", "isya": "18:43"},
+                {"tanggal": "2026-04-13", "imsak": "04:07", "subuh": "04:17", "dhuha": "05:57", "dhuhur": "11:34", "ashar": "14:53", "maghrib": "17:33", "isya": "18:43"},
+                {"tanggal": "2026-04-14", "imsak": "04:07", "subuh": "04:17", "dhuha": "05:57", "dhuhur": "11:34", "ashar": "14:53", "maghrib": "17:33", "isya": "18:42"},
+                {"tanggal": "2026-04-15", "imsak": "04:07", "subuh": "04:17", "dhuha": "05:57", "dhuhur": "11:33", "ashar": "14:53", "maghrib": "17:32", "isya": "18:42"},
+                {"tanggal": "2026-04-16", "imsak": "04:06", "subuh": "04:16", "dhuha": "05:57", "dhuhur": "11:33", "ashar": "14:53", "maghrib": "17:32", "isya": "18:42"},
+                {"tanggal": "2026-04-17", "imsak": "04:06", "subuh": "04:16", "dhuha": "05:57", "dhuhur": "11:33", "ashar": "14:53", "maghrib": "17:32", "isya": "18:41"},
+                {"tanggal": "2026-04-18", "imsak": "04:06", "subuh": "04:16", "dhuha": "05:57", "dhuhur": "11:33", "ashar": "14:53", "maghrib": "17:31", "isya": "18:41"},
+                {"tanggal": "2026-04-19", "imsak": "04:06", "subuh": "04:16", "dhuha": "05:57", "dhuhur": "11:32", "ashar": "14:53", "maghrib": "17:31", "isya": "18:41"},
+                {"tanggal": "2026-04-20", "imsak": "04:06", "subuh": "04:16", "dhuha": "05:57", "dhuhur": "11:32", "ashar": "14:53", "maghrib": "17:30", "isya": "18:40"},
+                {"tanggal": "2026-04-21", "imsak": "04:06", "subuh": "04:16", "dhuha": "05:57", "dhuhur": "11:32", "ashar": "14:53", "maghrib": "17:30", "isya": "18:40"},
+                {"tanggal": "2026-04-22", "imsak": "04:06", "subuh": "04:16", "dhuha": "05:57", "dhuhur": "11:32", "ashar": "14:52", "maghrib": "17:30", "isya": "18:40"},
+                {"tanggal": "2026-04-23", "imsak": "04:06", "subuh": "04:16", "dhuha": "05:57", "dhuhur": "11:32", "ashar": "14:52", "maghrib": "17:29", "isya": "18:40"},
+                {"tanggal": "2026-04-24", "imsak": "04:05", "subuh": "04:15", "dhuha": "05:57", "dhuhur": "11:31", "ashar": "14:52", "maghrib": "17:29", "isya": "18:39"},
+                {"tanggal": "2026-04-25", "imsak": "04:05", "subuh": "04:15", "dhuha": "05:57", "dhuhur": "11:31", "ashar": "14:52", "maghrib": "17:29", "isya": "18:39"},
+                {"tanggal": "2026-04-26", "imsak": "04:05", "subuh": "04:15", "dhuha": "05:57", "dhuhur": "11:31", "ashar": "14:52", "maghrib": "17:28", "isya": "18:39"},
+                {"tanggal": "2026-04-27", "imsak": "04:05", "subuh": "04:15", "dhuha": "05:57", "dhuhur": "11:31", "ashar": "14:52", "maghrib": "17:28", "isya": "18:39"},
+                {"tanggal": "2026-04-28", "imsak": "04:05", "subuh": "04:15", "dhuha": "05:57", "dhuhur": "11:31", "ashar": "14:52", "maghrib": "17:28", "isya": "18:38"},
+                {"tanggal": "2026-04-29", "imsak": "04:05", "subuh": "04:15", "dhuha": "05:57", "dhuhur": "11:31", "ashar": "14:52", "maghrib": "17:27", "isya": "18:38"},
+                {"tanggal": "2026-04-30", "imsak": "04:05", "subuh": "04:15", "dhuha": "05:57", "dhuhur": "11:31", "ashar": "14:52", "maghrib": "17:27", "isya": "18:38"}
+              ]
+            },
+            {
+              "bulan": 5,
+              "data": [
+                {"tanggal": "2026-05-01", "imsak": "04:05", "subuh": "04:15", "dhuha": "05:58", "dhuhur": "11:30", "ashar": "14:52", "maghrib": "17:27", "isya": "18:38"},
+                {"tanggal": "2026-05-02", "imsak": "04:05", "subuh": "04:15", "dhuha": "05:58", "dhuhur": "11:30", "ashar": "14:52", "maghrib": "17:27", "isya": "18:38"},
+                {"tanggal": "2026-05-03", "imsak": "04:05", "subuh": "04:15", "dhuha": "05:58", "dhuhur": "11:30", "ashar": "14:52", "maghrib": "17:26", "isya": "18:37"},
+                {"tanggal": "2026-05-04", "imsak": "04:05", "subuh": "04:15", "dhuha": "05:58", "dhuhur": "11:30", "ashar": "14:52", "maghrib": "17:26", "isya": "18:37"},
+                {"tanggal": "2026-05-05", "imsak": "04:05", "subuh": "04:15", "dhuha": "05:58", "dhuhur": "11:30", "ashar": "14:52", "maghrib": "17:26", "isya": "18:37"},
+                {"tanggal": "2026-05-06", "imsak": "04:04", "subuh": "04:14", "dhuha": "05:58", "dhuhur": "11:30", "ashar": "14:52", "maghrib": "17:26", "isya": "18:37"},
+                {"tanggal": "2026-05-07", "imsak": "04:04", "subuh": "04:14", "dhuha": "05:58", "dhuhur": "11:30", "ashar": "14:52", "maghrib": "17:25", "isya": "18:37"},
+                {"tanggal": "2026-05-08", "imsak": "04:04", "subuh": "04:14", "dhuha": "05:58", "dhuhur": "11:30", "ashar": "14:52", "maghrib": "17:25", "isya": "18:37"},
+                {"tanggal": "2026-05-09", "imsak": "04:04", "subuh": "04:14", "dhuha": "05:58", "dhuhur": "11:30", "ashar": "14:51", "maghrib": "17:25", "isya": "18:37"},
+                {"tanggal": "2026-05-10", "imsak": "04:04", "subuh": "04:14", "dhuha": "05:58", "dhuhur": "11:30", "ashar": "14:51", "maghrib": "17:25", "isya": "18:37"},
+                {"tanggal": "2026-05-11", "imsak": "04:04", "subuh": "04:14", "dhuha": "05:59", "dhuhur": "11:30", "ashar": "14:51", "maghrib": "17:25", "isya": "18:37"},
+                {"tanggal": "2026-05-12", "imsak": "04:04", "subuh": "04:14", "dhuha": "05:59", "dhuhur": "11:30", "ashar": "14:51", "maghrib": "17:24", "isya": "18:37"},
+                {"tanggal": "2026-05-13", "imsak": "04:04", "subuh": "04:14", "dhuha": "05:59", "dhuhur": "11:30", "ashar": "14:51", "maghrib": "17:24", "isya": "18:36"},
+                {"tanggal": "2026-05-14", "imsak": "04:04", "subuh": "04:14", "dhuha": "05:59", "dhuhur": "11:30", "ashar": "14:51", "maghrib": "17:24", "isya": "18:36"},
+                {"tanggal": "2026-05-15", "imsak": "04:04", "subuh": "04:14", "dhuha": "05:59", "dhuhur": "11:30", "ashar": "14:51", "maghrib": "17:24", "isya": "18:36"},
+                {"tanggal": "2026-05-16", "imsak": "04:04", "subuh": "04:14", "dhuha": "05:59", "dhuhur": "11:30", "ashar": "14:51", "maghrib": "17:24", "isya": "18:36"},
+                {"tanggal": "2026-05-17", "imsak": "04:04", "subuh": "04:14", "dhuha": "06:00", "dhuhur": "11:30", "ashar": "14:51", "maghrib": "17:24", "isya": "18:36"},
+                {"tanggal": "2026-05-18", "imsak": "04:04", "subuh": "04:14", "dhuha": "06:00", "dhuhur": "11:30", "ashar": "14:52", "maghrib": "17:24", "isya": "18:36"},
+                {"tanggal": "2026-05-19", "imsak": "04:04", "subuh": "04:14", "dhuha": "06:00", "dhuhur": "11:30", "ashar": "14:52", "maghrib": "17:24", "isya": "18:36"},
+                {"tanggal": "2026-05-20", "imsak": "04:05", "subuh": "04:15", "dhuha": "06:00", "dhuhur": "11:30", "ashar": "14:52", "maghrib": "17:24", "isya": "18:36"},
+                {"tanggal": "2026-05-21", "imsak": "04:05", "subuh": "04:15", "dhuha": "06:00", "dhuhur": "11:30", "ashar": "14:52", "maghrib": "17:24", "isya": "18:37"},
+                {"tanggal": "2026-05-22", "imsak": "04:05", "subuh": "04:15", "dhuha": "06:01", "dhuhur": "11:30", "ashar": "14:52", "maghrib": "17:24", "isya": "18:37"},
+                {"tanggal": "2026-05-23", "imsak": "04:05", "subuh": "04:15", "dhuha": "06:01", "dhuhur": "11:30", "ashar": "14:52", "maghrib": "17:24", "isya": "18:37"},
+                {"tanggal": "2026-05-24", "imsak": "04:05", "subuh": "04:15", "dhuha": "06:01", "dhuhur": "11:30", "ashar": "14:52", "maghrib": "17:24", "isya": "18:37"},
+                {"tanggal": "2026-05-25", "imsak": "04:05", "subuh": "04:15", "dhuha": "06:01", "dhuhur": "11:30", "ashar": "14:52", "maghrib": "17:24", "isya": "18:37"},
+                {"tanggal": "2026-05-26", "imsak": "04:05", "subuh": "04:15", "dhuha": "06:01", "dhuhur": "11:30", "ashar": "14:52", "maghrib": "17:24", "isya": "18:37"},
+                {"tanggal": "2026-05-27", "imsak": "04:05", "subuh": "04:15", "dhuha": "06:02", "dhuhur": "11:30", "ashar": "14:52", "maghrib": "17:24", "isya": "18:37"},
+                {"tanggal": "2026-05-28", "imsak": "04:05", "subuh": "04:15", "dhuha": "06:02", "dhuhur": "11:30", "ashar": "14:52", "maghrib": "17:24", "isya": "18:37"},
+                {"tanggal": "2026-05-29", "imsak": "04:05", "subuh": "04:15", "dhuha": "06:02", "dhuhur": "11:31", "ashar": "14:52", "maghrib": "17:24", "isya": "18:37"},
+                {"tanggal": "2026-05-30", "imsak": "04:06", "subuh": "04:16", "dhuha": "06:02", "dhuhur": "11:31", "ashar": "14:52", "maghrib": "17:24", "isya": "18:37"},
+                {"tanggal": "2026-05-31", "imsak": "04:06", "subuh": "04:16", "dhuha": "06:03", "dhuhur": "11:31", "ashar": "14:53", "maghrib": "17:24", "isya": "18:38"}
+              ]
+            },
+            {
+              "bulan": 6,
+              "data": [
+                {"tanggal": "2026-06-01", "imsak": "04:06", "subuh": "04:16", "dhuha": "06:03", "dhuhur": "11:31", "ashar": "14:53", "maghrib": "17:24", "isya": "18:38"},
+                {"tanggal": "2026-06-02", "imsak": "04:06", "subuh": "04:16", "dhuha": "06:03", "dhuhur": "11:31", "ashar": "14:53", "maghrib": "17:24", "isya": "18:38"},
+                {"tanggal": "2026-06-03", "imsak": "04:06", "subuh": "04:16", "dhuha": "06:03", "dhuhur": "11:31", "ashar": "14:53", "maghrib": "17:24", "isya": "18:38"},
+                {"tanggal": "2026-06-04", "imsak": "04:06", "subuh": "04:16", "dhuha": "06:04", "dhuhur": "11:32", "ashar": "14:53", "maghrib": "17:24", "isya": "18:38"},
+                {"tanggal": "2026-06-05", "imsak": "04:06", "subuh": "04:16", "dhuha": "06:04", "dhuhur": "11:32", "ashar": "14:53", "maghrib": "17:24", "isya": "18:38"},
+                {"tanggal": "2026-06-06", "imsak": "04:07", "subuh": "04:17", "dhuha": "06:04", "dhuhur": "11:32", "ashar": "14:53", "maghrib": "17:24", "isya": "18:38"},
+                {"tanggal": "2026-06-07", "imsak": "04:07", "subuh": "04:17", "dhuha": "06:04", "dhuhur": "11:32", "ashar": "14:54", "maghrib": "17:24", "isya": "18:39"},
+                {"tanggal": "2026-06-08", "imsak": "04:07", "subuh": "04:17", "dhuha": "06:05", "dhuhur": "11:32", "ashar": "14:54", "maghrib": "17:25", "isya": "18:39"},
+                {"tanggal": "2026-06-09", "imsak": "04:07", "subuh": "04:17", "dhuha": "06:05", "dhuhur": "11:32", "ashar": "14:54", "maghrib": "17:25", "isya": "18:39"},
+                {"tanggal": "2026-06-10", "imsak": "04:07", "subuh": "04:17", "dhuha": "06:05", "dhuhur": "11:33", "ashar": "14:54", "maghrib": "17:25", "isya": "18:39"},
+                {"tanggal": "2026-06-11", "imsak": "04:08", "subuh": "04:18", "dhuha": "06:05", "dhuhur": "11:33", "ashar": "14:54", "maghrib": "17:25", "isya": "18:39"},
+                {"tanggal": "2026-06-12", "imsak": "04:08", "subuh": "04:18", "dhuha": "06:06", "dhuhur": "11:33", "ashar": "14:54", "maghrib": "17:25", "isya": "18:40"},
+                {"tanggal": "2026-06-13", "imsak": "04:08", "subuh": "04:18", "dhuha": "06:06", "dhuhur": "11:33", "ashar": "14:55", "maghrib": "17:25", "isya": "18:40"},
+                {"tanggal": "2026-06-14", "imsak": "04:08", "subuh": "04:18", "dhuha": "06:06", "dhuhur": "11:33", "ashar": "14:55", "maghrib": "17:26", "isya": "18:40"},
+                {"tanggal": "2026-06-15", "imsak": "04:08", "subuh": "04:18", "dhuha": "06:06", "dhuhur": "11:34", "ashar": "14:55", "maghrib": "17:26", "isya": "18:40"},
+                {"tanggal": "2026-06-16", "imsak": "04:09", "subuh": "04:19", "dhuha": "06:07", "dhuhur": "11:34", "ashar": "14:55", "maghrib": "17:26", "isya": "18:40"},
+                {"tanggal": "2026-06-17", "imsak": "04:09", "subuh": "04:19", "dhuha": "06:07", "dhuhur": "11:34", "ashar": "14:55", "maghrib": "17:26", "isya": "18:41"},
+                {"tanggal": "2026-06-18", "imsak": "04:09", "subuh": "04:19", "dhuha": "06:07", "dhuhur": "11:34", "ashar": "14:56", "maghrib": "17:26", "isya": "18:41"},
+                {"tanggal": "2026-06-19", "imsak": "04:09", "subuh": "04:19", "dhuha": "06:07", "dhuhur": "11:35", "ashar": "14:56", "maghrib": "17:27", "isya": "18:41"},
+                {"tanggal": "2026-06-20", "imsak": "04:09", "subuh": "04:19", "dhuha": "06:08", "dhuhur": "11:35", "ashar": "14:56", "maghrib": "17:27", "isya": "18:41"},
+                {"tanggal": "2026-06-21", "imsak": "04:10", "subuh": "04:20", "dhuha": "06:08", "dhuhur": "11:35", "ashar": "14:56", "maghrib": "17:27", "isya": "18:42"},
+                {"tanggal": "2026-06-22", "imsak": "04:10", "subuh": "04:20", "dhuha": "06:08", "dhuhur": "11:35", "ashar": "14:57", "maghrib": "17:27", "isya": "18:42"},
+                {"tanggal": "2026-06-23", "imsak": "04:10", "subuh": "04:20", "dhuha": "06:08", "dhuhur": "11:35", "ashar": "14:57", "maghrib": "17:27", "isya": "18:42"},
+                {"tanggal": "2026-06-24", "imsak": "04:10", "subuh": "04:20", "dhuha": "06:08", "dhuhur": "11:36", "ashar": "14:57", "maghrib": "17:28", "isya": "18:42"},
+                {"tanggal": "2026-06-25", "imsak": "04:10", "subuh": "04:20", "dhuha": "06:09", "dhuhur": "11:36", "ashar": "14:57", "maghrib": "17:28", "isya": "18:42"},
+                {"tanggal": "2026-06-26", "imsak": "04:11", "subuh": "04:21", "dhuha": "06:09", "dhuhur": "11:36", "ashar": "14:57", "maghrib": "17:28", "isya": "18:43"},
+                {"tanggal": "2026-06-27", "imsak": "04:11", "subuh": "04:21", "dhuha": "06:09", "dhuhur": "11:36", "ashar": "14:58", "maghrib": "17:28", "isya": "18:43"},
+                {"tanggal": "2026-06-28", "imsak": "04:11", "subuh": "04:21", "dhuha": "06:09", "dhuhur": "11:36", "ashar": "14:58", "maghrib": "17:29", "isya": "18:43"},
+                {"tanggal": "2026-06-29", "imsak": "04:11", "subuh": "04:21", "dhuha": "06:09", "dhuhur": "11:37", "ashar": "14:58", "maghrib": "17:29", "isya": "18:43"},
+                {"tanggal": "2026-06-30", "imsak": "04:12", "subuh": "04:22", "dhuha": "06:09", "dhuhur": "11:37", "ashar": "14:58", "maghrib": "17:29", "isya": "18:43"}
+              ]
+            },
+            {
+              "bulan": 7,
+              "data": [
+                {"tanggal": "2026-07-01", "imsak": "04:12", "subuh": "04:22", "dhuha": "06:10", "dhuhur": "11:37", "ashar": "14:58", "maghrib": "17:29", "isya": "18:44"},
+                {"tanggal": "2026-07-02", "imsak": "04:12", "subuh": "04:22", "dhuha": "06:10", "dhuhur": "11:37", "ashar": "14:59", "maghrib": "17:29", "isya": "18:44"},
+                {"tanggal": "2026-07-03", "imsak": "04:12", "subuh": "04:22", "dhuha": "06:10", "dhuhur": "11:37", "ashar": "14:59", "maghrib": "17:30", "isya": "18:44"},
+                {"tanggal": "2026-07-04", "imsak": "04:12", "subuh": "04:22", "dhuha": "06:10", "dhuhur": "11:38", "ashar": "14:59", "maghrib": "17:30", "isya": "18:44"},
+                {"tanggal": "2026-07-05", "imsak": "04:12", "subuh": "04:22", "dhuha": "06:10", "dhuhur": "11:38", "ashar": "14:59", "maghrib": "17:30", "isya": "18:44"},
+                {"tanggal": "2026-07-06", "imsak": "04:13", "subuh": "04:23", "dhuha": "06:10", "dhuhur": "11:38", "ashar": "14:59", "maghrib": "17:30", "isya": "18:45"},
+                {"tanggal": "2026-07-07", "imsak": "04:13", "subuh": "04:23", "dhuha": "06:10", "dhuhur": "11:38", "ashar": "15:00", "maghrib": "17:31", "isya": "18:45"},
+                {"tanggal": "2026-07-08", "imsak": "04:13", "subuh": "04:23", "dhuha": "06:10", "dhuhur": "11:38", "ashar": "15:00", "maghrib": "17:31", "isya": "18:45"},
+                {"tanggal": "2026-07-09", "imsak": "04:13", "subuh": "04:23", "dhuha": "06:10", "dhuhur": "11:38", "ashar": "15:00", "maghrib": "17:31", "isya": "18:45"},
+                {"tanggal": "2026-07-10", "imsak": "04:13", "subuh": "04:23", "dhuha": "06:11", "dhuhur": "11:39", "ashar": "15:00", "maghrib": "17:31", "isya": "18:45"},
+                {"tanggal": "2026-07-11", "imsak": "04:13", "subuh": "04:23", "dhuha": "06:11", "dhuhur": "11:39", "ashar": "15:00", "maghrib": "17:31", "isya": "18:45"},
+                {"tanggal": "2026-07-12", "imsak": "04:14", "subuh": "04:24", "dhuha": "06:11", "dhuhur": "11:39", "ashar": "15:00", "maghrib": "17:32", "isya": "18:45"},
+                {"tanggal": "2026-07-13", "imsak": "04:14", "subuh": "04:24", "dhuha": "06:11", "dhuhur": "11:39", "ashar": "15:01", "maghrib": "17:32", "isya": "18:46"},
+                {"tanggal": "2026-07-14", "imsak": "04:14", "subuh": "04:24", "dhuha": "06:11", "dhuhur": "11:39", "ashar": "15:01", "maghrib": "17:32", "isya": "18:46"},
+                {"tanggal": "2026-07-15", "imsak": "04:14", "subuh": "04:24", "dhuha": "06:11", "dhuhur": "11:39", "ashar": "15:01", "maghrib": "17:32", "isya": "18:46"},
+                {"tanggal": "2026-07-16", "imsak": "04:14", "subuh": "04:24", "dhuha": "06:11", "dhuhur": "11:39", "ashar": "15:01", "maghrib": "17:32", "isya": "18:46"},
+                {"tanggal": "2026-07-17", "imsak": "04:14", "subuh": "04:24", "dhuha": "06:11", "dhuhur": "11:39", "ashar": "15:01", "maghrib": "17:33", "isya": "18:46"},
+                {"tanggal": "2026-07-18", "imsak": "04:14", "subuh": "04:24", "dhuha": "06:11", "dhuhur": "11:39", "ashar": "15:01", "maghrib": "17:33", "isya": "18:46"},
+                {"tanggal": "2026-07-19", "imsak": "04:14", "subuh": "04:24", "dhuha": "06:11", "dhuhur": "11:40", "ashar": "15:01", "maghrib": "17:33", "isya": "18:46"},
+                {"tanggal": "2026-07-20", "imsak": "04:14", "subuh": "04:24", "dhuha": "06:10", "dhuhur": "11:40", "ashar": "15:01", "maghrib": "17:33", "isya": "18:46"},
+                {"tanggal": "2026-07-21", "imsak": "04:14", "subuh": "04:24", "dhuha": "06:10", "dhuhur": "11:40", "ashar": "15:01", "maghrib": "17:33", "isya": "18:46"},
+                {"tanggal": "2026-07-22", "imsak": "04:14", "subuh": "04:24", "dhuha": "06:10", "dhuhur": "11:40", "ashar": "15:01", "maghrib": "17:33", "isya": "18:46"},
+                {"tanggal": "2026-07-23", "imsak": "04:15", "subuh": "04:25", "dhuha": "06:10", "dhuhur": "11:40", "ashar": "15:02", "maghrib": "17:34", "isya": "18:46"},
+                {"tanggal": "2026-07-24", "imsak": "04:15", "subuh": "04:25", "dhuha": "06:10", "dhuhur": "11:40", "ashar": "15:02", "maghrib": "17:34", "isya": "18:46"},
+                {"tanggal": "2026-07-25", "imsak": "04:15", "subuh": "04:25", "dhuha": "06:10", "dhuhur": "11:40", "ashar": "15:02", "maghrib": "17:34", "isya": "18:47"},
+                {"tanggal": "2026-07-26", "imsak": "04:15", "subuh": "04:25", "dhuha": "06:10", "dhuhur": "11:40", "ashar": "15:02", "maghrib": "17:34", "isya": "18:47"},
+                {"tanggal": "2026-07-27", "imsak": "04:15", "subuh": "04:25", "dhuha": "06:10", "dhuhur": "11:40", "ashar": "15:02", "maghrib": "17:34", "isya": "18:47"},
+                {"tanggal": "2026-07-28", "imsak": "04:15", "subuh": "04:25", "dhuha": "06:09", "dhuhur": "11:40", "ashar": "15:02", "maghrib": "17:34", "isya": "18:47"},
+                {"tanggal": "2026-07-29", "imsak": "04:14", "subuh": "04:24", "dhuha": "06:09", "dhuhur": "11:40", "ashar": "15:02", "maghrib": "17:34", "isya": "18:47"},
+                {"tanggal": "2026-07-30", "imsak": "04:14", "subuh": "04:24", "dhuha": "06:09", "dhuhur": "11:40", "ashar": "15:02", "maghrib": "17:34", "isya": "18:47"},
+                {"tanggal": "2026-07-31", "imsak": "04:14", "subuh": "04:24", "dhuha": "06:09", "dhuhur": "11:40", "ashar": "15:01", "maghrib": "17:34", "isya": "18:47"}
+              ]
+            },
+            {
+              "bulan": 8,
+              "data": [
+                {"tanggal": "2026-08-01", "imsak": "04:14", "subuh": "04:24", "dhuha": "06:09", "dhuhur": "11:40", "ashar": "15:01", "maghrib": "17:34", "isya": "18:47"},
+                {"tanggal": "2026-08-02", "imsak": "04:14", "subuh": "04:24", "dhuha": "06:08", "dhuhur": "11:40", "ashar": "15:01", "maghrib": "17:35", "isya": "18:46"},
+                {"tanggal": "2026-08-03", "imsak": "04:14", "subuh": "04:24", "dhuha": "06:08", "dhuhur": "11:39", "ashar": "15:01", "maghrib": "17:35", "isya": "18:46"},
+                {"tanggal": "2026-08-04", "imsak": "04:14", "subuh": "04:24", "dhuha": "06:08", "dhuhur": "11:39", "ashar": "15:01", "maghrib": "17:35", "isya": "18:46"},
+                {"tanggal": "2026-08-05", "imsak": "04:14", "subuh": "04:24", "dhuha": "06:08", "dhuhur": "11:39", "ashar": "15:01", "maghrib": "17:35", "isya": "18:46"},
+                {"tanggal": "2026-08-06", "imsak": "04:14", "subuh": "04:24", "dhuha": "06:07", "dhuhur": "11:39", "ashar": "15:01", "maghrib": "17:35", "isya": "18:46"},
+                {"tanggal": "2026-08-07", "imsak": "04:14", "subuh": "04:24", "dhuha": "06:07", "dhuhur": "11:39", "ashar": "15:01", "maghrib": "17:35", "isya": "18:46"},
+                {"tanggal": "2026-08-08", "imsak": "04:13", "subuh": "04:23", "dhuha": "06:07", "dhuhur": "11:39", "ashar": "15:01", "maghrib": "17:35", "isya": "18:46"},
+                {"tanggal": "2026-08-09", "imsak": "04:13", "subuh": "04:23", "dhuha": "06:06", "dhuhur": "11:39", "ashar": "15:00", "maghrib": "17:35", "isya": "18:46"},
+                {"tanggal": "2026-08-10", "imsak": "04:13", "subuh": "04:23", "dhuha": "06:06", "dhuhur": "11:39", "ashar": "15:00", "maghrib": "17:35", "isya": "18:46"},
+                {"tanggal": "2026-08-11", "imsak": "04:13", "subuh": "04:23", "dhuha": "06:06", "dhuhur": "11:39", "ashar": "15:00", "maghrib": "17:35", "isya": "18:46"},
+                {"tanggal": "2026-08-12", "imsak": "04:13", "subuh": "04:23", "dhuha": "06:05", "dhuhur": "11:38", "ashar": "15:00", "maghrib": "17:35", "isya": "18:46"},
+                {"tanggal": "2026-08-13", "imsak": "04:13", "subuh": "04:23", "dhuha": "06:05", "dhuhur": "11:38", "ashar": "15:00", "maghrib": "17:35", "isya": "18:46"},
+                {"tanggal": "2026-08-14", "imsak": "04:12", "subuh": "04:22", "dhuha": "06:05", "dhuhur": "11:38", "ashar": "14:59", "maghrib": "17:35", "isya": "18:45"},
+                {"tanggal": "2026-08-15", "imsak": "04:12", "subuh": "04:22", "dhuha": "06:04", "dhuhur": "11:38", "ashar": "14:59", "maghrib": "17:35", "isya": "18:45"},
+                {"tanggal": "2026-08-16", "imsak": "04:12", "subuh": "04:22", "dhuha": "06:04", "dhuhur": "11:38", "ashar": "14:59", "maghrib": "17:35", "isya": "18:45"},
+                {"tanggal": "2026-08-17", "imsak": "04:12", "subuh": "04:22", "dhuha": "06:04", "dhuhur": "11:37", "ashar": "14:58", "maghrib": "17:35", "isya": "18:45"},
+                {"tanggal": "2026-08-18", "imsak": "04:11", "subuh": "04:21", "dhuha": "06:03", "dhuhur": "11:37", "ashar": "14:58", "maghrib": "17:35", "isya": "18:45"},
+                {"tanggal": "2026-08-19", "imsak": "04:11", "subuh": "04:21", "dhuha": "06:03", "dhuhur": "11:37", "ashar": "14:58", "maghrib": "17:34", "isya": "18:45"},
+                {"tanggal": "2026-08-20", "imsak": "04:11", "subuh": "04:21", "dhuha": "06:02", "dhuhur": "11:37", "ashar": "14:57", "maghrib": "17:34", "isya": "18:45"},
+                {"tanggal": "2026-08-21", "imsak": "04:10", "subuh": "04:20", "dhuha": "06:02", "dhuhur": "11:36", "ashar": "14:57", "maghrib": "17:34", "isya": "18:44"},
+                {"tanggal": "2026-08-22", "imsak": "04:10", "subuh": "04:20", "dhuha": "06:01", "dhuhur": "11:36", "ashar": "14:57", "maghrib": "17:34", "isya": "18:44"},
+                {"tanggal": "2026-08-23", "imsak": "04:10", "subuh": "04:20", "dhuha": "06:01", "dhuhur": "11:36", "ashar": "14:56", "maghrib": "17:34", "isya": "18:44"},
+                {"tanggal": "2026-08-24", "imsak": "04:09", "subuh": "04:19", "dhuha": "06:01", "dhuhur": "11:36", "ashar": "14:56", "maghrib": "17:34", "isya": "18:44"},
+                {"tanggal": "2026-08-25", "imsak": "04:09", "subuh": "04:19", "dhuha": "06:00", "dhuhur": "11:35", "ashar": "14:56", "maghrib": "17:34", "isya": "18:44"},
+                {"tanggal": "2026-08-26", "imsak": "04:09", "subuh": "04:19", "dhuha": "06:00", "dhuhur": "11:35", "ashar": "14:55", "maghrib": "17:34", "isya": "18:44"},
+                {"tanggal": "2026-08-27", "imsak": "04:08", "subuh": "04:18", "dhuha": "05:59", "dhuhur": "11:35", "ashar": "14:55", "maghrib": "17:34", "isya": "18:43"},
+                {"tanggal": "2026-08-28", "imsak": "04:08", "subuh": "04:18", "dhuha": "05:59", "dhuhur": "11:35", "ashar": "14:54", "maghrib": "17:34", "isya": "18:43"},
+                {"tanggal": "2026-08-29", "imsak": "04:07", "subuh": "04:17", "dhuha": "05:58", "dhuhur": "11:34", "ashar": "14:54", "maghrib": "17:34", "isya": "18:43"},
+                {"tanggal": "2026-08-30", "imsak": "04:07", "subuh": "04:17", "dhuha": "05:58", "dhuhur": "11:34", "ashar": "14:53", "maghrib": "17:33", "isya": "18:43"},
+                {"tanggal": "2026-08-31", "imsak": "04:07", "subuh": "04:17", "dhuha": "05:57", "dhuhur": "11:34", "ashar": "14:53", "maghrib": "17:33", "isya": "18:43"}
+              ]
+            },
+            {
+              "bulan": 9,
+              "data": [
+                {"tanggal": "2026-09-01", "imsak": "04:06", "subuh": "04:16", "dhuha": "05:57", "dhuhur": "11:33", "ashar": "14:52", "maghrib": "17:33", "isya": "18:42"},
+                {"tanggal": "2026-09-02", "imsak": "04:06", "subuh": "04:16", "dhuha": "05:56", "dhuhur": "11:33", "ashar": "14:52", "maghrib": "17:33", "isya": "18:42"},
+                {"tanggal": "2026-09-03", "imsak": "04:05", "subuh": "04:15", "dhuha": "05:56", "dhuhur": "11:33", "ashar": "14:51", "maghrib": "17:33", "isya": "18:42"},
+                {"tanggal": "2026-09-04", "imsak": "04:05", "subuh": "04:15", "dhuha": "05:55", "dhuhur": "11:32", "ashar": "14:51", "maghrib": "17:33", "isya": "18:42"},
+                {"tanggal": "2026-09-05", "imsak": "04:04", "subuh": "04:14", "dhuha": "05:55", "dhuhur": "11:32", "ashar": "14:50", "maghrib": "17:33", "isya": "18:42"},
+                {"tanggal": "2026-09-06", "imsak": "04:04", "subuh": "04:14", "dhuha": "05:54", "dhuhur": "11:32", "ashar": "14:49", "maghrib": "17:32", "isya": "18:41"},
+                {"tanggal": "2026-09-07", "imsak": "04:04", "subuh": "04:14", "dhuha": "05:53", "dhuhur": "11:31", "ashar": "14:49", "maghrib": "17:32", "isya": "18:41"},
+                {"tanggal": "2026-09-08", "imsak": "04:03", "subuh": "04:13", "dhuha": "05:53", "dhuhur": "11:31", "ashar": "14:48", "maghrib": "17:32", "isya": "18:41"},
+                {"tanggal": "2026-09-09", "imsak": "04:03", "subuh": "04:13", "dhuha": "05:52", "dhuhur": "11:31", "ashar": "14:48", "maghrib": "17:32", "isya": "18:41"},
+                {"tanggal": "2026-09-10", "imsak": "04:02", "subuh": "04:12", "dhuha": "05:52", "dhuhur": "11:30", "ashar": "14:47", "maghrib": "17:32", "isya": "18:41"},
+                {"tanggal": "2026-09-11", "imsak": "04:02", "subuh": "04:12", "dhuha": "05:51", "dhuhur": "11:30", "ashar": "14:46", "maghrib": "17:32", "isya": "18:40"},
+                {"tanggal": "2026-09-12", "imsak": "04:01", "subuh": "04:11", "dhuha": "05:51", "dhuhur": "11:30", "ashar": "14:46", "maghrib": "17:31", "isya": "18:40"},
+                {"tanggal": "2026-09-13", "imsak": "04:01", "subuh": "04:11", "dhuha": "05:50", "dhuhur": "11:29", "ashar": "14:45", "maghrib": "17:31", "isya": "18:40"},
+                {"tanggal": "2026-09-14", "imsak": "04:00", "subuh": "04:10", "dhuha": "05:50", "dhuhur": "11:29", "ashar": "14:44", "maghrib": "17:31", "isya": "18:40"},
+                {"tanggal": "2026-09-15", "imsak": "03:59", "subuh": "04:09", "dhuha": "05:49", "dhuhur": "11:29", "ashar": "14:43", "maghrib": "17:31", "isya": "18:40"},
+                {"tanggal": "2026-09-16", "imsak": "03:59", "subuh": "04:09", "dhuha": "05:49", "dhuhur": "11:28", "ashar": "14:43", "maghrib": "17:31", "isya": "18:40"},
+                {"tanggal": "2026-09-17", "imsak": "03:58", "subuh": "04:08", "dhuha": "05:48", "dhuhur": "11:28", "ashar": "14:42", "maghrib": "17:31", "isya": "18:39"},
+                {"tanggal": "2026-09-18", "imsak": "03:58", "subuh": "04:08", "dhuha": "05:47", "dhuhur": "11:28", "ashar": "14:41", "maghrib": "17:30", "isya": "18:39"},
+                {"tanggal": "2026-09-19", "imsak": "03:57", "subuh": "04:07", "dhuha": "05:47", "dhuhur": "11:27", "ashar": "14:41", "maghrib": "17:30", "isya": "18:39"},
+                {"tanggal": "2026-09-20", "imsak": "03:57", "subuh": "04:07", "dhuha": "05:46", "dhuhur": "11:27", "ashar": "14:40", "maghrib": "17:30", "isya": "18:39"},
+                {"tanggal": "2026-09-21", "imsak": "03:56", "subuh": "04:06", "dhuha": "05:46", "dhuhur": "11:26", "ashar": "14:39", "maghrib": "17:30", "isya": "18:39"},
+                {"tanggal": "2026-09-22", "imsak": "03:56", "subuh": "04:06", "dhuha": "05:45", "dhuhur": "11:26", "ashar": "14:38", "maghrib": "17:30", "isya": "18:38"},
+                {"tanggal": "2026-09-23", "imsak": "03:55", "subuh": "04:05", "dhuha": "05:45", "dhuhur": "11:26", "ashar": "14:37", "maghrib": "17:30", "isya": "18:38"},
+                {"tanggal": "2026-09-24", "imsak": "03:55", "subuh": "04:05", "dhuha": "05:44", "dhuhur": "11:25", "ashar": "14:37", "maghrib": "17:29", "isya": "18:38"},
+                {"tanggal": "2026-09-25", "imsak": "03:54", "subuh": "04:04", "dhuha": "05:44", "dhuhur": "11:25", "ashar": "14:36", "maghrib": "17:29", "isya": "18:38"},
+                {"tanggal": "2026-09-26", "imsak": "03:53", "subuh": "04:03", "dhuha": "05:43", "dhuhur": "11:25", "ashar": "14:35", "maghrib": "17:29", "isya": "18:38"},
+                {"tanggal": "2026-09-27", "imsak": "03:53", "subuh": "04:03", "dhuha": "05:43", "dhuhur": "11:24", "ashar": "14:34", "maghrib": "17:29", "isya": "18:38"},
+                {"tanggal": "2026-09-28", "imsak": "03:52", "subuh": "04:02", "dhuha": "05:42", "dhuhur": "11:24", "ashar": "14:33", "maghrib": "17:29", "isya": "18:38"},
+                {"tanggal": "2026-09-29", "imsak": "03:52", "subuh": "04:02", "dhuha": "05:42", "dhuhur": "11:24", "ashar": "14:32", "maghrib": "17:29", "isya": "18:38"},
+                {"tanggal": "2026-09-30", "imsak": "03:51", "subuh": "04:01", "dhuha": "05:41", "dhuhur": "11:23", "ashar": "14:32", "maghrib": "17:28", "isya": "18:37"}
+              ]
+            },
+            {
+              "bulan": 10,
+              "data": [
+                {"tanggal": "2026-10-01", "imsak": "03:51", "subuh": "04:01", "dhuha": "05:40", "dhuhur": "11:23", "ashar": "14:31", "maghrib": "17:28", "isya": "18:37"},
+                {"tanggal": "2026-10-02", "imsak": "03:50", "subuh": "04:00", "dhuha": "05:40", "dhuhur": "11:23", "ashar": "14:30", "maghrib": "17:28", "isya": "18:37"},
+                {"tanggal": "2026-10-03", "imsak": "03:50", "subuh": "04:00", "dhuha": "05:39", "dhuhur": "11:22", "ashar": "14:29", "maghrib": "17:28", "isya": "18:37"},
+                {"tanggal": "2026-10-04", "imsak": "03:49", "subuh": "03:59", "dhuha": "05:39", "dhuhur": "11:22", "ashar": "14:28", "maghrib": "17:28", "isya": "18:37"},
+                {"tanggal": "2026-10-05", "imsak": "03:48", "subuh": "03:58", "dhuha": "05:39", "dhuhur": "11:22", "ashar": "14:27", "maghrib": "17:28", "isya": "18:37"},
+                {"tanggal": "2026-10-06", "imsak": "03:48", "subuh": "03:58", "dhuha": "05:38", "dhuhur": "11:21", "ashar": "14:26", "maghrib": "17:28", "isya": "18:37"},
+                {"tanggal": "2026-10-07", "imsak": "03:47", "subuh": "03:57", "dhuha": "05:38", "dhuhur": "11:21", "ashar": "14:25", "maghrib": "17:28", "isya": "18:37"},
+                {"tanggal": "2026-10-08", "imsak": "03:47", "subuh": "03:57", "dhuha": "05:37", "dhuhur": "11:21", "ashar": "14:24", "maghrib": "17:28", "isya": "18:37"},
+                {"tanggal": "2026-10-09", "imsak": "03:46", "subuh": "03:56", "dhuha": "05:37", "dhuhur": "11:21", "ashar": "14:23", "maghrib": "17:27", "isya": "18:37"},
+                {"tanggal": "2026-10-10", "imsak": "03:46", "subuh": "03:56", "dhuha": "05:36", "dhuhur": "11:20", "ashar": "14:22", "maghrib": "17:27", "isya": "18:37"},
+                {"tanggal": "2026-10-11", "imsak": "03:45", "subuh": "03:55", "dhuha": "05:36", "dhuhur": "11:20", "ashar": "14:21", "maghrib": "17:27", "isya": "18:37"},
+                {"tanggal": "2026-10-12", "imsak": "03:45", "subuh": "03:55", "dhuha": "05:35", "dhuhur": "11:20", "ashar": "14:22", "maghrib": "17:27", "isya": "18:37"},
+                {"tanggal": "2026-10-13", "imsak": "03:44", "subuh": "03:54", "dhuha": "05:35", "dhuhur": "11:20", "ashar": "14:23", "maghrib": "17:27", "isya": "18:37"},
+                {"tanggal": "2026-10-14", "imsak": "03:44", "subuh": "03:54", "dhuha": "05:34", "dhuhur": "11:19", "ashar": "14:23", "maghrib": "17:27", "isya": "18:37"},
+                {"tanggal": "2026-10-15", "imsak": "03:43", "subuh": "03:53", "dhuha": "05:34", "dhuhur": "11:19", "ashar": "14:24", "maghrib": "17:27", "isya": "18:37"},
+                {"tanggal": "2026-10-16", "imsak": "03:43", "subuh": "03:53", "dhuha": "05:34", "dhuhur": "11:19", "ashar": "14:24", "maghrib": "17:27", "isya": "18:37"},
+                {"tanggal": "2026-10-17", "imsak": "03:42", "subuh": "03:52", "dhuha": "05:33", "dhuhur": "11:19", "ashar": "14:25", "maghrib": "17:27", "isya": "18:37"},
+                {"tanggal": "2026-10-18", "imsak": "03:42", "subuh": "03:52", "dhuha": "05:33", "dhuhur": "11:18", "ashar": "14:25", "maghrib": "17:27", "isya": "18:37"},
+                {"tanggal": "2026-10-19", "imsak": "03:41", "subuh": "03:51", "dhuha": "05:33", "dhuhur": "11:18", "ashar": "14:26", "maghrib": "17:27", "isya": "18:37"},
+                {"tanggal": "2026-10-20", "imsak": "03:41", "subuh": "03:51", "dhuha": "05:32", "dhuhur": "11:18", "ashar": "14:26", "maghrib": "17:27", "isya": "18:37"},
+                {"tanggal": "2026-10-21", "imsak": "03:40", "subuh": "03:50", "dhuha": "05:32", "dhuhur": "11:18", "ashar": "14:27", "maghrib": "17:27", "isya": "18:37"},
+                {"tanggal": "2026-10-22", "imsak": "03:40", "subuh": "03:50", "dhuha": "05:32", "dhuhur": "11:18", "ashar": "14:27", "maghrib": "17:27", "isya": "18:37"},
+                {"tanggal": "2026-10-23", "imsak": "03:39", "subuh": "03:49", "dhuha": "05:31", "dhuhur": "11:18", "ashar": "14:28", "maghrib": "17:27", "isya": "18:38"},
+                {"tanggal": "2026-10-24", "imsak": "03:39", "subuh": "03:49", "dhuha": "05:31", "dhuhur": "11:17", "ashar": "14:28", "maghrib": "17:27", "isya": "18:38"},
+                {"tanggal": "2026-10-25", "imsak": "03:38", "subuh": "03:48", "dhuha": "05:31", "dhuhur": "11:17", "ashar": "14:29", "maghrib": "17:27", "isya": "18:38"},
+                {"tanggal": "2026-10-26", "imsak": "03:38", "subuh": "03:48", "dhuha": "05:30", "dhuhur": "11:17", "ashar": "14:29", "maghrib": "17:27", "isya": "18:38"},
+                {"tanggal": "2026-10-27", "imsak": "03:38", "subuh": "03:48", "dhuha": "05:30", "dhuhur": "11:17", "ashar": "14:30", "maghrib": "17:27", "isya": "18:38"},
+                {"tanggal": "2026-10-28", "imsak": "03:37", "subuh": "03:47", "dhuha": "05:30", "dhuhur": "11:17", "ashar": "14:30", "maghrib": "17:27", "isya": "18:38"},
+                {"tanggal": "2026-10-29", "imsak": "03:37", "subuh": "03:47", "dhuha": "05:30", "dhuhur": "11:17", "ashar": "14:31", "maghrib": "17:27", "isya": "18:39"},
+                {"tanggal": "2026-10-30", "imsak": "03:36", "subuh": "03:46", "dhuha": "05:30", "dhuhur": "11:17", "ashar": "14:31", "maghrib": "17:28", "isya": "18:39"},
+                {"tanggal": "2026-10-31", "imsak": "03:36", "subuh": "03:46", "dhuha": "05:29", "dhuhur": "11:17", "ashar": "14:32", "maghrib": "17:28", "isya": "18:39"}
+              ]
+            },
+            {
+              "bulan": 11,
+              "data": [
+                {"tanggal": "2026-11-01", "imsak": "03:36", "subuh": "03:46", "dhuha": "05:29", "dhuhur": "11:17", "ashar": "14:32", "maghrib": "17:28", "isya": "18:39"},
+                {"tanggal": "2026-11-02", "imsak": "03:35", "subuh": "03:45", "dhuha": "05:29", "dhuhur": "11:17", "ashar": "14:33", "maghrib": "17:28", "isya": "18:40"},
+                {"tanggal": "2026-11-03", "imsak": "03:35", "subuh": "03:45", "dhuha": "05:29", "dhuhur": "11:17", "ashar": "14:33", "maghrib": "17:28", "isya": "18:40"},
+                {"tanggal": "2026-11-04", "imsak": "03:35", "subuh": "03:45", "dhuha": "05:29", "dhuhur": "11:17", "ashar": "14:34", "maghrib": "17:28", "isya": "18:40"},
+                {"tanggal": "2026-11-05", "imsak": "03:34", "subuh": "03:44", "dhuha": "05:29", "dhuhur": "11:17", "ashar": "14:34", "maghrib": "17:28", "isya": "18:40"},
+                {"tanggal": "2026-11-06", "imsak": "03:34", "subuh": "03:44", "dhuha": "05:29", "dhuhur": "11:17", "ashar": "14:35", "maghrib": "17:29", "isya": "18:41"},
+                {"tanggal": "2026-11-07", "imsak": "03:34", "subuh": "03:44", "dhuha": "05:28", "dhuhur": "11:17", "ashar": "14:35", "maghrib": "17:29", "isya": "18:41"},
+                {"tanggal": "2026-11-08", "imsak": "03:34", "subuh": "03:44", "dhuha": "05:28", "dhuhur": "11:17", "ashar": "14:36", "maghrib": "17:29", "isya": "18:41"},
+                {"tanggal": "2026-11-09", "imsak": "03:33", "subuh": "03:43", "dhuha": "05:28", "dhuhur": "11:17", "ashar": "14:36", "maghrib": "17:29", "isya": "18:42"},
+                {"tanggal": "2026-11-10", "imsak": "03:33", "subuh": "03:43", "dhuha": "05:28", "dhuhur": "11:17", "ashar": "14:37", "maghrib": "17:30", "isya": "18:42"},
+                {"tanggal": "2026-11-11", "imsak": "03:33", "subuh": "03:43", "dhuha": "05:28", "dhuhur": "11:17", "ashar": "14:37", "maghrib": "17:30", "isya": "18:43"},
+                {"tanggal": "2026-11-12", "imsak": "03:33", "subuh": "03:43", "dhuha": "05:28", "dhuhur": "11:17", "ashar": "14:38", "maghrib": "17:30", "isya": "18:43"},
+                {"tanggal": "2026-11-13", "imsak": "03:33", "subuh": "03:43", "dhuha": "05:28", "dhuhur": "11:17", "ashar": "14:38", "maghrib": "17:30", "isya": "18:43"},
+                {"tanggal": "2026-11-14", "imsak": "03:33", "subuh": "03:43", "dhuha": "05:28", "dhuhur": "11:18", "ashar": "14:39", "maghrib": "17:31", "isya": "18:44"},
+                {"tanggal": "2026-11-15", "imsak": "03:32", "subuh": "03:42", "dhuha": "05:28", "dhuhur": "11:18", "ashar": "14:39", "maghrib": "17:31", "isya": "18:44"},
+                {"tanggal": "2026-11-16", "imsak": "03:32", "subuh": "03:42", "dhuha": "05:28", "dhuhur": "11:18", "ashar": "14:40", "maghrib": "17:31", "isya": "18:45"},
+                {"tanggal": "2026-11-17", "imsak": "03:32", "subuh": "03:42", "dhuha": "05:28", "dhuhur": "11:18", "ashar": "14:40", "maghrib": "17:32", "isya": "18:45"},
+                {"tanggal": "2026-11-18", "imsak": "03:32", "subuh": "03:42", "dhuha": "05:29", "dhuhur": "11:18", "ashar": "14:41", "maghrib": "17:32", "isya": "18:46"},
+                {"tanggal": "2026-11-19", "imsak": "03:32", "subuh": "03:42", "dhuha": "05:29", "dhuhur": "11:18", "ashar": "14:41", "maghrib": "17:32", "isya": "18:46"},
+                {"tanggal": "2026-11-20", "imsak": "03:32", "subuh": "03:42", "dhuha": "05:29", "dhuhur": "11:19", "ashar": "14:42", "maghrib": "17:33", "isya": "18:47"},
+                {"tanggal": "2026-11-21", "imsak": "03:32", "subuh": "03:42", "dhuha": "05:29", "dhuhur": "11:19", "ashar": "14:42", "maghrib": "17:33", "isya": "18:47"},
+                {"tanggal": "2026-11-22", "imsak": "03:32", "subuh": "03:42", "dhuha": "05:29", "dhuhur": "11:19", "ashar": "14:43", "maghrib": "17:33", "isya": "18:48"},
+                {"tanggal": "2026-11-23", "imsak": "03:32", "subuh": "03:42", "dhuha": "05:29", "dhuhur": "11:19", "ashar": "14:43", "maghrib": "17:34", "isya": "18:48"},
+                {"tanggal": "2026-11-24", "imsak": "03:32", "subuh": "03:42", "dhuha": "05:30", "dhuhur": "11:20", "ashar": "14:44", "maghrib": "17:34", "isya": "18:49"},
+                {"tanggal": "2026-11-25", "imsak": "03:32", "subuh": "03:42", "dhuha": "05:30", "dhuhur": "11:20", "ashar": "14:44", "maghrib": "17:35", "isya": "18:49"},
+                {"tanggal": "2026-11-26", "imsak": "03:32", "subuh": "03:42", "dhuha": "05:30", "dhuhur": "11:20", "ashar": "14:45", "maghrib": "17:35", "isya": "18:50"},
+                {"tanggal": "2026-11-27", "imsak": "03:32", "subuh": "03:42", "dhuha": "05:30", "dhuhur": "11:21", "ashar": "14:45", "maghrib": "17:35", "isya": "18:50"},
+                {"tanggal": "2026-11-28", "imsak": "03:32", "subuh": "03:42", "dhuha": "05:30", "dhuhur": "11:21", "ashar": "14:46", "maghrib": "17:36", "isya": "18:51"},
+                {"tanggal": "2026-11-29", "imsak": "03:33", "subuh": "03:43", "dhuha": "05:31", "dhuhur": "11:21", "ashar": "14:46", "maghrib": "17:36", "isya": "18:51"},
+                {"tanggal": "2026-11-30", "imsak": "03:33", "subuh": "03:43", "dhuha": "05:31", "dhuhur": "11:22", "ashar": "14:47", "maghrib": "17:37", "isya": "18:52"}
+              ]
+            },
+            {
+              "bulan": 12,
+              "data": [
+                {"tanggal": "2026-12-01", "imsak": "03:33", "subuh": "03:43", "dhuha": "05:31", "dhuhur": "11:22", "ashar": "14:48", "maghrib": "17:37", "isya": "18:52"},
+                {"tanggal": "2026-12-02", "imsak": "03:33", "subuh": "03:43", "dhuha": "05:32", "dhuhur": "11:22", "ashar": "14:48", "maghrib": "17:38", "isya": "18:53"},
+                {"tanggal": "2026-12-03", "imsak": "03:33", "subuh": "03:43", "dhuha": "05:32", "dhuhur": "11:23", "ashar": "14:49", "maghrib": "17:38", "isya": "18:53"},
+                {"tanggal": "2026-12-04", "imsak": "03:33", "subuh": "03:43", "dhuha": "05:32", "dhuhur": "11:23", "ashar": "14:49", "maghrib": "17:39", "isya": "18:54"},
+                {"tanggal": "2026-12-05", "imsak": "03:34", "subuh": "03:44", "dhuha": "05:33", "dhuhur": "11:24", "ashar": "14:50", "maghrib": "17:39", "isya": "18:55"},
+                {"tanggal": "2026-12-06", "imsak": "03:34", "subuh": "03:44", "dhuha": "05:33", "dhuhur": "11:24", "ashar": "14:50", "maghrib": "17:40", "isya": "18:55"},
+                {"tanggal": "2026-12-07", "imsak": "03:34", "subuh": "03:44", "dhuha": "05:33", "dhuhur": "11:24", "ashar": "14:51", "maghrib": "17:40", "isya": "18:56"},
+                {"tanggal": "2026-12-08", "imsak": "03:34", "subuh": "03:44", "dhuha": "05:34", "dhuhur": "11:25", "ashar": "14:51", "maghrib": "17:41", "isya": "18:56"},
+                {"tanggal": "2026-12-09", "imsak": "03:35", "subuh": "03:45", "dhuha": "05:34", "dhuhur": "11:25", "ashar": "14:52", "maghrib": "17:41", "isya": "18:57"},
+                {"tanggal": "2026-12-10", "imsak": "03:35", "subuh": "03:45", "dhuha": "05:35", "dhuhur": "11:26", "ashar": "14:53", "maghrib": "17:42", "isya": "18:57"},
+                {"tanggal": "2026-12-11", "imsak": "03:35", "subuh": "03:45", "dhuha": "05:35", "dhuhur": "11:26", "ashar": "14:53", "maghrib": "17:42", "isya": "18:58"},
+                {"tanggal": "2026-12-12", "imsak": "03:36", "subuh": "03:46", "dhuha": "05:35", "dhuhur": "11:27", "ashar": "14:54", "maghrib": "17:43", "isya": "18:59"},
+                {"tanggal": "2026-12-13", "imsak": "03:36", "subuh": "03:46", "dhuha": "05:36", "dhuhur": "11:27", "ashar": "14:54", "maghrib": "17:43", "isya": "18:59"},
+                {"tanggal": "2026-12-14", "imsak": "03:37", "subuh": "03:47", "dhuha": "05:36", "dhuhur": "11:28", "ashar": "14:55", "maghrib": "17:44", "isya": "19:00"},
+                {"tanggal": "2026-12-15", "imsak": "03:37", "subuh": "03:47", "dhuha": "05:37", "dhuhur": "11:28", "ashar": "14:55", "maghrib": "17:44", "isya": "19:00"},
+                {"tanggal": "2026-12-16", "imsak": "03:37", "subuh": "03:47", "dhuha": "05:37", "dhuhur": "11:29", "ashar": "14:56", "maghrib": "17:45", "isya": "19:01"},
+                {"tanggal": "2026-12-17", "imsak": "03:38", "subuh": "03:48", "dhuha": "05:38", "dhuhur": "11:29", "ashar": "14:56", "maghrib": "17:45", "isya": "19:01"},
+                {"tanggal": "2026-12-18", "imsak": "03:38", "subuh": "03:48", "dhuha": "05:38", "dhuhur": "11:30", "ashar": "14:57", "maghrib": "17:46", "isya": "19:02"},
+                {"tanggal": "2026-12-19", "imsak": "03:39", "subuh": "03:49", "dhuha": "05:39", "dhuhur": "11:30", "ashar": "14:57", "maghrib": "17:46", "isya": "19:02"},
+                {"tanggal": "2026-12-20", "imsak": "03:39", "subuh": "03:49", "dhuha": "05:39", "dhuhur": "11:31", "ashar": "14:58", "maghrib": "17:47", "isya": "19:03"},
+                {"tanggal": "2026-12-21", "imsak": "03:40", "subuh": "03:50", "dhuha": "05:40", "dhuhur": "11:31", "ashar": "14:58", "maghrib": "17:47", "isya": "19:03"},
+                {"tanggal": "2026-12-22", "imsak": "03:40", "subuh": "03:50", "dhuha": "05:40", "dhuhur": "11:32", "ashar": "14:59", "maghrib": "17:48", "isya": "19:04"},
+                {"tanggal": "2026-12-23", "imsak": "03:41", "subuh": "03:51", "dhuha": "05:41", "dhuhur": "11:32", "ashar": "14:59", "maghrib": "17:48", "isya": "19:04"},
+                {"tanggal": "2026-12-24", "imsak": "03:41", "subuh": "03:51", "dhuha": "05:41", "dhuhur": "11:33", "ashar": "15:00", "maghrib": "17:49", "isya": "19:05"},
+                {"tanggal": "2026-12-25", "imsak": "03:42", "subuh": "03:52", "dhuha": "05:42", "dhuhur": "11:33", "ashar": "15:00", "maghrib": "17:49", "isya": "19:05"},
+                {"tanggal": "2026-12-26", "imsak": "03:42", "subuh": "03:52", "dhuha": "05:42", "dhuhur": "11:34", "ashar": "15:01", "maghrib": "17:50", "isya": "19:06"},
+                {"tanggal": "2026-12-27", "imsak": "03:43", "subuh": "03:53", "dhuha": "05:43", "dhuhur": "11:34", "ashar": "15:01", "maghrib": "17:50", "isya": "19:06"},
+                {"tanggal": "2026-12-28", "imsak": "03:43", "subuh": "03:53", "dhuha": "05:43", "dhuhur": "11:35", "ashar": "15:02", "maghrib": "17:51", "isya": "19:07"},
+                {"tanggal": "2026-12-29", "imsak": "03:44", "subuh": "03:54", "dhuha": "05:44", "dhuhur": "11:35", "ashar": "15:02", "maghrib": "17:51", "isya": "19:07"},
+                {"tanggal": "2026-12-30", "imsak": "03:44", "subuh": "03:54", "dhuha": "05:44", "dhuhur": "11:35", "ashar": "15:03", "maghrib": "17:52", "isya": "19:07"},
+                {"tanggal": "2026-12-31", "imsak": "03:45", "subuh": "03:55", "dhuha": "05:45", "dhuhur": "11:36", "ashar": "15:03", "maghrib": "17:52", "isya": "19:08"}
+              ]
+            }
+          ]
+        };
+
+        const jadwalMap = {};
+        if (rawJadwalData.jadwal) {
+            rawJadwalData.jadwal.forEach(bulan => {
+                bulan.data.forEach(hari => {
+                    jadwalMap[hari.tanggal] = hari;
+                });
+            });
+        }
+
+        // State Management
+        const STORAGE_KEY = 'jadwal_sholat_ai_data';
+        const fields = ['imsak', 'shubuh', 'dhuha', 'zuhur', 'ashar', 'maghrib', 'isya'];
+        let currentImageUrl = '';
+
+        // Tab Switching
+        function switchTab(tab) {
+            saveData(); // Save inputs whenever switching tabs
+            
+            const sectionInput = document.getElementById('section-input');
+            const sectionPreview = document.getElementById('section-preview');
+            const tabInput = document.getElementById('tab-input');
+            const tabPreview = document.getElementById('tab-preview');
+
+            if (tab === 'input') {
+                sectionInput.classList.remove('hidden');
+                sectionPreview.classList.add('hidden');
+                tabInput.className = "flex-1 py-3 text-sm font-semibold text-green-700 border-b-2 border-green-700 bg-green-50 transition-colors";
+                tabPreview.className = "flex-1 py-3 text-sm font-semibold text-gray-500 border-b-2 border-transparent hover:bg-gray-50 transition-colors flex items-center justify-center gap-2";
+            } else {
+                sectionInput.classList.add('hidden');
+                sectionPreview.classList.remove('hidden');
+                tabPreview.className = "flex-1 py-3 text-sm font-semibold text-green-700 border-b-2 border-green-700 bg-green-50 transition-colors flex items-center justify-center gap-2";
+                tabInput.className = "flex-1 py-3 text-sm font-semibold text-gray-500 border-b-2 border-transparent hover:bg-gray-50 transition-colors";
+                
+                // Jika baru masuk tab preview dan belum ada gambar, reset state
+                if(!currentImageUrl) {
+                    document.getElementById('btn-generate-ai').classList.remove('hidden');
+                    document.getElementById('ai-loading').classList.add('hidden');
+                    document.getElementById('ai-result-container').classList.add('hidden');
+                }
+            }
+        }
+
+        function handleDateChange(dateStr) {
+            const timeData = jadwalMap[dateStr];
+            if (timeData) {
+                document.getElementById('input-imsak').value = timeData.imsak;
+                document.getElementById('input-shubuh').value = timeData.subuh;
+                document.getElementById('input-dhuha').value = timeData.dhuha;
+                document.getElementById('input-zuhur').value = timeData.dhuhur;
+                document.getElementById('input-ashar').value = timeData.ashar;
+                document.getElementById('input-maghrib').value = timeData.maghrib;
+                document.getElementById('input-isya').value = timeData.isya;
+            }
+        }
+
+        // Tanggal Hari Ini
+        function setToday() {
+            const today = new Date();
+            // Data kita tahun 2026, jika dibuka tahun lain, kita set ke 2026 untuk demo
+            if (today.getFullYear() !== 2026) today.setFullYear(2026);
+            
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            const formatted = `${yyyy}-${mm}-${dd}`;
+            
+            document.getElementById('input-date').value = formatted;
+            handleDateChange(formatted);
+        }
+
+        function formatDateIndo(dateStr) {
+            if(!dateStr) return "Hari Ini";
+            const d = new Date(dateStr);
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            return d.toLocaleDateString('id-ID', options);
+        }
+
+        // Save & Load Data dari Local Storage
+        function saveData() {
+            const dataToSave = { date: document.getElementById('input-date').value };
+            fields.forEach(f => dataToSave[f] = document.getElementById(`input-${f}`).value);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+        }
+
+        function loadData() {
+            const savedData = JSON.parse(localStorage.getItem(STORAGE_KEY));
+            
+            // Default waktu sholat (Agar user tinggal geser menit)
+            const defaultTimes = {
+                imsak: '04:00',
+                shubuh: '04:10',
+                dhuha: '05:45',
+                zuhur: '11:45',
+                ashar: '15:00',
+                maghrib: '17:40',
+                isya: '18:55'
+            };
+
+            if (savedData) {
+                if (savedData.date) document.getElementById('input-date').value = savedData.date;
+                fields.forEach(f => {
+                    document.getElementById(`input-${f}`).value = savedData[f] || defaultTimes[f];
+                });
+            } else {
+                setToday();
+                fields.forEach(f => {
+                    document.getElementById(`input-${f}`).value = defaultTimes[f];
+                });
+            }
+        }
+
+        // AI Image Generation Logic (Gemini 3.1 Flash Image Preview)
+        async function generateImageWithAI() {
+            saveData(); // Make sure data is saved
+
+            // Ambil data
+            const dateValRaw = document.getElementById('input-date').value;
+            const dateVal = dateValRaw ? formatDateIndo(dateValRaw) : "Hari Ini";
+            const imsak = document.getElementById('input-imsak').value || "-";
+            const shubuh = document.getElementById('input-shubuh').value || "-";
+            const dhuha = document.getElementById('input-dhuha').value || "-";
+            const zuhur = document.getElementById('input-zuhur').value || "-";
+            const ashar = document.getElementById('input-ashar').value || "-";
+            const maghrib = document.getElementById('input-maghrib').value || "-";
+            const isya = document.getElementById('input-isya').value || "-";
+
+            // Prompt super spesifik agar AI fokus pada teks yang akurat
+            const prompt = `Create a clean, highly legible Islamic prayer schedule poster based on image_0.png. 
+Color palette: Deep green background with golden accents and Islamic geometric patterns.
+Top Header: Small elegant gold text "Masjid Roudlotul Jannah" and right below it "Perumnas Tasikmadu - Palang".
+Main Title: Below header, large gold letters: "JADWAL SHOLAT".
+Below the title, text in white: "${dateVal}".
+In the middle, a large readable gold card with a dark green background for each row, containing exactly this text line by line, clearly spelled:
+IMSAK ${imsak} WIB
+SHUBUH ${shubuh} WIB
+DHUHA ${dhuha} WIB
+ZUHUR ${zuhur} WIB
+ASHAR ${ashar} WIB
+MAGHRIB ${maghrib} WIB
+ISYA' ${isya} WIB
+
+Bottom Footer:
+Bottom left corner: simple white icons for facebook, instagram, tiktok followed by text "Masjid Roudlotul Jannah Tasikmadu".
+Bottom right corner: simple white globe website icon followed by text "masjidroudlotuljannah.org".
+Visual style: Minimalist geometric Islamic patterns, silhouette of a mosque dome, glowing lanterns, ultra-sharp typography. Ensure all the time numbers are perfectly legible and correctly spelled exactly as provided. Aspect ratio must be vertical 3:4.`;
+
+            // UI Changes
+            document.getElementById('btn-generate-ai').classList.add('hidden');
+            document.getElementById('ai-result-container').classList.add('hidden');
+            document.getElementById('ai-loading').classList.remove('hidden');
+            document.getElementById('ai-loading').classList.add('flex');
+
+            try {
+                // API Call ke Gemini 3.1 Flash Image (Nano Banana)
+                const payload = {
+                    contents: [{
+                        role: 'user',
+                        parts: [{ text: prompt }]
+                    }],
+                    generationConfig: {
+                        responseModalities: ['IMAGE'],
+                        imageConfig: { aspectRatio: "3:4" }
+                    },
+                };
+
+                const apiKey = ""; // Canvas otomatis menyuntikkan API key jika string kosong
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image-preview:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                
+                // Ekstraksi Base64 Gambar dari response
+                const part = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
+                
+                if (part && part.inlineData && part.inlineData.data) {
+                    const imageUrl = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+                    currentImageUrl = imageUrl;
+                    
+                    // Tampilkan Gambar
+                    document.getElementById('generated-image').src = imageUrl;
+                    document.getElementById('ai-loading').classList.add('hidden');
+                    document.getElementById('ai-loading').classList.remove('flex');
+                    document.getElementById('ai-result-container').classList.remove('hidden');
+                    document.getElementById('ai-result-container').classList.add('flex');
+                    
+                    // Kembalikan tombol generate untuk redraw
+                    const btnGen = document.getElementById('btn-generate-ai');
+                    btnGen.classList.remove('hidden');
+                    btnGen.innerHTML = '<i class="ph-bold ph-arrows-clockwise"></i> Generate Ulang (Desain Lain)';
+                    btnGen.className = "w-full bg-white text-green-700 border-2 border-green-700 p-3 rounded-xl font-bold hover:bg-green-50 active:scale-95 transition-all flex items-center justify-center gap-2 mt-4";
+                    
+                } else {
+                    throw new Error("Format response dari AI tidak terduga atau gambar gagal di-generate.");
+                }
+
+            } catch (error) {
+                console.error("Generate error:", error);
+                
+                // Reset UI dan tampilkan error
+                document.getElementById('ai-loading').classList.add('hidden');
+                document.getElementById('ai-loading').classList.remove('flex');
+                
+                const btnGen = document.getElementById('btn-generate-ai');
+                btnGen.classList.remove('hidden');
+                btnGen.innerHTML = '<i class="ph-bold ph-warning-circle"></i> Gagal, Coba Generate Lagi';
+                btnGen.className = "w-full bg-red-600 text-white p-4 rounded-2xl font-bold shadow-lg hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2";
+            }
+        }
+
+        // Logic Download Gambar Asli
+        function downloadImage() {
+            if (!currentImageUrl) return;
+            
+            const rawDate = document.getElementById('input-date').value || 'Hari_Ini';
+            const safeName = rawDate.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            
+            const link = document.createElement('a');
+            link.download = `Jadwal_Roudlotul_Jannah_${safeName}.jpg`;
+            link.href = currentImageUrl;
+            link.click();
+        }
+
+        // Init
+        window.onload = loadData;
+    </script>
+</body>
+</html>
