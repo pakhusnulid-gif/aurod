@@ -1,4 +1,4 @@
-const CACHE_NAME = 'aurod-anidhomiyyah-v5';
+const CACHE_NAME = 'aurod-anidhomiyyah-v6';
 const PRECACHE_URLS = [
   '/',
   '/index.html',
@@ -6,6 +6,7 @@ const PRECACHE_URLS = [
   '/aurod',
   '/tawassul',
   '/tahlil',
+  '/sholawat-fatih',
   '/manifest.json',
   '/icon-192.png',
   '/icon-512.png',

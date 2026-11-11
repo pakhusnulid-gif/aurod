@@ -41,6 +41,7 @@ function RootLayoutContent() {
         <Stack.Screen name="aurod" />
         <Stack.Screen name="tawassul" />
         <Stack.Screen name="tahlil" />
+        <Stack.Screen name="sholawat-fatih" />
         <Stack.Screen name="+not-found" />
       </Stack>
       <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />

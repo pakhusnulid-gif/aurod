@@ -149,15 +149,15 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   overlay: {
-    paddingTop: spacing.md,
+    paddingTop: spacing.sm + 2,
     paddingHorizontal: spacing.md,
-    paddingBottom: spacing.xl + 6,
+    paddingBottom: spacing.lg + 4,
   },
   topRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: spacing.sm + 4,
+    marginBottom: spacing.xs + 2,
     gap: spacing.xs,
   },
   locationPill: {
@@ -185,12 +185,12 @@ const styles = StyleSheet.create({
   },
   centerBlock: {
     alignItems: 'center',
-    marginBottom: spacing.sm + 2,
+    marginBottom: spacing.xs + 2,
   },
   nextTitle: {
     fontSize: 12,
     fontWeight: '600',
-    marginBottom: 2,
+    marginBottom: 1,
   },
   timeRow: {
     flexDirection: 'row',
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
     gap: spacing.xs + 2,
   },
   nextClock: {
-    fontSize: 30,
+    fontSize: 27,
     fontWeight: '800',
     fontVariant: ['tabular-nums'],
     letterSpacing: 0.5,

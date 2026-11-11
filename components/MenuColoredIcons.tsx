@@ -3,6 +3,9 @@ import Svg, {
   Path,
   Rect,
   Circle,
+  Ellipse,
+  Polygon,
+  Line,
   G,
   Defs,
   LinearGradient as SvgLinearGradient,
@@ -384,6 +387,134 @@ export const TahlilMenuIcon: React.FC<IconProps> = ({ size = 42 }) => {
       {/* Rehal Kecil & Kitab di Hadapan Santri */}
       <Path d="M28 53 L32 49 L36 53" stroke="#D97706" strokeWidth="1.5" strokeLinecap="round" />
       <Path d="M27 48 L32 50 L37 48" stroke="#FEF3C7" strokeWidth="2.5" strokeLinecap="round" />
+    </Svg>
+  );
+};
+
+/**
+ * 5. Sholawat Fatih Icon
+ * Desain: Pigura kitab klasik bermahkota segitiga dengan kaligrafi emas di atas lembaran gading
+ */
+export const SholawatFatihMenuIcon: React.FC<IconProps> = ({ size = 42 }) => {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 64 64" fill="none">
+      <Defs>
+        <SvgLinearGradient id="fatihFrameGrad" x1="0" y1="0" x2="1" y2="1">
+          <Stop offset="0%" stopColor="#10B981" />
+          <Stop offset="100%" stopColor="#064E3B" />
+        </SvgLinearGradient>
+        <SvgLinearGradient id="fatihPaperGrad" x1="0" y1="0" x2="0" y2="1">
+          <Stop offset="0%" stopColor="#FFFDF5" />
+          <Stop offset="100%" stopColor="#FEF3C7" />
+        </SvgLinearGradient>
+        <SvgLinearGradient id="fatihGoldGrad" x1="0" y1="0" x2="1" y2="1">
+          <Stop offset="0%" stopColor="#FDE047" />
+          <Stop offset="100%" stopColor="#D97706" />
+        </SvgLinearGradient>
+      </Defs>
+
+      {/* Mahkota Segitiga (Taj) */}
+      <Polygon
+        points="32,7 19,21 45,21"
+        fill="url(#fatihGoldGrad)"
+        stroke="#78350F"
+        strokeWidth="1.2"
+        strokeLinejoin="round"
+      />
+      <Line x1="25.5" y1="14" x2="38.5" y2="14" stroke="#78350F" strokeWidth="1" />
+      <Circle cx="32" cy="11" r="1.2" fill="#FFFBEB" />
+
+      {/* Bingkai Utama Lauh */}
+      <Rect
+        x="13"
+        y="21"
+        width="38"
+        height="32"
+        rx="2"
+        fill="url(#fatihFrameGrad)"
+        stroke="url(#fatihGoldGrad)"
+        strokeWidth="1.8"
+      />
+      <Rect
+        x="16.5"
+        y="24.5"
+        width="31"
+        height="25"
+        rx="1"
+        fill="url(#fatihPaperGrad)"
+        stroke="#D97706"
+        strokeWidth="0.9"
+      />
+
+      {/* Garis Kaligrafi Sholawat Fatih */}
+      <Path d="M22 30 H42" stroke="#065F46" strokeWidth="2" strokeLinecap="round" />
+      <Path d="M20 35.5 H44" stroke="#047857" strokeWidth="1.6" strokeLinecap="round" />
+      <Path d="M21 40.5 H43" stroke="#047857" strokeWidth="1.6" strokeLinecap="round" />
+      <Path d="M24 45.5 H40" stroke="#D97706" strokeWidth="1.6" strokeLinecap="round" />
+
+      {/* Ornamen Bawah */}
+      <Path d="M20 57 L32 55 L44 57 L32 59 Z" fill="url(#fatihGoldGrad)" />
+    </Svg>
+  );
+};
+
+/**
+ * 6. Web Kasan Icon
+ * Desain: Bola dunia bernuansa zamrud & emas dengan bintang portal resmi kasantuban.org
+ */
+export const WebKasanMenuIcon: React.FC<IconProps> = ({ size = 42 }) => {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 64 64" fill="none">
+      <Defs>
+        <SvgLinearGradient id="webGlobeGrad" x1="0" y1="0" x2="1" y2="1">
+          <Stop offset="0%" stopColor="#38BDF8" />
+          <Stop offset="55%" stopColor="#0284C7" />
+          <Stop offset="100%" stopColor="#0369A1" />
+        </SvgLinearGradient>
+        <SvgLinearGradient id="webRingGrad" x1="0" y1="0" x2="1" y2="1">
+          <Stop offset="0%" stopColor="#FDE047" />
+          <Stop offset="100%" stopColor="#D97706" />
+        </SvgLinearGradient>
+      </Defs>
+
+      {/* Lingkaran Bola Dunia */}
+      <Circle
+        cx="32"
+        cy="33"
+        r="20"
+        fill="url(#webGlobeGrad)"
+        stroke="#E0F2FE"
+        strokeWidth="1.5"
+      />
+
+      {/* Garis Meridian & Lintang */}
+      <Ellipse
+        cx="32"
+        cy="33"
+        rx="9.5"
+        ry="20"
+        fill="none"
+        stroke="#BAE6FD"
+        strokeWidth="1.4"
+      />
+      <Path d="M12.5 33 H51.5" stroke="#BAE6FD" strokeWidth="1.4" />
+      <Path d="M15.5 23.5 C24 26 40 26 48.5 23.5" stroke="#BAE6FD" strokeWidth="1.2" fill="none" />
+      <Path d="M15.5 42.5 C24 40 40 40 48.5 42.5" stroke="#BAE6FD" strokeWidth="1.2" fill="none" />
+
+      {/* Sabuk Orbit & Aksen Emas */}
+      <Path
+        d="M11 40 C22 22 44 17 55 21"
+        stroke="url(#webRingGrad)"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        fill="none"
+      />
+
+      {/* Bintang Portal Kanan Atas */}
+      <Path
+        d="M49 11 L50.6 15.4 L55 17 L50.6 18.6 L49 23 L47.4 18.6 L43 17 L47.4 15.4 Z"
+        fill="#FDE047"
+      />
     </Svg>
   );
 };

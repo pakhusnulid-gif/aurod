@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Image,
+  Linking,
   useWindowDimensions,
   Platform,
 } from 'react-native';
@@ -16,6 +17,8 @@ import {
   AurodMenuIcon,
   TawassulMenuIcon,
   TahlilMenuIcon,
+  SholawatFatihMenuIcon,
+  WebKasanMenuIcon,
 } from '@/components/MenuColoredIcons';
 import { AppShell } from '@/components/AppShell';
 import { Navbar } from '@/components/Navbar';
@@ -32,11 +35,14 @@ import { getCurrentLocation, LocationData } from '@/utils/locationService';
 const SANAD_IMAGE = require('@/assets/images/sanad-kitab.jpg');
 const MAJELIS_IMAGE = require('@/assets/images/majelis-rutinan.jpg');
 
+type AppRoute = '/yasin' | '/aurod' | '/tawassul' | '/tahlil' | '/sholawat-fatih';
+
 interface MenuItem {
   id: number;
   titleArabic: string;
   titleLatin: string;
-  route: '/yasin' | '/aurod' | '/tawassul' | '/tahlil';
+  route?: AppRoute;
+  externalUrl?: string;
   IconComponent: React.ComponentType<{ size?: number }>;
   accentColor: string;
   bgLight: string;
@@ -84,8 +90,8 @@ const MENU_ITEMS: MenuItem[] = [
   },
   {
     id: 4,
-    titleArabic: 'التَّهْلِيْلُ',
-    titleLatin: 'Tahlil & Doa',
+    titleArabic: 'التَّهْلِيْلُ وَالدُّعَاءُ',
+    titleLatin: 'Tahlil dan Doa',
     route: '/tahlil',
     IconComponent: TahlilMenuIcon,
     accentColor: '#047857',
@@ -93,6 +99,30 @@ const MENU_ITEMS: MenuItem[] = [
     borderLight: '#C8E6C9',
     bgDark: '#0D2B24',
     borderDark: 'rgba(52, 211, 153, 0.3)',
+  },
+  {
+    id: 5,
+    titleArabic: 'الصَّلَوَاتُ الْفَاتِحُ',
+    titleLatin: 'Sholawat Fatih',
+    route: '/sholawat-fatih',
+    IconComponent: SholawatFatihMenuIcon,
+    accentColor: '#B45309',
+    bgLight: '#FEF3C7',
+    borderLight: '#FCD34D',
+    bgDark: '#271A07',
+    borderDark: 'rgba(251, 191, 36, 0.35)',
+  },
+  {
+    id: 6,
+    titleArabic: 'مَوْقِعُ كَسَانْ',
+    titleLatin: 'Web Kasan',
+    externalUrl: 'https://kasantuban.org',
+    IconComponent: WebKasanMenuIcon,
+    accentColor: '#0284C7',
+    bgLight: '#E0F2FE',
+    borderLight: '#7DD3FC',
+    bgDark: '#082F49',
+    borderDark: 'rgba(56, 189, 248, 0.35)',
   },
 ];
 
@@ -125,8 +155,23 @@ export default function HomeScreen() {
     };
   }, []);
 
-  const horizontalPad = width < 380 ? spacing.md : spacing.md + 4;
-  const menuRows = [MENU_ITEMS.slice(0, 2), MENU_ITEMS.slice(2, 4)];
+  const isCompactWidth = width < 390;
+  const horizontalPad = isCompactWidth ? spacing.sm + 4 : spacing.md + 2;
+  const menuRows = [MENU_ITEMS.slice(0, 3), MENU_ITEMS.slice(3, 6)];
+
+  const handleMenuPress = (item: MenuItem) => {
+    if (item.externalUrl) {
+      if (Platform.OS === 'web' && typeof window !== 'undefined') {
+        const opened = window.open(item.externalUrl, '_blank', 'noopener,noreferrer');
+        if (opened) return;
+      }
+      Linking.openURL(item.externalUrl).catch(() => {});
+      return;
+    }
+    if (item.route) {
+      router.push(item.route);
+    }
+  };
 
   return (
     <AppShell maxWidth={480}>
@@ -192,12 +237,17 @@ export default function HomeScreen() {
                             backgroundColor: themeColors.card,
                             borderColor: themeColors.border,
                             shadowColor: themeColors.shadow,
+                            minHeight: isCompactWidth ? 96 : 104,
                           },
                         ]}
-                        onPress={() => router.push(item.route)}
+                        onPress={() => handleMenuPress(item)}
                         activeOpacity={0.75}
                         accessibilityRole="button"
-                        accessibilityLabel={`${item.titleLatin} - ${item.titleArabic}`}
+                        accessibilityLabel={
+                          item.externalUrl
+                            ? `${item.titleLatin} - Buka ${item.externalUrl}`
+                            : `${item.titleLatin} - ${item.titleArabic}`
+                        }
                       >
                         <View
                           style={[
@@ -208,12 +258,16 @@ export default function HomeScreen() {
                             },
                           ]}
                         >
-                          <Icon size={40} />
+                          <Icon size={25} />
                         </View>
                         <Text
                           style={[
                             styles.cardTitleArabic,
-                            { color: themeColors.text },
+                            {
+                              color: themeColors.text,
+                              fontSize: isCompactWidth ? 12.5 : 13.5,
+                              lineHeight: isCompactWidth ? 18 : 20,
+                            },
                           ]}
                           numberOfLines={2}
                         >
@@ -222,9 +276,12 @@ export default function HomeScreen() {
                         <Text
                           style={[
                             styles.cardTitleLatin,
-                            { color: themeColors.textSecondary },
+                            {
+                              color: themeColors.textSecondary,
+                              fontSize: isCompactWidth ? 10 : 10.5,
+                            },
                           ]}
-                          numberOfLines={1}
+                          numberOfLines={2}
                         >
                           {item.titleLatin}
                         </Text>
@@ -366,22 +423,22 @@ const styles = StyleSheet.create({
   archBody: {
     borderTopLeftRadius: borderRadius.xl + 4,
     borderTopRightRadius: borderRadius.xl + 4,
-    marginTop: -20,
+    marginTop: -18,
     paddingTop: spacing.xs,
   },
   prayerStripOverlap: {
     marginTop: -spacing.xs,
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm + 2,
   },
   sectionBlock: {
-    marginBottom: spacing.md + 2,
-    gap: spacing.sm,
+    marginBottom: spacing.md,
+    gap: spacing.xs + 2,
   },
   sectionHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 2,
+    marginBottom: 1,
   },
   sectionLabel: {
     fontSize: 12,
@@ -390,56 +447,53 @@ const styles = StyleSheet.create({
   },
   sectionArabicPill: {
     fontFamily: Platform.select({ web: 'Amiri-Bold, "Amiri", "Traditional Arabic", serif', default: 'Amiri-Bold' }),
-    fontSize: 13,
+    fontSize: 12.5,
     paddingHorizontal: spacing.sm,
     paddingVertical: 2,
     borderRadius: borderRadius.full,
     overflow: 'hidden',
   },
   menuGrid: {
-    gap: spacing.sm + 4,
+    gap: spacing.sm,
   },
   gridRow: {
     flexDirection: 'row',
-    gap: spacing.sm + 4,
+    gap: spacing.sm,
   },
   gridCard: {
     flex: 1,
-    paddingVertical: spacing.md - 2,
-    paddingHorizontal: spacing.sm,
-    borderRadius: borderRadius.xl,
+    paddingVertical: spacing.xs + 3,
+    paddingHorizontal: spacing.xs,
+    borderRadius: borderRadius.lg,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 128,
     elevation: 2,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
-    shadowRadius: 8,
+    shadowRadius: 6,
   },
   iconCircleBadge: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     borderWidth: 1.5,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: spacing.xs + 3,
-    elevation: 2,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
+    marginBottom: 5,
+    elevation: 1,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 3,
   },
   cardTitleArabic: {
     fontFamily: Platform.select({ web: 'Amiri-Bold, "Amiri", "Traditional Arabic", serif', default: 'Amiri-Bold' }),
-    fontSize: 16.5,
-    lineHeight: 25,
     textAlign: 'center',
     userSelect: 'none',
   },
   cardTitleLatin: {
-    fontSize: 11.5,
     fontWeight: '600',
+    lineHeight: 13,
     textAlign: 'center',
     userSelect: 'none',
     marginTop: 2,

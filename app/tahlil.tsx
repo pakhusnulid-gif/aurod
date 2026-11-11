@@ -48,7 +48,7 @@ export default function TahlilScreen() {
   return (
     <AppShell maxWidth={680}>
       <Navbar
-        title="Tahlil & Doa"
+        title="Tahlil dan Doa"
         showBack
         showTasbih
         onOpenTasbih={() => setTasbihOpen(true)}
@@ -101,15 +101,11 @@ export default function TahlilScreen() {
             {
               color: themeColors.primary,
               fontSize: fontSize + 6,
-              lineHeight: Math.round((fontSize + 6) * 1.5),
+              lineHeight: Math.round((fontSize + 6) * 1.6),
             },
           ]}
         >
-          مَجْلِسُ التَّهْلِيْلِ
-        </Text>
-
-        <Text style={[styles.subtitle, { color: themeColors.textSecondary }]}>
-          Majelis Tahlil Pondok Pesantren An-Nidhomiyyah
+          التَّهْلِيْلُ وَالدُّعَاءُ
         </Text>
 
         {tahlilData.map((item) => (
@@ -133,22 +129,6 @@ export default function TahlilScreen() {
                 : undefined
             }
           >
-            {item.sectionLabel && (
-              <View
-                style={[
-                  styles.sectionLabelBadge,
-                  {
-                    backgroundColor: themeColors.badgeNeutralBg,
-                    borderColor: themeColors.badgeNeutralBorder,
-                  },
-                ]}
-              >
-                <Text style={[styles.sectionLabelText, { color: themeColors.badgeNeutralText }]}>
-                  {item.sectionLabel}
-                </Text>
-              </View>
-            )}
-
             <Text
               style={[
                 item.isColophon ? styles.colophonText : styles.arabicText,
@@ -215,36 +195,16 @@ const styles = StyleSheet.create({
     fontFamily: 'Amiri-Bold',
     textAlign: 'center',
     writingDirection: 'rtl',
-    marginTop: spacing.sm,
-    marginBottom: spacing.xs,
-  },
-  subtitle: {
-    fontSize: 14,
-    textAlign: 'center',
-    writingDirection: 'ltr',
-    marginBottom: spacing.xl,
+    marginTop: spacing.xs,
+    marginBottom: spacing.lg,
   },
   section: {
     marginBottom: spacing.lg,
-  },
-  sectionLabelBadge: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: spacing.sm + 2,
-    paddingVertical: 4,
-    borderRadius: borderRadius.md,
-    borderWidth: 1,
-    marginBottom: spacing.xs,
-  },
-  sectionLabelText: {
-    fontSize: 12,
-    fontWeight: '700',
-    writingDirection: 'ltr',
   },
   arabicText: {
     fontFamily: 'Amiri-Regular',
     textAlign: 'right',
     writingDirection: 'rtl',
-    marginTop: spacing.xs,
   },
   colophonCard: {
     padding: spacing.md,
