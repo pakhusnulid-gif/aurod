@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   useWindowDimensions,
 } from 'react-native';
+import { ChevronRight } from 'lucide-react-native';
 import { AppShell } from '@/components/AppShell';
 import { Navbar } from '@/components/Navbar';
 import { ReadingSettingsModal } from '@/components/ReadingSettingsModal';
@@ -15,16 +16,11 @@ import { Footer } from '@/components/Footer';
 import { useTheme } from '@/contexts/ThemeContext';
 import { colors, spacing, borderRadius } from '@/constants/theme';
 import { getArabicFontFamily } from '@/constants/arabicFonts';
-import { tahlilData } from '@/constants/tahlilData';
+import { tahlilData, TahlilTab } from '@/constants/tahlilData';
 
-const JUMP_CHIPS = [
-  { key: 'hadhorot', label: 'Hadhorot' },
-  { key: 'surah', label: 'Surat Pendek' },
-  { key: 'baqarah', label: 'Al-Baqarah' },
-  { key: 'tahlil', label: 'Tahlil 41x' },
-  { key: 'tasbih', label: 'Tasbih' },
-  { key: 'doa', label: 'Doa Tahlil' },
-  { key: 'penutup', label: 'Penutup' },
+const TABS: { key: TahlilTab; label: string }[] = [
+  { key: 'tahlil', label: 'Tahlil' },
+  { key: 'doa', label: 'Doa' },
 ];
 
 export default function TahlilScreen() {
@@ -34,18 +30,17 @@ export default function TahlilScreen() {
   const arabicFontRegular = getArabicFontFamily(arabicFont, 'regular');
   const arabicFontBold = getArabicFontFamily(arabicFont, 'bold');
   const scrollViewRef = useRef<ScrollView>(null);
-  const sectionOffsets = useRef<Record<string, number>>({});
+  const [activeTab, setActiveTab] = useState<TahlilTab>('tahlil');
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [tasbihOpen, setTasbihOpen] = useState(false);
 
   const horizontalPad = width < 480 ? spacing.md : spacing.lg;
   const arabicLineHeight = Math.round(fontSize * 1.85);
+  const visibleItems = tahlilData.filter((item) => item.tab === activeTab);
 
-  const handleJump = (key: string) => {
-    const y = sectionOffsets.current[key];
-    if (typeof y === 'number') {
-      scrollViewRef.current?.scrollTo({ y: Math.max(0, y - 12), animated: true });
-    }
+  const handleSelectTab = (tab: TahlilTab) => {
+    setActiveTab(tab);
+    scrollViewRef.current?.scrollTo({ y: 0, animated: false });
   };
 
   return (
@@ -61,36 +56,50 @@ export default function TahlilScreen() {
 
       <View
         style={[
-          styles.jumpBarWrapper,
-          { backgroundColor: themeColors.background, borderBottomColor: themeColors.border },
+          styles.tabBarWrapper,
+          {
+            backgroundColor: themeColors.background,
+            borderBottomColor: themeColors.border,
+            paddingHorizontal: horizontalPad,
+          },
         ]}
       >
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.jumpBarContent}
+        <View
+          style={[
+            styles.tabGroup,
+            {
+              backgroundColor: themeColors.surface,
+              borderColor: themeColors.border,
+            },
+          ]}
         >
-          {JUMP_CHIPS.map((chip) => (
-            <TouchableOpacity
-              key={chip.key}
-              onPress={() => handleJump(chip.key)}
-              activeOpacity={0.75}
-              accessibilityRole="button"
-              accessibilityLabel={`Lompat ke bagian ${chip.label}`}
-              style={[
-                styles.jumpChip,
-                {
-                  backgroundColor: themeColors.surface,
-                  borderColor: themeColors.border,
-                },
-              ]}
-            >
-              <Text style={[styles.jumpChipText, { color: themeColors.primary }]}>
-                {chip.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
+          {TABS.map((tab) => {
+            const isActive = activeTab === tab.key;
+            return (
+              <TouchableOpacity
+                key={tab.key}
+                onPress={() => handleSelectTab(tab.key)}
+                activeOpacity={0.8}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: isActive }}
+                accessibilityLabel={`Tab ${tab.label}`}
+                style={[
+                  styles.tabButton,
+                  isActive && { backgroundColor: themeColors.primary },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.tabLabel,
+                    { color: isActive ? themeColors.onPrimary : themeColors.textSecondary },
+                  ]}
+                >
+                  {tab.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
       </View>
 
       <ScrollView
@@ -109,10 +118,10 @@ export default function TahlilScreen() {
             },
           ]}
         >
-          التَّهْلِيْلُ وَالدُّعَاءُ
+          {activeTab === 'tahlil' ? 'التَّهْلِيْلُ وَالدُّعَاءُ' : 'دُعَاءُ التَّهْلِيلِ'}
         </Text>
 
-        {tahlilData.map((item) => (
+        {visibleItems.map((item) => (
           <View
             key={item.id}
             style={[
@@ -125,13 +134,6 @@ export default function TahlilScreen() {
                 },
               ],
             ]}
-            onLayout={
-              item.sectionKey
-                ? (e) => {
-                    sectionOffsets.current[item.sectionKey!] = e.nativeEvent.layout.y;
-                  }
-                : undefined
-            }
           >
             <Text
               style={[
@@ -150,6 +152,27 @@ export default function TahlilScreen() {
             </Text>
           </View>
         ))}
+
+        {activeTab === 'tahlil' && (
+          <TouchableOpacity
+            onPress={() => handleSelectTab('doa')}
+            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel="Lanjut baca Doa Tahlil"
+            style={[
+              styles.nextTabCard,
+              {
+                backgroundColor: themeColors.calloutBg,
+                borderColor: themeColors.calloutBorder,
+              },
+            ]}
+          >
+            <Text style={[styles.nextTabText, { color: themeColors.primary }]}>
+              Lanjut ke Doa Tahlil
+            </Text>
+            <ChevronRight color={themeColors.primary} size={18} />
+          </TouchableOpacity>
+        )}
 
         <Footer />
       </ScrollView>
@@ -171,33 +194,33 @@ export default function TahlilScreen() {
 }
 
 const styles = StyleSheet.create({
-  jumpBarWrapper: {
+  tabBarWrapper: {
     borderBottomWidth: 1,
     paddingVertical: spacing.xs + 2,
   },
-  jumpBarContent: {
-    paddingHorizontal: spacing.md,
-    gap: spacing.xs + 2,
-  },
-  jumpChip: {
-    minHeight: 36,
-    paddingHorizontal: spacing.sm + 4,
-    paddingVertical: 6,
-    borderRadius: borderRadius.full,
+  tabGroup: {
+    flexDirection: 'row',
+    borderRadius: borderRadius.lg,
     borderWidth: 1,
+    padding: 3,
+    gap: 4,
+  },
+  tabButton: {
+    flex: 1,
+    minHeight: 40,
+    borderRadius: borderRadius.md,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  jumpChipText: {
-    fontSize: 12,
-    fontWeight: '600',
+  tabLabel: {
+    fontSize: 13.5,
+    fontWeight: '700',
   },
   content: {
     paddingTop: spacing.lg,
     paddingBottom: spacing.xxl,
   },
   mainTitle: {
-    fontFamily: 'Amiri-Bold',
     textAlign: 'center',
     writingDirection: 'rtl',
     marginTop: spacing.xs,
@@ -207,7 +230,6 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   arabicText: {
-    fontFamily: 'Amiri-Regular',
     textAlign: 'right',
     writingDirection: 'rtl',
   },
@@ -218,8 +240,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   colophonText: {
-    fontFamily: 'Amiri-Regular',
     textAlign: 'center',
     writingDirection: 'rtl',
+  },
+  nextTabCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs,
+    minHeight: 46,
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  nextTabText: {
+    fontSize: 14,
+    fontWeight: '700',
   },
 });
