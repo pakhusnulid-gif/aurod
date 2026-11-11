@@ -1,11 +1,26 @@
+import { TUBAN_PRAYER_SCHEDULE_2026 } from '../constants/tubanPrayerSchedule2026';
+
 export interface PrayerTimesResult {
+  imsak: string;
   fajr: string;
   sunrise: string;
+  dhuha: string;
   dhuhr: string;
   asr: string;
   maghrib: string;
   isha: string;
+  source: 'kemenag-tuban-2026' | 'astronomical' | 'fallback';
 }
+
+export interface NextPrayerCountdown {
+  name: string;
+  time: string;
+  remainingSeconds: number;
+  countdownText: string;
+}
+
+const TUBAN_LAT = -6.8976;
+const TUBAN_LNG = 112.0478;
 
 const DMath = {
   dtr: (d: number) => (d * Math.PI) / 180.0,
@@ -93,21 +108,67 @@ function timeToString(time: number): string {
   return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
 }
 
+export function formatDateKey(date: Date): string {
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function isTubanCoordinates(latitude: number, longitude: number): boolean {
+  return (
+    Math.abs(latitude - TUBAN_LAT) < 0.2 &&
+    Math.abs(longitude - TUBAN_LNG) < 0.2
+  );
+}
+
+function computeSunriseTime(latitude: number, longitude: number, date: Date): string {
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  const jd = julianDay(year, month, day) - longitude / (15 * 24);
+  const timezone = -date.getTimezoneOffset() / 60;
+  const offset = timezone - longitude / 15;
+  const sunriseHour = sunAngleTime(0.833, 6 / 24, -1, jd, latitude) + offset;
+  return timeToString(sunriseHour);
+}
+
 export function calculatePrayerTimes(
-  latitude: number = -6.8976,
-  longitude: number = 112.0478,
+  latitude: number = TUBAN_LAT,
+  longitude: number = TUBAN_LNG,
   date: Date = new Date()
 ): PrayerTimesResult {
   const FALLBACK_TIMES: PrayerTimesResult = {
+    imsak: '03:55',
     fajr: '04:05',
     sunrise: '05:15',
+    dhuha: '05:40',
     dhuhr: '11:35',
     asr: '14:55',
     maghrib: '17:40',
     isha: '18:55',
+    source: 'fallback',
   };
 
   try {
+    const dateKey = formatDateKey(date);
+    if (isTubanCoordinates(latitude, longitude)) {
+      const tubanEntry = TUBAN_PRAYER_SCHEDULE_2026[dateKey];
+      if (tubanEntry) {
+        return {
+          imsak: tubanEntry[0],
+          fajr: tubanEntry[1],
+          sunrise: computeSunriseTime(TUBAN_LAT, TUBAN_LNG, date),
+          dhuha: tubanEntry[2],
+          dhuhr: tubanEntry[3],
+          asr: tubanEntry[4],
+          maghrib: tubanEntry[5],
+          isha: tubanEntry[6],
+          source: 'kemenag-tuban-2026',
+        };
+      }
+    }
+
     const year = date.getFullYear();
     const month = date.getMonth() + 1;
     const day = date.getDate();
@@ -116,31 +177,36 @@ export function calculatePrayerTimes(
     const timezone = -date.getTimezoneOffset() / 60;
     const offset = timezone - longitude / 15;
 
-    let times = [5, 6, 12, 13, 18, 18];
+    let times = [5, 6, 6, 12, 13, 18, 18];
 
     // Two iterations refine solar declination for each prayer hour.
     for (let pass = 0; pass < 2; pass++) {
       times = [
         sunAngleTime(20, times[0] / 24, -1, jd, latitude),
         sunAngleTime(0.833, times[1] / 24, -1, jd, latitude),
-        midDay(jd, times[2] / 24),
-        asrTime(times[3] / 24, 1, jd, latitude),
-        sunAngleTime(0.833, times[4] / 24, 1, jd, latitude),
-        sunAngleTime(18, times[5] / 24, 1, jd, latitude),
+        sunAngleTime(-4.5, times[2] / 24, -1, jd, latitude),
+        midDay(jd, times[3] / 24),
+        asrTime(times[4] / 24, 1, jd, latitude),
+        sunAngleTime(0.833, times[5] / 24, 1, jd, latitude),
+        sunAngleTime(18, times[6] / 24, 1, jd, latitude),
       ];
     }
 
-    for (let i = 0; i < times.length; i++) {
-      times[i] += offset;
-    }
+    // Standard Kemenag RI ~2 minute ihtiyat safety margin for calculated fallback.
+    const ihtiyat = 2 / 60;
+    const fajrHours = times[0] + offset + ihtiyat;
+    const imsakHours = fajrHours - 10 / 60;
 
-    const result = {
-      fajr: timeToString(times[0]),
-      sunrise: timeToString(times[1]),
-      dhuhr: timeToString(times[2]),
-      asr: timeToString(times[3]),
-      maghrib: timeToString(times[4]),
-      isha: timeToString(times[5]),
+    const result: PrayerTimesResult = {
+      imsak: timeToString(imsakHours),
+      fajr: timeToString(fajrHours),
+      sunrise: timeToString(times[1] + offset),
+      dhuha: timeToString(times[2] + offset + ihtiyat),
+      dhuhr: timeToString(times[3] + offset + ihtiyat),
+      asr: timeToString(times[4] + offset + ihtiyat),
+      maghrib: timeToString(times[5] + offset + ihtiyat),
+      isha: timeToString(times[6] + offset + ihtiyat),
+      source: 'astronomical',
     };
 
     const subuhJam = parseInt(result.fajr.split(':')[0], 10);
@@ -158,7 +224,6 @@ export function calculatePrayerTimes(
       isyaJam < 17 ||
       isyaJam > 21
     ) {
-      console.warn('Waktu salat di luar rentang wajar, menggunakan data fallback.');
       return FALLBACK_TIMES;
     }
 
@@ -175,8 +240,7 @@ function parseMinutes(timeStr: string): number {
   return hours * 60 + minutes;
 }
 
-export function getCurrentPrayer(prayerTimes: PrayerTimesResult): string {
-  const now = new Date();
+export function getCurrentPrayer(prayerTimes: PrayerTimesResult, now: Date = new Date()): string {
   const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
   const prayers = [
@@ -197,8 +261,10 @@ export function getCurrentPrayer(prayerTimes: PrayerTimesResult): string {
   return 'Isya';
 }
 
-export function getNextPrayer(prayerTimes: PrayerTimesResult): { name: string; time: string } {
-  const now = new Date();
+export function getNextPrayer(
+  prayerTimes: PrayerTimesResult,
+  now: Date = new Date()
+): { name: string; time: string } {
   const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
   const prayers = [
@@ -217,4 +283,58 @@ export function getNextPrayer(prayerTimes: PrayerTimesResult): { name: string; t
   }
 
   return prayers[0];
+}
+
+export function getNextPrayerCountdown(
+  prayerTimes: PrayerTimesResult,
+  now: Date = new Date(),
+  latitude: number = TUBAN_LAT,
+  longitude: number = TUBAN_LNG
+): NextPrayerCountdown {
+  const currentSeconds =
+    now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+
+  const prayers = [
+    { name: 'Subuh', time: prayerTimes.fajr },
+    { name: 'Dzuhur', time: prayerTimes.dhuhr },
+    { name: 'Ashar', time: prayerTimes.asr },
+    { name: 'Maghrib', time: prayerTimes.maghrib },
+    { name: 'Isya', time: prayerTimes.isha },
+  ];
+
+  for (const prayer of prayers) {
+    const prayerMinutes = parseMinutes(prayer.time);
+    if (prayerMinutes >= 0 && currentSeconds < prayerMinutes * 60) {
+      const remainingSeconds = prayerMinutes * 60 - currentSeconds;
+      return {
+        name: prayer.name,
+        time: prayer.time,
+        remainingSeconds,
+        countdownText: formatCountdown(remainingSeconds),
+      };
+    }
+  }
+
+  // After Isya, count down to tomorrow's Subuh.
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowTimes = calculatePrayerTimes(latitude, longitude, tomorrow);
+  const fajrMinutes = parseMinutes(tomorrowTimes.fajr);
+  const remainingSeconds =
+    fajrMinutes >= 0 ? 24 * 3600 - currentSeconds + fajrMinutes * 60 : 0;
+
+  return {
+    name: 'Subuh',
+    time: tomorrowTimes.fajr,
+    remainingSeconds,
+    countdownText: formatCountdown(remainingSeconds),
+  };
+}
+
+function formatCountdown(totalSeconds: number): string {
+  const clamped = Math.max(0, Math.floor(totalSeconds));
+  const hrs = Math.floor(clamped / 3600);
+  const mins = Math.floor((clamped % 3600) / 60);
+  const secs = clamped % 60;
+  return `-${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 }

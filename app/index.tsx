@@ -1,13 +1,33 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+  useWindowDimensions,
+} from 'react-native';
 import { useRouter } from 'expo-router';
+import {
+  BookOpen,
+  ScrollText,
+  Hand,
+  Layers,
+  ChevronRight,
+} from 'lucide-react-native';
+import { AppShell } from '@/components/AppShell';
 import { Navbar } from '@/components/Navbar';
-import { DigitalClock } from '@/components/DigitalClock';
+import { HeroKubah } from '@/components/HeroKubah';
 import { PrayerTimes } from '@/components/PrayerTimes';
+import { PrayerDetailModal } from '@/components/PrayerDetailModal';
 import { Footer } from '@/components/Footer';
 import { useTheme } from '@/contexts/ThemeContext';
 import { colors, spacing, borderRadius } from '@/constants/theme';
-import { BookOpen, ScrollText, Hand, Layers } from 'lucide-react-native';
+import { getCurrentLocation, LocationData } from '@/utils/locationService';
+
+const SANAD_IMAGE = require('@/assets/images/sanad-kitab.jpg');
+const MAJELIS_IMAGE = require('@/assets/images/majelis-rutinan.jpg');
 
 interface MenuItem {
   id: number;
@@ -22,7 +42,7 @@ const MENU_ITEMS: MenuItem[] = [
   {
     id: 1,
     title: 'Yasin Fadhilah',
-    subtitle: 'Surat Yasin & Doa',
+    subtitle: '83 Ayat & Doa',
     route: '/yasin',
     icon: BookOpen,
     color: '#047857',
@@ -46,149 +66,290 @@ const MENU_ITEMS: MenuItem[] = [
   {
     id: 4,
     title: 'Tahlil',
-    subtitle: 'Bacaan Tahlil',
+    subtitle: 'Majelis Tahlil',
     route: '/tahlil',
     icon: Layers,
     color: '#115E59',
   },
 ];
 
+const DEFAULT_LOCATION: LocationData = {
+  latitude: -6.8976,
+  longitude: 112.0478,
+  city: 'Tuban',
+  region: 'Jawa Timur',
+};
+
 export default function HomeScreen() {
   const router = useRouter();
   const { theme } = useTheme();
+  const { width } = useWindowDimensions();
   const themeColors = colors[theme];
+  const [location, setLocation] = useState<LocationData>(DEFAULT_LOCATION);
+  const [prayerModalOpen, setPrayerModalOpen] = useState(false);
 
+  useEffect(() => {
+    let isMounted = true;
+    getCurrentLocation()
+      .then((loc) => {
+        if (isMounted) setLocation(loc);
+      })
+      .catch(() => {});
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const horizontalPad = width < 380 ? spacing.md : spacing.md + 4;
   const menuRows = [MENU_ITEMS.slice(0, 2), MENU_ITEMS.slice(2, 4)];
 
   return (
-    <View style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <Navbar title="Aurod An-Nidhomiyyah" />
+    <AppShell maxWidth={480}>
+      <Navbar title="Aurod An-Nidhomiyyah" showBrandLogo />
 
       <ScrollView
-        contentContainerStyle={styles.content}
+        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.headerSection}>
-          <Text style={[styles.mainTitle, { color: themeColors.primary }]}>
-            Amalan Santri
-          </Text>
-          <Text style={[styles.subtitle, { color: themeColors.textSecondary }]}>
-            Pondok Pesantren An-Nidhomiyyah
-          </Text>
-        </View>
+        <HeroKubah
+          latitude={location.latitude}
+          longitude={location.longitude}
+          city={location.city}
+          region={location.region}
+          onPressSchedule={() => setPrayerModalOpen(true)}
+        />
 
-        <DigitalClock />
-        <PrayerTimes />
+        <View
+          style={[
+            styles.archBody,
+            {
+              backgroundColor: themeColors.background,
+              paddingHorizontal: horizontalPad,
+            },
+          ]}
+        >
+          <View style={styles.prayerStripOverlap}>
+            <PrayerTimes onOpenDetail={() => setPrayerModalOpen(true)} />
+          </View>
 
-        <View style={styles.menuSection}>
-          {menuRows.map((row, rowIndex) => (
-            <View key={rowIndex} style={styles.gridRow}>
-              {row.map((item) => {
-                const IconComponent = item.icon;
-                return (
-                  <TouchableOpacity
-                    key={item.id}
-                    style={[
-                      styles.gridCard,
-                      {
-                        backgroundColor: themeColors.card,
-                        borderColor: themeColors.border,
-                        shadowColor: themeColors.shadow,
-                      },
-                    ]}
-                    onPress={() => router.push(item.route)}
-                    activeOpacity={0.75}
-                    accessibilityRole="button"
-                    accessibilityLabel={`${item.title}, ${item.subtitle}`}
-                  >
-                    <View style={[styles.iconContainer, { backgroundColor: item.color }]}>
-                      <IconComponent color="#F8FAF9" size={28} />
-                    </View>
-                    <Text style={[styles.cardTitle, { color: themeColors.text }]}>
-                      {item.title}
-                    </Text>
-                    <Text style={[styles.cardSubtitle, { color: themeColors.textSecondary }]}>
-                      {item.subtitle}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
+          <View style={styles.sectionBlock}>
+            <Text style={[styles.sectionLabel, { color: themeColors.textSecondary }]}>
+              Amalan Santri
+            </Text>
+            <View style={styles.menuGrid}>
+              {menuRows.map((row, rowIndex) => (
+                <View key={rowIndex} style={styles.gridRow}>
+                  {row.map((item) => {
+                    const IconComponent = item.icon;
+                    return (
+                      <TouchableOpacity
+                        key={item.id}
+                        style={[
+                          styles.gridCard,
+                          {
+                            backgroundColor: themeColors.card,
+                            borderColor: themeColors.border,
+                            shadowColor: themeColors.shadow,
+                          },
+                        ]}
+                        onPress={() => router.push(item.route)}
+                        activeOpacity={0.75}
+                        accessibilityRole="button"
+                        accessibilityLabel={`${item.title}, ${item.subtitle}`}
+                      >
+                        <View style={[styles.iconCircle, { backgroundColor: item.color }]}>
+                          <IconComponent color="#F8FAF9" size={22} />
+                        </View>
+                        <Text style={[styles.cardTitle, { color: themeColors.text }]} numberOfLines={1}>
+                          {item.title}
+                        </Text>
+                        <Text style={[styles.cardSubtitle, { color: themeColors.textSecondary }]} numberOfLines={1}>
+                          {item.subtitle}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              ))}
             </View>
-          ))}
-        </View>
+          </View>
 
-        <Footer />
+          <View style={styles.sectionBlock}>
+            <Text style={[styles.sectionLabel, { color: themeColors.textSecondary }]}>
+              Pesantren & Sanad
+            </Text>
+
+            <TouchableOpacity
+              onPress={() => router.push({ pathname: '/aurod', params: { section: 'sanad' } })}
+              activeOpacity={0.78}
+              accessibilityRole="button"
+              accessibilityLabel="Buka Silsilah Sanad Aurod KH. Ahmad Musyaffa"
+              style={[
+                styles.editorialCard,
+                {
+                  backgroundColor: themeColors.card,
+                  borderColor: themeColors.border,
+                  shadowColor: themeColors.shadow,
+                },
+              ]}
+            >
+              <Image source={SANAD_IMAGE} style={styles.editorialThumb} />
+              <View style={styles.editorialBody}>
+                <Text style={[styles.editorialTag, { color: themeColors.primary }]}>
+                  Silsilah Sanad
+                </Text>
+                <Text style={[styles.editorialTitle, { color: themeColors.text }]} numberOfLines={2}>
+                  Sanad Aurod Lazimah Thoriqoh
+                </Text>
+                <Text style={[styles.editorialSub, { color: themeColors.textSecondary }]} numberOfLines={1}>
+                  KH. Ahmad Musyaffa&apos; bin Ma&apos;sum
+                </Text>
+              </View>
+              <ChevronRight color={themeColors.textSecondary} size={18} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => router.push({ pathname: '/aurod', params: { section: 'hailalah' } })}
+              activeOpacity={0.78}
+              accessibilityRole="button"
+              accessibilityLabel="Buka panduan Rutinan Hailalah Jum'at Ba'da Ashar"
+              style={[
+                styles.editorialCard,
+                {
+                  backgroundColor: themeColors.card,
+                  borderColor: themeColors.border,
+                  shadowColor: themeColors.shadow,
+                },
+              ]}
+            >
+              <Image source={MAJELIS_IMAGE} style={styles.editorialThumb} />
+              <View style={styles.editorialBody}>
+                <Text style={[styles.editorialTag, { color: themeColors.primary }]}>
+                  Jadwal Rutinan
+                </Text>
+                <Text style={[styles.editorialTitle, { color: themeColors.text }]} numberOfLines={2}>
+                  Hailalah Jum&apos;at Ba&apos;da Ashar
+                </Text>
+                <Text style={[styles.editorialSub, { color: themeColors.textSecondary }]} numberOfLines={1}>
+                  Pondok Pesantren An-Nidhomiyyah Tuban
+                </Text>
+              </View>
+              <ChevronRight color={themeColors.textSecondary} size={18} />
+            </TouchableOpacity>
+          </View>
+
+          <Footer />
+        </View>
       </ScrollView>
-    </View>
+
+      <PrayerDetailModal
+        visible={prayerModalOpen}
+        onClose={() => setPrayerModalOpen(false)}
+        latitude={location.latitude}
+        longitude={location.longitude}
+        city={location.city}
+        region={location.region}
+      />
+    </AppShell>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  scrollContent: {
+    paddingBottom: spacing.xl,
   },
-  content: {
-    padding: spacing.lg,
-    paddingBottom: spacing.xxl,
-    alignItems: 'center',
+  archBody: {
+    borderTopLeftRadius: borderRadius.xl + 4,
+    borderTopRightRadius: borderRadius.xl + 4,
+    marginTop: -20,
+    paddingTop: spacing.xs,
   },
-  headerSection: {
-    alignItems: 'center',
-    marginTop: spacing.md,
-    marginBottom: spacing.sm,
+  prayerStripOverlap: {
+    marginTop: -spacing.xs,
+    marginBottom: spacing.md,
   },
-  mainTitle: {
-    fontSize: 28,
-    fontWeight: '800',
-    textAlign: 'center',
-    marginBottom: spacing.xs,
+  sectionBlock: {
+    marginBottom: spacing.md + 2,
+    gap: spacing.sm,
   },
-  subtitle: {
-    fontSize: 14,
-    fontWeight: '400',
-    textAlign: 'center',
+  sectionLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    letterSpacing: 0.4,
+    marginBottom: 2,
   },
-  menuSection: {
-    width: '100%',
-    maxWidth: 520,
-    marginTop: spacing.lg,
-    gap: spacing.md,
+  menuGrid: {
+    gap: spacing.sm + 4,
   },
   gridRow: {
     flexDirection: 'row',
-    gap: spacing.md,
+    gap: spacing.sm + 4,
   },
   gridCard: {
     flex: 1,
-    padding: spacing.lg,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.sm + 4,
     borderRadius: borderRadius.lg,
     borderWidth: 1,
     alignItems: 'center',
-    minHeight: 164,
     justifyContent: 'center',
+    minHeight: 116,
     elevation: 2,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
+    shadowOpacity: 0.05,
     shadowRadius: 8,
   },
-  iconContainer: {
-    width: 60,
-    height: 60,
+  iconCircle: {
+    width: 46,
+    height: 46,
     borderRadius: borderRadius.full,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: spacing.sm,
+    marginBottom: spacing.xs + 2,
   },
   cardTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '700',
     textAlign: 'center',
-    marginBottom: 4,
+    marginBottom: 2,
     userSelect: 'none',
   },
   cardSubtitle: {
-    fontSize: 12,
+    fontSize: 11,
     textAlign: 'center',
     userSelect: 'none',
+  },
+  editorialCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: spacing.sm + 2,
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    gap: spacing.sm + 4,
+    minHeight: 84,
+    elevation: 1,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+  },
+  editorialThumb: {
+    width: 64,
+    height: 64,
+    borderRadius: borderRadius.md,
+  },
+  editorialBody: {
+    flex: 1,
+    gap: 2,
+  },
+  editorialTag: {
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  editorialTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  editorialSub: {
+    fontSize: 12,
   },
 });

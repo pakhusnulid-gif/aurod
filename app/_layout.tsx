@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Platform } from 'react-native';
@@ -50,6 +50,7 @@ function RootLayoutContent() {
 
 export default function RootLayout() {
   useFrameworkReady();
+  const [fontTimedOut, setFontTimedOut] = useState(false);
 
   const [fontsLoaded, fontError] = useFonts({
     'Amiri-Regular': Amiri_400Regular,
@@ -57,10 +58,17 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    if (fontsLoaded || fontError) {
-      SplashScreen.hideAsync();
+    const timer = setTimeout(() => {
+      setFontTimedOut(true);
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (fontsLoaded || fontError || fontTimedOut) {
+      SplashScreen.hideAsync().catch(() => {});
     }
-  }, [fontsLoaded, fontError]);
+  }, [fontsLoaded, fontError, fontTimedOut]);
 
   useEffect(() => {
     if (Platform.OS === 'web' && typeof window !== 'undefined') {
@@ -108,7 +116,7 @@ export default function RootLayout() {
     }
   }, []);
 
-  if (!fontsLoaded && !fontError) {
+  if (!fontsLoaded && !fontError && !fontTimedOut) {
     return null;
   }
 

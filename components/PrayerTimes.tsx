@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { ChevronRight, Clock } from 'lucide-react-native';
 import { useTheme } from '@/contexts/ThemeContext';
 import { colors, spacing, borderRadius } from '@/constants/theme';
-import { calculatePrayerTimes, PrayerTimesResult, getNextPrayer } from '@/utils/prayerTimes';
+import {
+  calculatePrayerTimes,
+  PrayerTimesResult,
+  getNextPrayer,
+} from '@/utils/prayerTimes';
 import { getCurrentLocation } from '@/utils/locationService';
 
 interface PrayerTime {
@@ -11,19 +16,23 @@ interface PrayerTime {
   isNext: boolean;
 }
 
+interface PrayerTimesProps {
+  onOpenDetail?: () => void;
+}
+
 function buildPrayerList(times: PrayerTimesResult): PrayerTime[] {
   const nextPrayer = getNextPrayer(times);
 
   return [
-    { name: 'SUBUH', time: times.fajr, isNext: nextPrayer.name === 'Subuh' },
-    { name: 'DZUHUR', time: times.dhuhr, isNext: nextPrayer.name === 'Dzuhur' },
-    { name: 'ASHAR', time: times.asr, isNext: nextPrayer.name === 'Ashar' },
-    { name: 'MAGHRIB', time: times.maghrib, isNext: nextPrayer.name === 'Maghrib' },
-    { name: 'ISYA', time: times.isha, isNext: nextPrayer.name === 'Isya' },
+    { name: 'Subuh', time: times.fajr, isNext: nextPrayer.name === 'Subuh' },
+    { name: 'Dzuhur', time: times.dhuhr, isNext: nextPrayer.name === 'Dzuhur' },
+    { name: 'Ashar', time: times.asr, isNext: nextPrayer.name === 'Ashar' },
+    { name: 'Maghrib', time: times.maghrib, isNext: nextPrayer.name === 'Maghrib' },
+    { name: 'Isya', time: times.isha, isNext: nextPrayer.name === 'Isya' },
   ];
 }
 
-export function PrayerTimes() {
+export function PrayerTimes({ onOpenDetail }: PrayerTimesProps) {
   const { theme } = useTheme();
   const themeColors = colors[theme];
   const [prayerTimes, setPrayerTimes] = useState<PrayerTime[]>(() =>
@@ -62,21 +71,31 @@ export function PrayerTimes() {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.cardWrapper,
+        {
+          backgroundColor: themeColors.card,
+          borderColor: themeColors.border,
+          shadowColor: themeColors.shadow,
+        },
+      ]}
+    >
       <View style={styles.gridContainer}>
         {prayerTimes.map((prayer) => (
           <View
             key={prayer.name}
             style={[
-              styles.prayerCard,
+              styles.prayerCell,
               prayer.isNext && {
                 backgroundColor: themeColors.calloutBg,
                 borderColor: themeColors.calloutBorder,
-                borderWidth: 1,
               },
             ]}
           >
             <Text
+              numberOfLines={1}
+              maxFontSizeMultiplier={1.2}
               style={[
                 styles.prayerName,
                 { color: prayer.isNext ? themeColors.primary : themeColors.textSecondary },
@@ -85,6 +104,8 @@ export function PrayerTimes() {
               {prayer.name}
             </Text>
             <Text
+              numberOfLines={1}
+              maxFontSizeMultiplier={1.2}
               style={[
                 styles.prayerTime,
                 { color: prayer.isNext ? themeColors.primary : themeColors.text },
@@ -95,40 +116,81 @@ export function PrayerTimes() {
           </View>
         ))}
       </View>
+
+      {onOpenDetail && (
+        <TouchableOpacity
+          onPress={onOpenDetail}
+          activeOpacity={0.75}
+          style={[styles.detailAction, { borderTopColor: themeColors.border }]}
+          accessibilityRole="button"
+          accessibilityLabel="Lihat detail 8 waktu salat lengkap termasuk Imsak dan Dhuha"
+        >
+          <View style={styles.detailLeft}>
+            <Clock color={themeColors.primary} size={14} />
+            <Text style={[styles.detailText, { color: themeColors.primary }]}>
+              Jadwal lengkap (Imsak, Terbit, Dhuha)
+            </Text>
+          </View>
+          <ChevronRight color={themeColors.primary} size={16} />
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  cardWrapper: {
     width: '100%',
-    maxWidth: 520,
-    marginVertical: spacing.sm,
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    overflow: 'hidden',
+    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
   },
   gridContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    width: '100%',
-    gap: spacing.xs,
+    justifyContent: 'space-between',
+    padding: spacing.xs + 2,
+    gap: 2,
   },
-  prayerCard: {
+  prayerCell: {
     flex: 1,
     alignItems: 'center',
-    paddingVertical: spacing.sm,
-    borderRadius: borderRadius.md,
+    paddingVertical: spacing.xs + 2,
+    paddingHorizontal: 2,
+    borderRadius: borderRadius.sm,
     borderWidth: 1,
     borderColor: 'transparent',
   },
   prayerName: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '600',
     marginBottom: 2,
-    textTransform: 'uppercase',
   },
   prayerTime: {
     fontSize: 13,
     fontWeight: '700',
     fontVariant: ['tabular-nums'],
+  },
+  detailAction: {
+    minHeight: 40,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs + 2,
+    borderTopWidth: 1,
+  },
+  detailLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  detailText: {
+    fontSize: 12,
+    fontWeight: '600',
   },
 });

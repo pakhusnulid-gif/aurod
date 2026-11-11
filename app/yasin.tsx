@@ -1,16 +1,51 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import React, { useRef, useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  useWindowDimensions,
+} from 'react-native';
 import { Repeat, Info, ArrowDown, ChevronRight, ChevronLeft } from 'lucide-react-native';
+import { AppShell } from '@/components/AppShell';
 import { Navbar } from '@/components/Navbar';
-import { FontSizeSlider } from '@/components/FontSizeSlider';
+import { ReadingSettingsModal } from '@/components/ReadingSettingsModal';
+import { TasbihModal } from '@/components/TasbihModal';
 import { Footer } from '@/components/Footer';
 import { useTheme } from '@/contexts/ThemeContext';
 import { colors, spacing, borderRadius } from '@/constants/theme';
-import { yasinFadhilahData, YasinContent, YasinAyat, YasinSisipan, YasinAyatParsial } from '@/constants/yasinData';
+import {
+  yasinFadhilahData,
+  YasinContent,
+  YasinAyat,
+  YasinSisipan,
+  YasinAyatParsial,
+} from '@/constants/yasinData';
+import { parseRepeatTarget } from '@/utils/repeatTarget';
+
+const JUMP_CHIPS = [
+  { key: '1', label: 'Ayat 1' },
+  { key: 'sisipan_1', label: 'Sisipan 1' },
+  { key: '38', label: 'Ayat 38' },
+  { key: 'sisipan_3', label: 'Sisipan 3' },
+  { key: '58', label: 'Ayat 58' },
+  { key: 'sisipan_4', label: 'Sisipan 4' },
+  { key: '81', label: 'Ayat 81' },
+];
 
 export default function YasinScreen() {
-  const { theme, fontSize } = useTheme();
+  const { theme, fontSize, showTranslation } = useTheme();
+  const { width } = useWindowDimensions();
   const themeColors = colors[theme];
+  const scrollViewRef = useRef<ScrollView>(null);
+  const sectionOffsets = useRef<Record<string, number>>({});
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [tasbihState, setTasbihState] = useState<{ label: string; target: number } | null>(null);
+
+  const isCompact = width < 480;
+  const horizontalPad = isCompact ? spacing.md : spacing.lg;
+  const sisipanPad = isCompact ? spacing.md : spacing.lg;
 
   const arabicFontSize = fontSize + 4;
   const arabicLineHeight = Math.round(arabicFontSize * 1.85);
@@ -20,9 +55,33 @@ export default function YasinScreen() {
   const badgeLineHeight = Math.round(badgeFontSize * 1.4);
   const ayatBadgeSize = Math.max(32, Math.min(40, badgeFontSize + 18));
 
+  const handleJump = (key: string) => {
+    const y = sectionOffsets.current[key];
+    if (typeof y === 'number') {
+      scrollViewRef.current?.scrollTo({ y: Math.max(0, y - 12), animated: true });
+    }
+  };
+
+  const openTasbih = (label: string, text?: string) => {
+    const target = parseRepeatTarget(text);
+    if (target) {
+      setTasbihState({ label, target });
+    }
+  };
+
   const renderAyat = (item: YasinAyat) => {
+    const repeatTarget = parseRepeatTarget(item.repeat);
+    const instructionTarget = parseRepeatTarget(item.instruction);
+    const wiridTarget = parseRepeatTarget(item.wirid_instruction);
+
     return (
-      <View key={item.id} style={styles.ayatContainer}>
+      <View
+        key={item.id}
+        style={styles.ayatContainer}
+        onLayout={(e) => {
+          sectionOffsets.current[String(item.id)] = e.nativeEvent.layout.y;
+        }}
+      >
         <View style={styles.ayatHeader}>
           <View
             style={[
@@ -51,7 +110,11 @@ export default function YasinScreen() {
         </Text>
 
         {item.repeat && (
-          <View
+          <TouchableOpacity
+            activeOpacity={repeatTarget ? 0.75 : 1}
+            disabled={!repeatTarget}
+            onPress={() => openTasbih(`Ayat ${item.nomor_ayat} (${item.repeat})`, item.repeat)}
+            accessibilityRole={repeatTarget ? 'button' : 'text'}
             style={[
               styles.badgeRow,
               {
@@ -68,12 +131,17 @@ export default function YasinScreen() {
               ]}
             >
               {item.repeat}
+              {repeatTarget ? ' (Ketuk Tasbih)' : ''}
             </Text>
-          </View>
+          </TouchableOpacity>
         )}
 
         {item.instruction && (
-          <View
+          <TouchableOpacity
+            activeOpacity={instructionTarget ? 0.75 : 1}
+            disabled={!instructionTarget}
+            onPress={() => openTasbih(`Ayat ${item.nomor_ayat} (${item.instruction})`, item.instruction)}
+            accessibilityRole={instructionTarget ? 'button' : 'text'}
             style={[
               styles.badgeRow,
               {
@@ -90,13 +158,20 @@ export default function YasinScreen() {
               ]}
             >
               {item.instruction}
+              {instructionTarget ? ' (Ketuk Tasbih)' : ''}
             </Text>
-          </View>
+          </TouchableOpacity>
         )}
 
         {item.wirid_instruction && (
           <View style={styles.wiridSection}>
-            <View
+            <TouchableOpacity
+              activeOpacity={wiridTarget ? 0.75 : 1}
+              disabled={!wiridTarget}
+              onPress={() =>
+                openTasbih(`Wirid Ayat ${item.nomor_ayat}`, item.wirid_instruction)
+              }
+              accessibilityRole={wiridTarget ? 'button' : 'text'}
               style={[
                 styles.badgeRow,
                 {
@@ -114,8 +189,9 @@ export default function YasinScreen() {
                 ]}
               >
                 {item.wirid_instruction}
+                {wiridTarget ? ' (Ketuk Tasbih)' : ''}
               </Text>
-            </View>
+            </TouchableOpacity>
             {item.wirid_arabic && (
               <Text
                 style={[
@@ -142,13 +218,18 @@ export default function YasinScreen() {
       Boolean(item.doa_translation && item.sholawat_translation) && arabicParts.length >= 2;
     const sisipanArabicSize = fontSize + 2;
     const sisipanArabicLineHeight = Math.round(sisipanArabicSize * 1.85);
+    const repeatTarget = parseRepeatTarget(item.repeat);
 
     return (
       <View
         key={item.id}
+        onLayout={(e) => {
+          sectionOffsets.current[String(item.id)] = e.nativeEvent.layout.y;
+        }}
         style={[
           styles.sisipanContainer,
           {
+            padding: sisipanPad,
             backgroundColor: themeColors.calloutBg,
             borderColor: themeColors.calloutBorder,
           },
@@ -169,7 +250,11 @@ export default function YasinScreen() {
           >
             {item.title}
           </Text>
-          <View
+          <TouchableOpacity
+            activeOpacity={repeatTarget ? 0.78 : 1}
+            disabled={!repeatTarget}
+            onPress={() => openTasbih(item.title, item.repeat)}
+            accessibilityRole={repeatTarget ? 'button' : 'text'}
             style={[
               styles.sisipanRepeatPill,
               { backgroundColor: themeColors.primary, borderColor: themeColors.primary },
@@ -177,8 +262,9 @@ export default function YasinScreen() {
           >
             <Text style={[styles.sisipanRepeatText, { color: themeColors.onPrimary, fontSize: badgeFontSize }]}>
               {item.repeat}
+              {repeatTarget ? ' · Tasbih' : ''}
             </Text>
-          </View>
+          </TouchableOpacity>
         </View>
 
         {hasSeparateTranslations ? (
@@ -191,19 +277,21 @@ export default function YasinScreen() {
             >
               {arabicParts[0]}
             </Text>
-            <Text
-              style={[
-                styles.sisipanTranslation,
-                {
-                  color: themeColors.calloutText,
-                  fontSize: translationFontSize,
-                  lineHeight: translationLineHeight,
-                  marginBottom: spacing.md,
-                },
-              ]}
-            >
-              {item.doa_translation}
-            </Text>
+            {showTranslation && (
+              <Text
+                style={[
+                  styles.sisipanTranslation,
+                  {
+                    color: themeColors.calloutText,
+                    fontSize: translationFontSize,
+                    lineHeight: translationLineHeight,
+                    marginBottom: spacing.md,
+                  },
+                ]}
+              >
+                {item.doa_translation}
+              </Text>
+            )}
 
             <Text
               style={[
@@ -213,18 +301,20 @@ export default function YasinScreen() {
             >
               {arabicParts[1]}
             </Text>
-            <Text
-              style={[
-                styles.sisipanTranslation,
-                {
-                  color: themeColors.calloutText,
-                  fontSize: translationFontSize,
-                  lineHeight: translationLineHeight,
-                },
-              ]}
-            >
-              {item.sholawat_translation}
-            </Text>
+            {showTranslation && (
+              <Text
+                style={[
+                  styles.sisipanTranslation,
+                  {
+                    color: themeColors.calloutText,
+                    fontSize: translationFontSize,
+                    lineHeight: translationLineHeight,
+                  },
+                ]}
+              >
+                {item.sholawat_translation}
+              </Text>
+            )}
           </>
         ) : (
           <>
@@ -236,18 +326,20 @@ export default function YasinScreen() {
             >
               {item.arabic}
             </Text>
-            <Text
-              style={[
-                styles.sisipanTranslation,
-                {
-                  color: themeColors.calloutText,
-                  fontSize: translationFontSize,
-                  lineHeight: translationLineHeight,
-                },
-              ]}
-            >
-              {item.translation}
-            </Text>
+            {showTranslation && (
+              <Text
+                style={[
+                  styles.sisipanTranslation,
+                  {
+                    color: themeColors.calloutText,
+                    fontSize: translationFontSize,
+                    lineHeight: translationLineHeight,
+                  },
+                ]}
+              >
+                {item.translation}
+              </Text>
+            )}
           </>
         )}
       </View>
@@ -257,7 +349,13 @@ export default function YasinScreen() {
   const renderAyatParsial = (item: YasinAyatParsial) => {
     const isAwal = item.bagian === 'awal';
     return (
-      <View key={item.id} style={styles.ayatParsialContainer}>
+      <View
+        key={item.id}
+        style={styles.ayatParsialContainer}
+        onLayout={(e) => {
+          sectionOffsets.current[String(item.id)] = e.nativeEvent.layout.y;
+        }}
+      >
         <View style={styles.ayatHeader}>
           <View
             style={[
@@ -308,7 +406,7 @@ export default function YasinScreen() {
           {item.arabic}
         </Text>
 
-        {item.translation && (
+        {showTranslation && item.translation && (
           <Text
             style={[
               styles.translationText,
@@ -340,94 +438,159 @@ export default function YasinScreen() {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <Navbar title="Yasin Fadhilah" showBack />
+    <AppShell maxWidth={680}>
+      <Navbar
+        title="Yasin Fadhilah"
+        showBack
+        showReadingSettings
+        onOpenReadingSettings={() => setSettingsOpen(true)}
+      />
+
+      <View
+        style={[
+          styles.jumpBarWrapper,
+          { backgroundColor: themeColors.background, borderBottomColor: themeColors.border },
+        ]}
+      >
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.jumpBarContent}
+        >
+          {JUMP_CHIPS.map((chip) => (
+            <TouchableOpacity
+              key={chip.key}
+              onPress={() => handleJump(chip.key)}
+              activeOpacity={0.75}
+              accessibilityRole="button"
+              accessibilityLabel={`Lompat ke ${chip.label}`}
+              style={[
+                styles.jumpChip,
+                {
+                  backgroundColor: themeColors.surface,
+                  borderColor: themeColors.border,
+                },
+              ]}
+            >
+              <Text style={[styles.jumpChipText, { color: themeColors.primary }]}>
+                {chip.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
 
       <ScrollView
-        contentContainerStyle={styles.content}
+        ref={scrollViewRef}
+        contentContainerStyle={[styles.content, { paddingHorizontal: horizontalPad }]}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.innerContent}>
-          <Text
-            style={[
-              styles.mainTitle,
-              {
-                color: themeColors.primary,
-                fontSize: fontSize + 8,
-                lineHeight: Math.round((fontSize + 8) * 1.5),
-              },
-            ]}
-          >
-            يس
-          </Text>
-          <Text style={[styles.subtitle, { color: themeColors.textSecondary, fontSize: Math.max(14, fontSize - 2) }]}>
-            Surat Yasin dengan Fadhilah
-          </Text>
+        <Text
+          style={[
+            styles.mainTitle,
+            {
+              color: themeColors.primary,
+              fontSize: fontSize + 8,
+              lineHeight: Math.round((fontSize + 8) * 1.5),
+            },
+          ]}
+        >
+          يس
+        </Text>
+        <Text style={[styles.subtitle, { color: themeColors.textSecondary, fontSize: Math.max(14, fontSize - 2) }]}>
+          Surat Yasin dengan Fadhilah
+        </Text>
 
-          <Text
-            style={[
-              styles.basmalah,
-              {
-                color: themeColors.text,
-                fontSize: fontSize + 6,
-                lineHeight: Math.round((fontSize + 6) * 1.7),
-              },
-            ]}
-          >
-            بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
-          </Text>
+        <Text
+          style={[
+            styles.basmalah,
+            {
+              color: themeColors.text,
+              fontSize: fontSize + 6,
+              lineHeight: Math.round((fontSize + 6) * 1.7),
+            },
+          ]}
+        >
+          بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+        </Text>
 
-          {yasinFadhilahData.map((item) => renderContent(item))}
+        {yasinFadhilahData.map((item) => renderContent(item))}
 
-          <View style={[styles.divider, { backgroundColor: themeColors.border }]} />
+        <View style={[styles.divider, { backgroundColor: themeColors.border }]} />
 
-          <Text
-            style={[
-              styles.closingText,
-              {
-                color: themeColors.primary,
-                fontSize: fontSize + 4,
-                lineHeight: Math.round((fontSize + 4) * 1.6),
-              },
-            ]}
-          >
-            صَدَقَ اللهُ الْعَظِيْمُ
-          </Text>
+        <Text
+          style={[
+            styles.closingText,
+            {
+              color: themeColors.primary,
+              fontSize: fontSize + 4,
+              lineHeight: Math.round((fontSize + 4) * 1.6),
+            },
+          ]}
+        >
+          صَدَقَ اللهُ الْعَظِيْمُ
+        </Text>
 
-          <Footer />
-        </View>
+        <Footer />
       </ScrollView>
 
-      <FontSizeSlider />
-    </View>
+      <ReadingSettingsModal
+        visible={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        showTranslationOption
+      />
+
+      <TasbihModal
+        visible={Boolean(tasbihState)}
+        label={tasbihState?.label ?? ''}
+        target={tasbihState?.target ?? 7}
+        onClose={() => setTasbihState(null)}
+      />
+    </AppShell>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  jumpBarWrapper: {
+    borderBottomWidth: 1,
+    paddingVertical: spacing.xs + 2,
+  },
+  jumpBarContent: {
+    paddingHorizontal: spacing.md,
+    gap: spacing.xs + 2,
+  },
+  jumpChip: {
+    minHeight: 36,
+    paddingHorizontal: spacing.sm + 4,
+    paddingVertical: 6,
+    borderRadius: borderRadius.full,
+    borderWidth: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  jumpChipText: {
+    fontSize: 12,
+    fontWeight: '600',
   },
   content: {
-    padding: spacing.lg,
-    paddingBottom: 120,
-  },
-  innerContent: {
-    width: '100%',
-    maxWidth: 720,
-    alignSelf: 'center',
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.xxl,
   },
   mainTitle: {
     fontFamily: 'Amiri-Bold',
     textAlign: 'center',
+    writingDirection: 'rtl',
     marginBottom: spacing.xs,
   },
   subtitle: {
     textAlign: 'center',
+    writingDirection: 'ltr',
     marginBottom: spacing.lg,
   },
   basmalah: {
     fontFamily: 'Amiri-Bold',
     textAlign: 'center',
+    writingDirection: 'rtl',
     marginBottom: spacing.xl,
   },
   ayatContainer: {
@@ -452,6 +615,7 @@ const styles = StyleSheet.create({
   arabicText: {
     fontFamily: 'Amiri-Regular',
     textAlign: 'right',
+    writingDirection: 'rtl',
     marginBottom: spacing.sm,
   },
   badgeRow: {
@@ -459,6 +623,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: spacing.xs,
+    minHeight: 40,
     padding: spacing.sm,
     borderRadius: borderRadius.md,
     borderWidth: 1,
@@ -468,6 +633,7 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     fontWeight: '600',
     textAlign: 'center',
+    writingDirection: 'ltr',
   },
   wiridSection: {
     marginTop: spacing.sm,
@@ -475,9 +641,9 @@ const styles = StyleSheet.create({
   wiridArabic: {
     fontFamily: 'Amiri-Regular',
     textAlign: 'center',
+    writingDirection: 'rtl',
   },
   sisipanContainer: {
-    padding: spacing.lg,
     borderRadius: borderRadius.lg,
     borderWidth: 1,
     marginVertical: spacing.lg,
@@ -493,13 +659,17 @@ const styles = StyleSheet.create({
   },
   sisipanPosition: {
     fontWeight: '600',
+    writingDirection: 'ltr',
   },
   sisipanTitle: {
     fontWeight: '700',
+    writingDirection: 'ltr',
     marginBottom: spacing.sm,
   },
   sisipanRepeatPill: {
     alignSelf: 'flex-start',
+    minHeight: 36,
+    justifyContent: 'center',
     paddingHorizontal: spacing.sm + 4,
     paddingVertical: spacing.xs + 2,
     borderRadius: borderRadius.md,
@@ -511,11 +681,13 @@ const styles = StyleSheet.create({
   sisipanArabic: {
     fontFamily: 'Amiri-Regular',
     textAlign: 'right',
+    writingDirection: 'rtl',
     marginBottom: spacing.sm,
   },
   sisipanTranslation: {
     fontStyle: 'italic',
     textAlign: 'left',
+    writingDirection: 'ltr',
   },
   ayatParsialContainer: {
     marginBottom: spacing.lg,
@@ -531,9 +703,11 @@ const styles = StyleSheet.create({
   },
   parsialText: {
     fontWeight: '600',
+    writingDirection: 'ltr',
   },
   translationText: {
     fontStyle: 'italic',
+    writingDirection: 'ltr',
     marginTop: spacing.xs,
   },
   divider: {
@@ -543,6 +717,7 @@ const styles = StyleSheet.create({
   closingText: {
     fontFamily: 'Amiri-Bold',
     textAlign: 'center',
+    writingDirection: 'rtl',
     marginBottom: spacing.md,
   },
 });

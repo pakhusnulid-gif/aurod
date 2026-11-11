@@ -22,6 +22,7 @@ export function Footer() {
       <TouchableOpacity
         onPress={handlePress}
         activeOpacity={0.7}
+        style={styles.linkButton}
         accessibilityRole="link"
         accessibilityLabel="Kunjungi situs pengembang pakhusnul.id"
       >
@@ -39,13 +40,12 @@ export function Footer() {
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    maxWidth: 520,
     alignSelf: 'center',
     alignItems: 'center',
     paddingTop: spacing.md,
     paddingBottom: spacing.lg,
     paddingHorizontal: spacing.md,
-    marginTop: spacing.xl,
+    marginTop: spacing.lg,
     borderTopWidth: 1,
   },
   appName: {
@@ -56,11 +56,17 @@ const styles = StyleSheet.create({
   pesantren: {
     fontSize: 11,
     fontWeight: '400',
-    marginBottom: spacing.xs,
+    marginBottom: 2,
     textAlign: 'center',
   },
+  linkButton: {
+    minHeight: 44,
+    paddingHorizontal: spacing.sm,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   credit: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '400',
     textAlign: 'center',
   },

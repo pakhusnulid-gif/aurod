@@ -1,17 +1,28 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ArrowLeft, Moon, Sun } from 'lucide-react-native';
+import { ArrowLeft, Moon, Sun, Type } from 'lucide-react-native';
 import { useTheme } from '@/contexts/ThemeContext';
-import { colors, spacing } from '@/constants/theme';
+import { colors, spacing, borderRadius } from '@/constants/theme';
+
+const LOGO_PESANTREN = require('@/assets/images/logo-pesantren.jpg');
 
 interface NavbarProps {
   title: string;
   showBack?: boolean;
+  showBrandLogo?: boolean;
+  showReadingSettings?: boolean;
+  onOpenReadingSettings?: () => void;
 }
 
-export function Navbar({ title, showBack = false }: NavbarProps) {
+export function Navbar({
+  title,
+  showBack = false,
+  showBrandLogo = false,
+  showReadingSettings = false,
+  onOpenReadingSettings,
+}: NavbarProps) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { theme, toggleTheme } = useTheme();
@@ -31,35 +42,54 @@ export function Navbar({ title, showBack = false }: NavbarProps) {
     >
       <View style={styles.container}>
         <View style={styles.leftSection}>
-          {showBack && (
+          {showBack ? (
             <TouchableOpacity
               onPress={() => router.back()}
               style={styles.iconButton}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               accessibilityRole="button"
               accessibilityLabel="Kembali"
             >
               <ArrowLeft color={themeColors.text} size={22} />
             </TouchableOpacity>
-          )}
+          ) : showBrandLogo ? (
+            <Image
+              source={LOGO_PESANTREN}
+              style={styles.brandLogo}
+              accessibilityLabel="Logo Pondok Pesantren An-Nidhomiyyah"
+            />
+          ) : null}
         </View>
 
-        <Text style={[styles.title, { color: themeColors.text }]} numberOfLines={1}>
+        <Text
+          style={[styles.title, { color: themeColors.text }]}
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.82}
+        >
           {title}
         </Text>
 
         <View style={styles.rightSection}>
+          {showReadingSettings && onOpenReadingSettings && (
+            <TouchableOpacity
+              onPress={onOpenReadingSettings}
+              style={styles.iconButton}
+              accessibilityRole="button"
+              accessibilityLabel="Pengaturan ukuran huruf dan tampilan bacaan"
+            >
+              <Type color={themeColors.text} size={20} />
+            </TouchableOpacity>
+          )}
           <TouchableOpacity
             onPress={toggleTheme}
             style={styles.iconButton}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             accessibilityRole="button"
             accessibilityLabel={theme === 'light' ? 'Aktifkan mode gelap' : 'Aktifkan mode terang'}
           >
             {theme === 'light' ? (
-              <Moon color={themeColors.text} size={22} />
+              <Moon color={themeColors.text} size={21} />
             ) : (
-              <Sun color={themeColors.text} size={22} />
+              <Sun color={themeColors.text} size={21} />
             )}
           </TouchableOpacity>
         </View>
@@ -71,37 +101,48 @@ export function Navbar({ title, showBack = false }: NavbarProps) {
 const styles = StyleSheet.create({
   wrapper: {
     borderBottomWidth: 1,
-    paddingBottom: spacing.sm,
+    paddingBottom: spacing.xs + 2,
     paddingHorizontal: spacing.md,
-    elevation: 3,
+    elevation: 2,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
+    shadowOpacity: 0.06,
     shadowRadius: 4,
   },
   container: {
     width: '100%',
-    maxWidth: 720,
-    alignSelf: 'center',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     minHeight: 44,
+    gap: spacing.xs,
   },
   leftSection: {
-    width: 44,
+    minWidth: 44,
     alignItems: 'flex-start',
+    justifyContent: 'center',
   },
   rightSection: {
-    width: 44,
-    alignItems: 'flex-end',
+    minWidth: 44,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+  },
+  brandLogo: {
+    width: 32,
+    height: 32,
+    borderRadius: borderRadius.sm,
   },
   title: {
     flex: 1,
-    fontSize: 19,
+    fontSize: 18,
     fontFamily: 'Amiri-Bold',
     textAlign: 'center',
   },
   iconButton: {
-    padding: spacing.xs,
+    minWidth: 44,
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: borderRadius.sm,
   },
 });

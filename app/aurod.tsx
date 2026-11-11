@@ -1,16 +1,53 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import React, { useRef, useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  useWindowDimensions,
+} from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
+import { Repeat } from 'lucide-react-native';
+import { AppShell } from '@/components/AppShell';
 import { Navbar } from '@/components/Navbar';
-import { FontSizeSlider } from '@/components/FontSizeSlider';
+import { ReadingSettingsModal } from '@/components/ReadingSettingsModal';
+import { TasbihModal } from '@/components/TasbihModal';
 import { Footer } from '@/components/Footer';
 import { useTheme } from '@/contexts/ThemeContext';
 import { colors, spacing, borderRadius } from '@/constants/theme';
 import { aurodData, AurodSection, AurodListItem } from '@/constants/aurodData';
+import { parseRepeatTarget } from '@/utils/repeatTarget';
+
+const SECTION_JUMP_CHIPS = [
+  { id: 1, key: 'pembukaan', label: 'Pembukaan' },
+  { id: 2, key: 'aurod1', label: 'Aurod I' },
+  { id: 3, key: 'aurod2', label: 'Aurod II' },
+  { id: 4, key: 'aurod3', label: 'Aurod III' },
+  { id: 7, key: 'hailalah', label: 'Hailalah' },
+  { id: 9, key: 'sanad', label: 'Sanad' },
+];
+
+const ID_TO_KEY: Record<number, string> = {
+  1: 'pembukaan',
+  2: 'aurod1',
+  3: 'aurod2',
+  4: 'aurod3',
+  7: 'hailalah',
+  9: 'sanad',
+};
 
 export default function AurodScreen() {
-  const { theme, fontSize } = useTheme();
+  const { section: targetSection } = useLocalSearchParams<{ section?: string }>();
+  const { theme, fontSize, showTranslation, showLatin } = useTheme();
+  const { width } = useWindowDimensions();
   const themeColors = colors[theme];
+  const scrollViewRef = useRef<ScrollView>(null);
+  const sectionOffsets = useRef<Record<string, number>>({});
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [tasbihState, setTasbihState] = useState<{ label: string; target: number } | null>(null);
 
+  const horizontalPad = width < 480 ? spacing.md : spacing.lg;
   const proseSize = Math.max(15, fontSize - 2);
   const proseLineHeight = Math.round(proseSize * 1.55);
   const meaningSize = Math.max(14, fontSize - 4);
@@ -19,6 +56,21 @@ export default function AurodScreen() {
   const arabicSectionLineHeight = Math.round(arabicSectionSize * 1.85);
   const listArabicSize = fontSize + 2;
   const listArabicLineHeight = Math.round(listArabicSize * 1.85);
+
+  const scrollToKey = (key: string) => {
+    const y = sectionOffsets.current[key];
+    if (typeof y === 'number') {
+      scrollViewRef.current?.scrollTo({ y: Math.max(0, y - 12), animated: true });
+    }
+  };
+
+  useEffect(() => {
+    if (!targetSection) return;
+    const timer = setTimeout(() => {
+      scrollToKey(targetSection);
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [targetSection]);
 
   const renderNotes = (notes: string | string[] | undefined) => {
     if (!notes) return null;
@@ -81,6 +133,11 @@ export default function AurodScreen() {
   const renderArabicSection = (section: AurodSection) => {
     if (!section.arabic) return null;
 
+    const notesJoined = Array.isArray(section.notes)
+      ? section.notes.join(' ')
+      : section.notes;
+    const repeatTarget = parseRepeatTarget(notesJoined);
+
     return (
       <View style={styles.arabicSection}>
         <Text
@@ -95,7 +152,7 @@ export default function AurodScreen() {
         >
           {section.arabic}
         </Text>
-        {section.latin && (
+        {showLatin && section.latin && (
           <Text
             style={[
               styles.latinText,
@@ -109,7 +166,7 @@ export default function AurodScreen() {
             {section.latin}
           </Text>
         )}
-        {section.meaning && (
+        {showTranslation && section.meaning && (
           <Text
             style={[
               styles.meaningText,
@@ -123,11 +180,32 @@ export default function AurodScreen() {
             {section.meaning}
           </Text>
         )}
+        {repeatTarget && (
+          <TouchableOpacity
+            onPress={() => setTasbihState({ label: section.title, target: repeatTarget })}
+            activeOpacity={0.75}
+            accessibilityRole="button"
+            accessibilityLabel={`Buka penghitung tasbih ${repeatTarget} kali untuk ${section.title}`}
+            style={[
+              styles.tasbihChip,
+              {
+                backgroundColor: themeColors.badgeSuccessBg,
+                borderColor: themeColors.badgeSuccessBorder,
+              },
+            ]}
+          >
+            <Repeat color={themeColors.badgeSuccessText} size={14} />
+            <Text style={[styles.tasbihChipText, { color: themeColors.badgeSuccessText }]}>
+              Tasbih {repeatTarget}x
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
     );
   };
 
-  const renderList = (list: (string | AurodListItem)[] | undefined) => {
+  const renderList = (section: AurodSection) => {
+    const list = section.list;
     if (!list) return null;
 
     return (
@@ -151,9 +229,12 @@ export default function AurodScreen() {
             );
           }
 
+          const listItem: AurodListItem = item;
+          const repeatTarget = parseRepeatTarget(listItem.latin);
+
           return (
             <View key={index} style={styles.listItem}>
-              {item.number !== undefined && (
+              {listItem.number !== undefined && (
                 <Text
                   style={[
                     styles.listNumber,
@@ -165,11 +246,11 @@ export default function AurodScreen() {
                     },
                   ]}
                 >
-                  {item.number}.
+                  {listItem.number}.
                 </Text>
               )}
               <View style={styles.listContent}>
-                {item.arabic && (
+                {listItem.arabic && (
                   <Text
                     style={[
                       styles.arabicText,
@@ -180,10 +261,10 @@ export default function AurodScreen() {
                       },
                     ]}
                   >
-                    {item.arabic}
+                    {listItem.arabic}
                   </Text>
                 )}
-                {item.latin && (
+                {listItem.latin && (
                   <Text
                     style={[
                       styles.latinText,
@@ -194,10 +275,10 @@ export default function AurodScreen() {
                       },
                     ]}
                   >
-                    {item.latin}
+                    {listItem.latin}
                   </Text>
                 )}
-                {item.meaning && (
+                {showTranslation && listItem.meaning && (
                   <Text
                     style={[
                       styles.meaningText,
@@ -208,8 +289,34 @@ export default function AurodScreen() {
                       },
                     ]}
                   >
-                    {item.meaning}
+                    {listItem.meaning}
                   </Text>
+                )}
+                {repeatTarget && (
+                  <TouchableOpacity
+                    onPress={() =>
+                      setTasbihState({
+                        label: listItem.latin || section.title,
+                        target: repeatTarget,
+                      })
+                    }
+                    activeOpacity={0.75}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Buka penghitung tasbih ${repeatTarget} kali`}
+                    style={[
+                      styles.tasbihChip,
+                      {
+                        alignSelf: 'flex-start',
+                        backgroundColor: themeColors.badgeSuccessBg,
+                        borderColor: themeColors.badgeSuccessBorder,
+                      },
+                    ]}
+                  >
+                    <Repeat color={themeColors.badgeSuccessText} size={14} />
+                    <Text style={[styles.tasbihChipText, { color: themeColors.badgeSuccessText }]}>
+                      Tasbih {repeatTarget}x
+                    </Text>
+                  </TouchableOpacity>
                 )}
               </View>
             </View>
@@ -220,32 +327,81 @@ export default function AurodScreen() {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <Navbar title="Aurod An-Nidhomiyyah" showBack />
+    <AppShell maxWidth={680}>
+      <Navbar
+        title="Aurod An-Nidhomiyyah"
+        showBack
+        showReadingSettings
+        onOpenReadingSettings={() => setSettingsOpen(true)}
+      />
+
+      <View
+        style={[
+          styles.jumpBarWrapper,
+          { backgroundColor: themeColors.background, borderBottomColor: themeColors.border },
+        ]}
+      >
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.jumpBarContent}
+        >
+          {SECTION_JUMP_CHIPS.map((chip) => (
+            <TouchableOpacity
+              key={chip.key}
+              onPress={() => scrollToKey(chip.key)}
+              activeOpacity={0.75}
+              accessibilityRole="button"
+              accessibilityLabel={`Lompat ke bagian ${chip.label}`}
+              style={[
+                styles.jumpChip,
+                {
+                  backgroundColor: themeColors.surface,
+                  borderColor: themeColors.border,
+                },
+              ]}
+            >
+              <Text style={[styles.jumpChipText, { color: themeColors.primary }]}>
+                {chip.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
 
       <ScrollView
-        contentContainerStyle={styles.content}
+        ref={scrollViewRef}
+        contentContainerStyle={[styles.content, { paddingHorizontal: horizontalPad }]}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.innerContent}>
-          <Text
-            style={[
-              styles.mainTitle,
-              {
-                color: themeColors.primary,
-                fontSize: fontSize + 8,
-                lineHeight: Math.round((fontSize + 8) * 1.5),
-              },
-            ]}
-          >
-            أَوْرَادُ النِّظَامِيَّةِ
-          </Text>
-          <Text style={[styles.subtitle, { color: themeColors.textSecondary, fontSize: proseSize }]}>
-            Aurod An-Nidhomiyyah
-          </Text>
+        <Text
+          style={[
+            styles.mainTitle,
+            {
+              color: themeColors.primary,
+              fontSize: fontSize + 8,
+              lineHeight: Math.round((fontSize + 8) * 1.5),
+            },
+          ]}
+        >
+          أَوْرَادُ النِّظَامِيَّةِ
+        </Text>
+        <Text style={[styles.subtitle, { color: themeColors.textSecondary, fontSize: proseSize }]}>
+          Aurod An-Nidhomiyyah
+        </Text>
 
-          {aurodData.map((section, idx) => (
-            <View key={section.id} style={styles.section}>
+        {aurodData.map((section, idx) => {
+          const sectionKey = ID_TO_KEY[section.id];
+          return (
+            <View
+              key={section.id}
+              style={styles.section}
+              onLayout={(e) => {
+                if (sectionKey) {
+                  sectionOffsets.current[sectionKey] = e.nativeEvent.layout.y;
+                }
+              }}
+            >
               <Text
                 style={[
                   styles.sectionTitle,
@@ -262,43 +418,70 @@ export default function AurodScreen() {
               {renderNotes(section.notes)}
               {renderBody(section.body)}
               {renderArabicSection(section)}
-              {renderList(section.list)}
+              {renderList(section)}
 
               {idx < aurodData.length - 1 && (
                 <View style={[styles.divider, { backgroundColor: themeColors.border }]} />
               )}
             </View>
-          ))}
+          );
+        })}
 
-          <Footer />
-        </View>
+        <Footer />
       </ScrollView>
 
-      <FontSizeSlider />
-    </View>
+      <ReadingSettingsModal
+        visible={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        showTranslationOption
+        showLatinOption
+      />
+
+      <TasbihModal
+        visible={Boolean(tasbihState)}
+        label={tasbihState?.label ?? ''}
+        target={tasbihState?.target ?? 100}
+        onClose={() => setTasbihState(null)}
+      />
+    </AppShell>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  jumpBarWrapper: {
+    borderBottomWidth: 1,
+    paddingVertical: spacing.xs + 2,
+  },
+  jumpBarContent: {
+    paddingHorizontal: spacing.md,
+    gap: spacing.xs + 2,
+  },
+  jumpChip: {
+    minHeight: 36,
+    paddingHorizontal: spacing.sm + 4,
+    paddingVertical: 6,
+    borderRadius: borderRadius.full,
+    borderWidth: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  jumpChipText: {
+    fontSize: 12,
+    fontWeight: '600',
   },
   content: {
-    padding: spacing.lg,
-    paddingBottom: 120,
-  },
-  innerContent: {
-    width: '100%',
-    maxWidth: 720,
-    alignSelf: 'center',
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.xxl,
   },
   mainTitle: {
     fontFamily: 'Amiri-Bold',
     textAlign: 'center',
+    writingDirection: 'rtl',
     marginBottom: spacing.xs,
   },
   subtitle: {
     textAlign: 'center',
+    writingDirection: 'ltr',
     marginBottom: spacing.xl,
   },
   section: {
@@ -307,6 +490,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontWeight: '700',
     textAlign: 'center',
+    writingDirection: 'ltr',
     marginBottom: spacing.md,
     marginTop: spacing.md,
   },
@@ -318,6 +502,7 @@ const styles = StyleSheet.create({
   },
   notesText: {
     marginBottom: spacing.xs,
+    writingDirection: 'ltr',
   },
   bodyContainer: {
     marginBottom: spacing.md,
@@ -325,6 +510,7 @@ const styles = StyleSheet.create({
   bodyText: {
     marginBottom: spacing.sm,
     textAlign: 'left',
+    writingDirection: 'ltr',
   },
   arabicSection: {
     marginBottom: spacing.md,
@@ -332,16 +518,35 @@ const styles = StyleSheet.create({
   arabicText: {
     fontFamily: 'Amiri-Regular',
     textAlign: 'right',
+    writingDirection: 'rtl',
     marginBottom: spacing.sm,
   },
   latinText: {
     textAlign: 'left',
+    writingDirection: 'ltr',
     marginBottom: spacing.sm,
     fontStyle: 'italic',
   },
   meaningText: {
     textAlign: 'left',
+    writingDirection: 'ltr',
     fontStyle: 'italic',
+  },
+  tasbihChip: {
+    alignSelf: 'flex-end',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    minHeight: 36,
+    paddingHorizontal: spacing.sm + 4,
+    paddingVertical: 6,
+    borderRadius: borderRadius.full,
+    borderWidth: 1,
+    marginTop: spacing.xs + 2,
+  },
+  tasbihChipText: {
+    fontSize: 12,
+    fontWeight: '600',
   },
   listContainer: {
     marginBottom: spacing.md,
@@ -353,6 +558,7 @@ const styles = StyleSheet.create({
   listNumber: {
     fontWeight: '700',
     marginRight: spacing.sm,
+    fontVariant: ['tabular-nums'],
   },
   listContent: {
     flex: 1,
@@ -360,6 +566,7 @@ const styles = StyleSheet.create({
   listItemText: {
     marginBottom: spacing.sm,
     marginLeft: spacing.sm,
+    writingDirection: 'ltr',
   },
   divider: {
     height: 1,
