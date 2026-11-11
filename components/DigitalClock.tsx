@@ -1,36 +1,56 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Platform } from 'react-native';
 import { Calendar, MapPin } from 'lucide-react-native';
 import { useTheme } from '@/contexts/ThemeContext';
 import { colors, spacing } from '@/constants/theme';
 import { gregorianToHijri, formatHijriDate } from '@/utils/hijriDate';
 import { getFullDayName } from '@/utils/pasaranJawa';
-import { getCurrentLocation, LocationData } from '@/utils/locationService';
+import { getCurrentLocation } from '@/utils/locationService';
+
+const INDONESIAN_MONTHS = [
+  'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+  'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
+];
 
 export function DigitalClock() {
   const { theme } = useTheme();
   const themeColors = colors[theme];
-  const [time, setTime] = useState(new Date());
-  const [location, setLocation] = useState<LocationData | null>(null);
+  const [time, setTime] = useState(() => new Date());
+  const [city, setCity] = useState<string>(Platform.OS === 'web' ? 'Tuban' : 'Memuat lokasi...');
 
   useEffect(() => {
+    let isMounted = true;
+
     const timer = setInterval(() => {
-      setTime(new Date());
+      const now = new Date();
+      setTime((prev) => {
+        if (
+          prev.getHours() === now.getHours() &&
+          prev.getMinutes() === now.getMinutes() &&
+          prev.getDate() === now.getDate()
+        ) {
+          return prev;
+        }
+        return now;
+      });
     }, 1000);
 
-    loadLocation();
+    getCurrentLocation()
+      .then((locationData) => {
+        if (isMounted && locationData.city) {
+          setCity(locationData.city);
+        }
+      })
+      .catch((error) => {
+        console.error('Error loading location:', error);
+        if (isMounted) setCity('Tuban');
+      });
 
-    return () => clearInterval(timer);
+    return () => {
+      isMounted = false;
+      clearInterval(timer);
+    };
   }, []);
-
-  const loadLocation = async () => {
-    try {
-      const locationData = await getCurrentLocation();
-      setLocation(locationData);
-    } catch (error) {
-      console.error('Error loading location:', error);
-    }
-  };
 
   const formatTime = (date: Date) => {
     const hours = String(date.getHours()).padStart(2, '0');
@@ -39,23 +59,15 @@ export function DigitalClock() {
   };
 
   const formatDate = (date: Date) => {
-    const months = [
-      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-    ];
-
     const dayName = getFullDayName(date);
     const day = date.getDate();
-    const month = months[date.getMonth()];
+    const month = INDONESIAN_MONTHS[date.getMonth()];
     const year = date.getFullYear();
 
     return `${dayName}, ${day} ${month} ${year}`;
   };
 
-  const getHijriDateString = (date: Date) => {
-    const hijri = gregorianToHijri(date);
-    return formatHijriDate(hijri);
-  };
+  const hijriDateString = formatHijriDate(gregorianToHijri(time));
 
   return (
     <View style={styles.container}>
@@ -70,13 +82,13 @@ export function DigitalClock() {
       </View>
       <View style={styles.hijriContainer}>
         <Text style={[styles.hijriText, { color: themeColors.textSecondary }]}>
-          {getHijriDateString(time)}
+          {hijriDateString}
         </Text>
       </View>
       <View style={styles.locationContainer}>
         <MapPin color={themeColors.textSecondary} size={12} />
         <Text style={[styles.locationText, { color: themeColors.textSecondary }]}>
-          {location ? location.city : 'Loading...'}
+          {city}
         </Text>
       </View>
     </View>
@@ -92,6 +104,7 @@ const styles = StyleSheet.create({
     fontSize: 56,
     fontWeight: '700',
     letterSpacing: 1,
+    fontVariant: ['tabular-nums'],
   },
   dateContainer: {
     flexDirection: 'row',

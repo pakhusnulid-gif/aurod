@@ -12,18 +12,21 @@ export function Footer() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.appInfo}>
-        <Text style={[styles.appName, { color: themeColors.textSecondary }]}>
-          Aurod An-Nidhomiyyah
-        </Text>
-        <Text style={[styles.version, { color: themeColors.textSecondary }]}>
-          v1.0.0
-        </Text>
-      </View>
-      <TouchableOpacity onPress={handlePress} activeOpacity={0.7}>
+    <View style={[styles.container, { borderTopColor: themeColors.border }]}>
+      <Text style={[styles.appName, { color: themeColors.textSecondary }]}>
+        Aurod An-Nidhomiyyah
+      </Text>
+      <Text style={[styles.pesantren, { color: themeColors.textSecondary }]}>
+        Pondok Pesantren An-Nidhomiyyah Tuban
+      </Text>
+      <TouchableOpacity
+        onPress={handlePress}
+        activeOpacity={0.7}
+        accessibilityRole="link"
+        accessibilityLabel="Kunjungi situs pengembang pakhusnul.id"
+      >
         <Text style={[styles.credit, { color: themeColors.textSecondary }]}>
-          Developed by{' '}
+          Dikembangkan oleh{' '}
           <Text style={[styles.link, { color: themeColors.primary }]}>
             pakhusnul.id
           </Text>
@@ -35,27 +38,29 @@ export function Footer() {
 
 const styles = StyleSheet.create({
   container: {
+    width: '100%',
+    maxWidth: 520,
+    alignSelf: 'center',
     alignItems: 'center',
-    paddingVertical: spacing.lg,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.lg,
     paddingHorizontal: spacing.md,
     marginTop: spacing.xl,
-  },
-  appInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: spacing.xs,
+    borderTopWidth: 1,
   },
   appName: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '600',
+    marginBottom: 2,
   },
-  version: {
-    fontSize: 10,
+  pesantren: {
+    fontSize: 11,
     fontWeight: '400',
+    marginBottom: spacing.xs,
+    textAlign: 'center',
   },
   credit: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '400',
     textAlign: 'center',
   },

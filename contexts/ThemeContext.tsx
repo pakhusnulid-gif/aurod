@@ -13,29 +13,53 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+const MIN_FONT_SIZE = 18;
+const MAX_FONT_SIZE = 40;
+const DEFAULT_FONT_SIZE = 24;
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const systemTheme = useColorScheme();
   const [theme, setTheme] = useState<Theme>(systemTheme === 'dark' ? 'dark' : 'light');
-  const [fontSize, setFontSizeState] = useState(24);
+  const [fontSize, setFontSizeState] = useState(DEFAULT_FONT_SIZE);
 
   useEffect(() => {
-    AsyncStorage.getItem('theme').then(savedTheme => {
-      if (savedTheme) setTheme(savedTheme as Theme);
-    });
-    AsyncStorage.getItem('fontSize').then(savedSize => {
-      if (savedSize) setFontSizeState(Number(savedSize));
-    });
+    let isMounted = true;
+
+    AsyncStorage.getItem('theme')
+      .then((savedTheme) => {
+        if (isMounted && (savedTheme === 'light' || savedTheme === 'dark')) {
+          setTheme(savedTheme);
+        }
+      })
+      .catch(() => {});
+
+    AsyncStorage.getItem('fontSize')
+      .then((savedSize) => {
+        if (!isMounted || !savedSize) return;
+        const parsed = Number(savedSize);
+        if (Number.isFinite(parsed) && parsed >= MIN_FONT_SIZE && parsed <= MAX_FONT_SIZE) {
+          setFontSizeState(parsed);
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-    AsyncStorage.setItem('theme', newTheme);
+    setTheme((prevTheme) => {
+      const newTheme: Theme = prevTheme === 'light' ? 'dark' : 'light';
+      AsyncStorage.setItem('theme', newTheme).catch(() => {});
+      return newTheme;
+    });
   };
 
   const setFontSize = (size: number) => {
-    setFontSizeState(size);
-    AsyncStorage.setItem('fontSize', size.toString());
+    const clamped = Math.min(MAX_FONT_SIZE, Math.max(MIN_FONT_SIZE, Math.round(size)));
+    setFontSizeState(clamped);
+    AsyncStorage.setItem('fontSize', clamped.toString()).catch(() => {});
   };
 
   return (

@@ -11,17 +11,41 @@ export default function AurodScreen() {
   const { theme, fontSize } = useTheme();
   const themeColors = colors[theme];
 
+  const proseSize = Math.max(15, fontSize - 2);
+  const proseLineHeight = Math.round(proseSize * 1.55);
+  const meaningSize = Math.max(14, fontSize - 4);
+  const meaningLineHeight = Math.round(meaningSize * 1.55);
+  const arabicSectionSize = fontSize + 4;
+  const arabicSectionLineHeight = Math.round(arabicSectionSize * 1.85);
+  const listArabicSize = fontSize + 2;
+  const listArabicLineHeight = Math.round(listArabicSize * 1.85);
+
   const renderNotes = (notes: string | string[] | undefined) => {
     if (!notes) return null;
 
     const notesArray = Array.isArray(notes) ? notes : [notes];
 
     return (
-      <View style={[styles.notesContainer, { backgroundColor: '#d1fae5', borderColor: '#10b981' }]}>
+      <View
+        style={[
+          styles.notesContainer,
+          {
+            backgroundColor: themeColors.calloutBg,
+            borderColor: themeColors.calloutBorder,
+          },
+        ]}
+      >
         {notesArray.map((note, index) => (
           <Text
             key={index}
-            style={[styles.notesText, { color: '#065f46', fontSize: fontSize - 2 }]}
+            style={[
+              styles.notesText,
+              {
+                color: themeColors.calloutText,
+                fontSize: proseSize,
+                lineHeight: proseLineHeight,
+              },
+            ]}
           >
             {note}
           </Text>
@@ -38,7 +62,14 @@ export default function AurodScreen() {
         {body.map((paragraph, index) => (
           <Text
             key={index}
-            style={[styles.bodyText, { color: themeColors.text, fontSize: fontSize - 2 }]}
+            style={[
+              styles.bodyText,
+              {
+                color: themeColors.text,
+                fontSize: proseSize,
+                lineHeight: proseLineHeight,
+              },
+            ]}
           >
             {paragraph}
           </Text>
@@ -52,16 +83,43 @@ export default function AurodScreen() {
 
     return (
       <View style={styles.arabicSection}>
-        <Text style={[styles.arabicText, { color: themeColors.text, fontSize: fontSize + 4 }]}>
+        <Text
+          style={[
+            styles.arabicText,
+            {
+              color: themeColors.text,
+              fontSize: arabicSectionSize,
+              lineHeight: arabicSectionLineHeight,
+            },
+          ]}
+        >
           {section.arabic}
         </Text>
         {section.latin && (
-          <Text style={[styles.latinText, { color: themeColors.textSecondary, fontSize: fontSize - 2 }]}>
+          <Text
+            style={[
+              styles.latinText,
+              {
+                color: themeColors.textSecondary,
+                fontSize: proseSize,
+                lineHeight: proseLineHeight,
+              },
+            ]}
+          >
             {section.latin}
           </Text>
         )}
         {section.meaning && (
-          <Text style={[styles.meaningText, { color: themeColors.textSecondary, fontSize: fontSize - 4 }]}>
+          <Text
+            style={[
+              styles.meaningText,
+              {
+                color: themeColors.textSecondary,
+                fontSize: meaningSize,
+                lineHeight: meaningLineHeight,
+              },
+            ]}
+          >
             {section.meaning}
           </Text>
         )}
@@ -79,7 +137,14 @@ export default function AurodScreen() {
             return (
               <Text
                 key={index}
-                style={[styles.listItemText, { color: themeColors.text, fontSize: fontSize - 2 }]}
+                style={[
+                  styles.listItemText,
+                  {
+                    color: themeColors.text,
+                    fontSize: proseSize,
+                    lineHeight: proseLineHeight,
+                  },
+                ]}
               >
                 {item}
               </Text>
@@ -88,24 +153,61 @@ export default function AurodScreen() {
 
           return (
             <View key={index} style={styles.listItem}>
-              {item.number && (
-                <Text style={[styles.listNumber, { color: themeColors.primary, fontSize: fontSize - 2 }]}>
+              {item.number !== undefined && (
+                <Text
+                  style={[
+                    styles.listNumber,
+                    {
+                      color: themeColors.primary,
+                      fontSize: proseSize,
+                      lineHeight: proseLineHeight,
+                      minWidth: Math.max(24, proseSize + 6),
+                    },
+                  ]}
+                >
                   {item.number}.
                 </Text>
               )}
               <View style={styles.listContent}>
                 {item.arabic && (
-                  <Text style={[styles.arabicText, { color: themeColors.text, fontSize: fontSize + 2 }]}>
+                  <Text
+                    style={[
+                      styles.arabicText,
+                      {
+                        color: themeColors.text,
+                        fontSize: listArabicSize,
+                        lineHeight: listArabicLineHeight,
+                      },
+                    ]}
+                  >
                     {item.arabic}
                   </Text>
                 )}
                 {item.latin && (
-                  <Text style={[styles.latinText, { color: themeColors.textSecondary, fontSize: fontSize - 2 }]}>
+                  <Text
+                    style={[
+                      styles.latinText,
+                      {
+                        color: themeColors.textSecondary,
+                        fontSize: proseSize,
+                        lineHeight: proseLineHeight,
+                      },
+                    ]}
+                  >
                     {item.latin}
                   </Text>
                 )}
                 {item.meaning && (
-                  <Text style={[styles.meaningText, { color: themeColors.textSecondary, fontSize: fontSize - 4 }]}>
+                  <Text
+                    style={[
+                      styles.meaningText,
+                      {
+                        color: themeColors.textSecondary,
+                        fontSize: meaningSize,
+                        lineHeight: meaningLineHeight,
+                      },
+                    ]}
+                  >
                     {item.meaning}
                   </Text>
                 )}
@@ -125,33 +227,51 @@ export default function AurodScreen() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={[styles.mainTitle, { color: themeColors.primary, fontSize: fontSize + 8 }]}>
-          أَوْرَادُ النِّظَامِيَّةِ
-        </Text>
-        <Text style={[styles.subtitle, { color: themeColors.textSecondary, fontSize: fontSize - 2 }]}>
-          Aurod An-Nidhomiyyah
-        </Text>
+        <View style={styles.innerContent}>
+          <Text
+            style={[
+              styles.mainTitle,
+              {
+                color: themeColors.primary,
+                fontSize: fontSize + 8,
+                lineHeight: Math.round((fontSize + 8) * 1.5),
+              },
+            ]}
+          >
+            أَوْرَادُ النِّظَامِيَّةِ
+          </Text>
+          <Text style={[styles.subtitle, { color: themeColors.textSecondary, fontSize: proseSize }]}>
+            Aurod An-Nidhomiyyah
+          </Text>
 
-        {aurodData.map((section) => (
-          <View key={section.id} style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: themeColors.primary, fontSize: fontSize + 2 }]}>
-              {section.title}
-            </Text>
+          {aurodData.map((section, idx) => (
+            <View key={section.id} style={styles.section}>
+              <Text
+                style={[
+                  styles.sectionTitle,
+                  {
+                    color: themeColors.primary,
+                    fontSize: fontSize + 2,
+                    lineHeight: Math.round((fontSize + 2) * 1.4),
+                  },
+                ]}
+              >
+                {section.title}
+              </Text>
 
-            {renderNotes(section.notes)}
-            {renderBody(section.body)}
-            {renderArabicSection(section)}
-            {renderList(section.list)}
+              {renderNotes(section.notes)}
+              {renderBody(section.body)}
+              {renderArabicSection(section)}
+              {renderList(section.list)}
 
-            <View style={[styles.divider, { backgroundColor: themeColors.border }]} />
-          </View>
-        ))}
+              {idx < aurodData.length - 1 && (
+                <View style={[styles.divider, { backgroundColor: themeColors.border }]} />
+              )}
+            </View>
+          ))}
 
-        <Text style={[styles.footer, { color: themeColors.textSecondary, fontSize: fontSize - 4 }]}>
-          Pondok Pesantren An-Nidhomiyyah Tuban
-        </Text>
-
-        <Footer />
+          <Footer />
+        </View>
       </ScrollView>
 
       <FontSizeSlider />
@@ -167,26 +287,28 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     paddingBottom: 120,
   },
+  innerContent: {
+    width: '100%',
+    maxWidth: 720,
+    alignSelf: 'center',
+  },
   mainTitle: {
     fontFamily: 'Amiri-Bold',
     textAlign: 'center',
     marginBottom: spacing.xs,
-    userSelect: 'none',
   },
   subtitle: {
     textAlign: 'center',
     marginBottom: spacing.xl,
-    userSelect: 'none',
   },
   section: {
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   sectionTitle: {
     fontWeight: '700',
     textAlign: 'center',
     marginBottom: spacing.md,
     marginTop: spacing.md,
-    userSelect: 'none',
   },
   notesContainer: {
     padding: spacing.md,
@@ -195,18 +317,14 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   notesText: {
-    lineHeight: 22,
     marginBottom: spacing.xs,
-    userSelect: 'none',
   },
   bodyContainer: {
     marginBottom: spacing.md,
   },
   bodyText: {
-    lineHeight: 24,
     marginBottom: spacing.sm,
-    textAlign: 'justify',
-    userSelect: 'none',
+    textAlign: 'left',
   },
   arabicSection: {
     marginBottom: spacing.md,
@@ -214,23 +332,16 @@ const styles = StyleSheet.create({
   arabicText: {
     fontFamily: 'Amiri-Regular',
     textAlign: 'right',
-    lineHeight: 40,
     marginBottom: spacing.sm,
-    userSelect: 'none',
   },
   latinText: {
     textAlign: 'left',
-    lineHeight: 24,
     marginBottom: spacing.sm,
     fontStyle: 'italic',
-    userSelect: 'none',
   },
   meaningText: {
     textAlign: 'left',
-    lineHeight: 20,
     fontStyle: 'italic',
-    opacity: 0.8,
-    userSelect: 'none',
   },
   listContainer: {
     marginBottom: spacing.md,
@@ -242,26 +353,16 @@ const styles = StyleSheet.create({
   listNumber: {
     fontWeight: '700',
     marginRight: spacing.sm,
-    width: 24,
-    userSelect: 'none',
   },
   listContent: {
     flex: 1,
   },
   listItemText: {
-    lineHeight: 24,
     marginBottom: spacing.sm,
     marginLeft: spacing.sm,
-    userSelect: 'none',
   },
   divider: {
     height: 1,
     marginVertical: spacing.lg,
-  },
-  footer: {
-    textAlign: 'center',
-    marginTop: spacing.xl,
-    fontStyle: 'italic',
-    userSelect: 'none',
   },
 });

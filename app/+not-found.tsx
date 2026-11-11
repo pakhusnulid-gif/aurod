@@ -1,14 +1,32 @@
 import { Link, Stack } from 'expo-router';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useTheme } from '@/contexts/ThemeContext';
+import { colors, spacing, borderRadius } from '@/constants/theme';
 
 export default function NotFoundScreen() {
+  const { theme } = useTheme();
+  const themeColors = colors[theme];
+
   return (
     <>
-      <Stack.Screen options={{ title: 'Oops!' }} />
-      <View style={styles.container}>
-        <Text style={styles.text}>This screen doesn't exist.</Text>
-        <Link href="/" style={styles.link}>
-          <Text>Go to home screen!</Text>
+      <Stack.Screen options={{ title: 'Halaman Tidak Ditemukan' }} />
+      <View style={[styles.container, { backgroundColor: themeColors.background }]}>
+        <Text style={[styles.title, { color: themeColors.text }]}>
+          Halaman tidak tersedia.
+        </Text>
+        <Link href="/" asChild>
+          <TouchableOpacity
+            activeOpacity={0.8}
+            accessibilityRole="button"
+            style={[
+              styles.link,
+              { backgroundColor: themeColors.primary, borderRadius: borderRadius.md },
+            ]}
+          >
+            <Text style={[styles.linkText, { color: themeColors.onPrimary }]}>
+              Kembali ke Beranda
+            </Text>
+          </TouchableOpacity>
         </Link>
       </View>
     </>
@@ -20,14 +38,20 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 20,
+    padding: spacing.lg,
   },
-  text: {
+  title: {
     fontSize: 20,
-    fontWeight: 600,
+    fontWeight: '600',
+    textAlign: 'center',
   },
   link: {
-    marginTop: 15,
-    paddingVertical: 15,
+    marginTop: spacing.md,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm + 4,
+  },
+  linkText: {
+    fontSize: 15,
+    fontWeight: '600',
   },
 });

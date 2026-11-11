@@ -10,6 +10,7 @@ import { tawassulData } from '@/constants/tawassulData';
 export default function TawassulScreen() {
   const { theme, fontSize } = useTheme();
   const themeColors = colors[theme];
+  const arabicLineHeight = Math.round(fontSize * 1.85);
 
   return (
     <View style={[styles.container, { backgroundColor: themeColors.background }]}>
@@ -19,33 +20,35 @@ export default function TawassulScreen() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={[styles.arabicText, { color: themeColors.text, fontSize }]}>
-          بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
-        </Text>
+        <View style={styles.innerContent}>
+          <Text style={[styles.arabicText, { color: themeColors.text, fontSize, lineHeight: arabicLineHeight }]}>
+            بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+          </Text>
 
-        {tawassulData.map((item) => (
-          <View key={item.id} style={styles.itemContainer}>
-            <Text style={[styles.arabicText, { color: themeColors.text, fontSize }]}>
-              {item.text}
-            </Text>
-          </View>
-        ))}
+          {tawassulData.map((item) => (
+            <View key={item.id} style={styles.itemContainer}>
+              <Text style={[styles.arabicText, { color: themeColors.text, fontSize, lineHeight: arabicLineHeight }]}>
+                {item.text}
+              </Text>
+            </View>
+          ))}
 
-        <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: themeColors.border }]} />
 
-        <Text style={[styles.arabicText, { color: themeColors.text, fontSize }]}>
-          بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
-        </Text>
+          <Text style={[styles.arabicText, { color: themeColors.text, fontSize, lineHeight: arabicLineHeight }]}>
+            بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+          </Text>
 
-        <Text style={[styles.arabicText, { color: themeColors.text, fontSize }]}>
-          اَلْحَمْدُ لِلّٰهِ رَبِّ الْعَالَمِيْنَ. الرَّحْمٰنِ الرَّحِيْمِ. مَالِكِ يَوْمِ الدِّيْنِ. إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِيْنُ. اِهْدِنَا الصِّرَاطَ الْمُسْتَقِيْمَ. صِرَاطَ الَّذِيْنَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوْبِ عَلَيْهِمْ وَلَا الضَّآلِّيْنَ
-        </Text>
+          <Text style={[styles.arabicText, { color: themeColors.text, fontSize, lineHeight: arabicLineHeight }]}>
+            اَلْحَمْدُ لِلّٰهِ رَبِّ الْعَالَمِيْنَ. الرَّحْمٰنِ الرَّحِيْمِ. مَالِكِ يَوْمِ الدِّيْنِ. إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِيْنُ. اِهْدِنَا الصِّرَاطَ الْمُسْتَقِيْمَ. صِرَاطَ الَّذِيْنَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوْبِ عَلَيْهِمْ وَلَا الضَّآلِّيْنَ
+          </Text>
 
-        <Text style={[styles.arabicText, { color: themeColors.text, fontSize }]}>
-          اٰمِيْن يَا رَبَّ الْعَالَمِيْنَ
-        </Text>
+          <Text style={[styles.arabicText, { color: themeColors.text, fontSize, lineHeight: arabicLineHeight }]}>
+            اٰمِيْن يَا رَبَّ الْعَالَمِيْنَ
+          </Text>
 
-        <Footer />
+          <Footer />
+        </View>
       </ScrollView>
 
       <FontSizeSlider />
@@ -61,32 +64,21 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     paddingBottom: 120,
   },
+  innerContent: {
+    width: '100%',
+    maxWidth: 720,
+    alignSelf: 'center',
+  },
   arabicText: {
     fontFamily: 'Amiri-Regular',
     textAlign: 'right',
-    lineHeight: 48,
     marginBottom: spacing.lg,
-    userSelect: 'none',
-  },
-  sectionTitle: {
-    fontFamily: 'Amiri-Bold',
-    textAlign: 'center',
-    marginVertical: spacing.lg,
-    userSelect: 'none',
   },
   itemContainer: {
     marginBottom: spacing.lg,
   },
-  itemTitle: {
-    fontSize: 14,
-    fontFamily: 'Amiri-Regular',
-    textAlign: 'left',
-    marginBottom: spacing.sm,
-    userSelect: 'none',
-  },
   divider: {
     height: 1,
-    backgroundColor: '#D1D5DB',
     marginVertical: spacing.xl,
   },
 });

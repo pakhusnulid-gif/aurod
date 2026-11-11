@@ -56,9 +56,9 @@ function sunPosition(jd: number) {
   return { declination: decl, equation: eqT };
 }
 
-function midDay(jd: number, lng: number): number {
-  const T = sunPosition(jd + 0.5).equation;
-  return DMath.fixHour(12 - T);
+function midDay(jd: number, time: number): number {
+  const eqT = sunPosition(jd + time).equation;
+  return DMath.fixHour(12 - eqT);
 }
 
 function sunAngleTime(
@@ -66,11 +66,10 @@ function sunAngleTime(
   time: number,
   direction: number,
   jd: number,
-  lat: number,
-  lng: number
+  lat: number
 ): number {
   const decl = sunPosition(jd + time).declination;
-  const noon = midDay(jd, lng);
+  const noon = midDay(jd, time);
   const t =
     (1 / 15) *
     DMath.arccos(
@@ -80,10 +79,10 @@ function sunAngleTime(
   return noon + direction * t;
 }
 
-function asrTime(time: number, factor: number, jd: number, lat: number, lng: number): number {
+function asrTime(time: number, factor: number, jd: number, lat: number): number {
   const decl = sunPosition(jd + time).declination;
   const angle = -DMath.arccot(factor + DMath.tan(Math.abs(lat - decl)));
-  return sunAngleTime(angle, time, 1, jd, lat, lng);
+  return sunAngleTime(angle, time, 1, jd, lat);
 }
 
 function timeToString(time: number): string {
@@ -99,39 +98,40 @@ export function calculatePrayerTimes(
   longitude: number = 112.0478,
   date: Date = new Date()
 ): PrayerTimesResult {
-  // DATA FALLBACK MANUAL UNTUK TUBAN
   const FALLBACK_TIMES: PrayerTimesResult = {
-    fajr: "04:05",
-    sunrise: "05:15",
-    dhuhr: "11:35",
-    asr: "14:55",
-    maghrib: "17:40",
-    isha: "18:55"
+    fajr: '04:05',
+    sunrise: '05:15',
+    dhuhr: '11:35',
+    asr: '14:55',
+    maghrib: '17:40',
+    isha: '18:55',
   };
 
   try {
-    // Hardcode koordinat Tuban
-    const lat = -6.8976;
-    const lng = 112.0478;
-
     const year = date.getFullYear();
     const month = date.getMonth() + 1;
     const day = date.getDate();
 
-    const jd = julianDay(year, month, day) - lng / (15 * 24);
-    const timezone = 7;
+    const jd = julianDay(year, month, day) - longitude / (15 * 24);
+    const timezone = -date.getTimezoneOffset() / 60;
+    const offset = timezone - longitude / 15;
 
-    const times = [5, 6, 12, 13, 18, 18];
+    let times = [5, 6, 12, 13, 18, 18];
 
-    times[0] = sunAngleTime(-20, times[0] / 24, -1, jd, lat, lng);
-    times[1] = sunAngleTime(-0.833, times[1] / 24, -1, jd, lat, lng);
-    times[2] = midDay(jd, lng);
-    times[3] = asrTime(times[3] / 24, 1, jd, lat, lng);
-    times[4] = sunAngleTime(-0.833, times[4] / 24, 1, jd, lat, lng);
-    times[5] = sunAngleTime(-18, times[5] / 24, 1, jd, lat, lng);
+    // Two iterations refine solar declination for each prayer hour.
+    for (let pass = 0; pass < 2; pass++) {
+      times = [
+        sunAngleTime(20, times[0] / 24, -1, jd, latitude),
+        sunAngleTime(0.833, times[1] / 24, -1, jd, latitude),
+        midDay(jd, times[2] / 24),
+        asrTime(times[3] / 24, 1, jd, latitude),
+        sunAngleTime(0.833, times[4] / 24, 1, jd, latitude),
+        sunAngleTime(18, times[5] / 24, 1, jd, latitude),
+      ];
+    }
 
     for (let i = 0; i < times.length; i++) {
-      times[i] += timezone;
+      times[i] += offset;
     }
 
     const result = {
@@ -143,26 +143,36 @@ export function calculatePrayerTimes(
       isha: timeToString(times[5]),
     };
 
-    // SANITY CHECK: Cek apakah Subuh masuk akal
-    const subuhJam = parseInt(result.fajr.split(':')[0]);
-    const dzuhurJam = parseInt(result.dhuhr.split(':')[0]);
-    const isyaJam = parseInt(result.isha.split(':')[0]);
+    const subuhJam = parseInt(result.fajr.split(':')[0], 10);
+    const dzuhurJam = parseInt(result.dhuhr.split(':')[0], 10);
+    const isyaJam = parseInt(result.isha.split(':')[0], 10);
 
-    // Subuh harus antara jam 03:00 - 05:30
-    // Dzuhur harus antara jam 11:00 - 13:00
-    // Isya harus antara jam 18:00 - 20:00
-    if (subuhJam < 3 || subuhJam > 5 ||
-        dzuhurJam < 11 || dzuhurJam > 13 ||
-        isyaJam < 18 || isyaJam > 20) {
-      console.warn('⚠️ Waktu salat tidak wajar, menggunakan data fallback manual');
+    if (
+      Number.isNaN(subuhJam) ||
+      Number.isNaN(dzuhurJam) ||
+      Number.isNaN(isyaJam) ||
+      subuhJam < 3 ||
+      subuhJam > 6 ||
+      dzuhurJam < 11 ||
+      dzuhurJam > 14 ||
+      isyaJam < 17 ||
+      isyaJam > 21
+    ) {
+      console.warn('Waktu salat di luar rentang wajar, menggunakan data fallback.');
       return FALLBACK_TIMES;
     }
 
     return result;
   } catch (error) {
-    console.error('❌ Error menghitung waktu salat, menggunakan data fallback:', error);
+    console.error('Error menghitung waktu salat, menggunakan data fallback:', error);
     return FALLBACK_TIMES;
   }
+}
+
+function parseMinutes(timeStr: string): number {
+  const [hours, minutes] = timeStr.split(':').map(Number);
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) return -1;
+  return hours * 60 + minutes;
 }
 
 export function getCurrentPrayer(prayerTimes: PrayerTimesResult): string {
@@ -178,9 +188,8 @@ export function getCurrentPrayer(prayerTimes: PrayerTimesResult): string {
   ];
 
   for (let i = prayers.length - 1; i >= 0; i--) {
-    const [hours, minutes] = prayers[i].time.split(':').map(Number);
-    const prayerMinutes = hours * 60 + minutes;
-    if (currentMinutes >= prayerMinutes) {
+    const prayerMinutes = parseMinutes(prayers[i].time);
+    if (prayerMinutes >= 0 && currentMinutes >= prayerMinutes) {
       return prayers[i].name;
     }
   }
@@ -201,9 +210,8 @@ export function getNextPrayer(prayerTimes: PrayerTimesResult): { name: string; t
   ];
 
   for (const prayer of prayers) {
-    const [hours, minutes] = prayer.time.split(':').map(Number);
-    const prayerMinutes = hours * 60 + minutes;
-    if (currentMinutes < prayerMinutes) {
+    const prayerMinutes = parseMinutes(prayer.time);
+    if (prayerMinutes >= 0 && currentMinutes < prayerMinutes) {
       return prayer;
     }
   }

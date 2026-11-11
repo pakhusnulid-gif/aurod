@@ -1,12 +1,12 @@
 {
-  "name": "Aurod An-Anidhomiyyah",
+  "name": "Aurod An-Nidhomiyyah",
   "short_name": "Aurod",
-  "description": "Aplikasi Aurod An-Anidhomiyyah untuk membaca wirid dan dzikir harian",
+  "description": "Aplikasi Aurod An-Nidhomiyyah untuk membaca wirid, Yasin Fadhilah, tawassul, dan tahlil",
   "start_url": "/",
   "display": "standalone",
   "display_override": ["standalone", "fullscreen"],
-  "background_color": "#10B981",
-  "theme_color": "#10B981",
+  "background_color": "#F8FAF9",
+  "theme_color": "#047857",
   "orientation": "portrait",
   "prefer_related_applications": false,
   "icons": [
@@ -24,6 +24,6 @@
     }
   ],
   "categories": ["education", "religion"],
-  "dir": "rtl",
-  "lang": "ar"
+  "dir": "ltr",
+  "lang": "id"
 }

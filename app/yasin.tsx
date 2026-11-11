@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { Repeat, Info, ArrowDown, ChevronRight, ChevronLeft } from 'lucide-react-native';
 import { Navbar } from '@/components/Navbar';
 import { FontSizeSlider } from '@/components/FontSizeSlider';
 import { Footer } from '@/components/Footer';
@@ -11,44 +12,121 @@ export default function YasinScreen() {
   const { theme, fontSize } = useTheme();
   const themeColors = colors[theme];
 
+  const arabicFontSize = fontSize + 4;
+  const arabicLineHeight = Math.round(arabicFontSize * 1.85);
+  const translationFontSize = Math.max(14, fontSize - 4);
+  const translationLineHeight = Math.round(translationFontSize * 1.55);
+  const badgeFontSize = Math.min(Math.max(fontSize - 8, 13), 16);
+  const badgeLineHeight = Math.round(badgeFontSize * 1.4);
+  const ayatBadgeSize = Math.max(32, Math.min(40, badgeFontSize + 18));
+
   const renderAyat = (item: YasinAyat) => {
     return (
       <View key={item.id} style={styles.ayatContainer}>
         <View style={styles.ayatHeader}>
-          <View style={[styles.ayatNumber, { backgroundColor: themeColors.primary }]}>
-            <Text style={[styles.ayatNumberText, { fontSize: fontSize - 6 }]}>{item.nomor_ayat}</Text>
+          <View
+            style={[
+              styles.ayatNumber,
+              {
+                backgroundColor: themeColors.primary,
+                minWidth: ayatBadgeSize,
+                height: ayatBadgeSize,
+                borderRadius: borderRadius.full,
+              },
+            ]}
+          >
+            <Text style={[styles.ayatNumberText, { color: themeColors.onPrimary, fontSize: badgeFontSize }]}>
+              {item.nomor_ayat}
+            </Text>
           </View>
         </View>
 
-        <Text style={[styles.arabicText, { color: themeColors.text, fontSize: fontSize + 4 }]}>
+        <Text
+          style={[
+            styles.arabicText,
+            { color: themeColors.text, fontSize: arabicFontSize, lineHeight: arabicLineHeight },
+          ]}
+        >
           {item.arabic}
         </Text>
 
         {item.repeat && (
-          <View style={[styles.repeatBadge, { backgroundColor: '#f0fdf4', borderColor: '#22c55e' }]}>
-            <Text style={[styles.repeatText, { color: '#166534', fontSize: fontSize - 6 }]}>
-              🔄 {item.repeat}
+          <View
+            style={[
+              styles.badgeRow,
+              {
+                backgroundColor: themeColors.badgeSuccessBg,
+                borderColor: themeColors.badgeSuccessBorder,
+              },
+            ]}
+          >
+            <Repeat color={themeColors.badgeSuccessText} size={15} />
+            <Text
+              style={[
+                styles.badgeText,
+                { color: themeColors.badgeSuccessText, fontSize: badgeFontSize, lineHeight: badgeLineHeight },
+              ]}
+            >
+              {item.repeat}
             </Text>
           </View>
         )}
 
         {item.instruction && (
-          <View style={[styles.instructionBadge, { backgroundColor: '#fef3c7', borderColor: '#f59e0b' }]}>
-            <Text style={[styles.instructionText, { color: '#92400e', fontSize: fontSize - 6 }]}>
-              📌 {item.instruction}
+          <View
+            style={[
+              styles.badgeRow,
+              {
+                backgroundColor: themeColors.badgeWarningBg,
+                borderColor: themeColors.badgeWarningBorder,
+              },
+            ]}
+          >
+            <Info color={themeColors.badgeWarningText} size={15} />
+            <Text
+              style={[
+                styles.badgeText,
+                { color: themeColors.badgeWarningText, fontSize: badgeFontSize, lineHeight: badgeLineHeight },
+              ]}
+            >
+              {item.instruction}
             </Text>
           </View>
         )}
 
         {item.wirid_instruction && (
           <View style={styles.wiridSection}>
-            <View style={[styles.wiridBadge, { backgroundColor: '#dbeafe', borderColor: '#3b82f6' }]}>
-              <Text style={[styles.wiridInstructionText, { color: '#1e40af', fontSize: fontSize - 6 }]}>
-                🔁 {item.wirid_instruction}
+            <View
+              style={[
+                styles.badgeRow,
+                {
+                  backgroundColor: themeColors.badgeInfoBg,
+                  borderColor: themeColors.badgeInfoBorder,
+                  marginBottom: spacing.sm,
+                },
+              ]}
+            >
+              <Repeat color={themeColors.badgeInfoText} size={15} />
+              <Text
+                style={[
+                  styles.badgeText,
+                  { color: themeColors.badgeInfoText, fontSize: badgeFontSize, lineHeight: badgeLineHeight },
+                ]}
+              >
+                {item.wirid_instruction}
               </Text>
             </View>
             {item.wirid_arabic && (
-              <Text style={[styles.wiridArabic, { color: themeColors.text, fontSize: fontSize }]}>
+              <Text
+                style={[
+                  styles.wiridArabic,
+                  {
+                    color: themeColors.text,
+                    fontSize,
+                    lineHeight: Math.round(fontSize * 1.75),
+                  },
+                ]}
+              >
                 {item.wirid_arabic}
               </Text>
             )}
@@ -60,19 +138,44 @@ export default function YasinScreen() {
 
   const renderSisipan = (item: YasinSisipan) => {
     const arabicParts = item.arabic.split('\n\n');
-    const hasSeparateTranslations = item.doa_translation && item.sholawat_translation;
+    const hasSeparateTranslations =
+      Boolean(item.doa_translation && item.sholawat_translation) && arabicParts.length >= 2;
+    const sisipanArabicSize = fontSize + 2;
+    const sisipanArabicLineHeight = Math.round(sisipanArabicSize * 1.85);
 
     return (
-      <View key={item.id} style={[styles.sisipanContainer, { backgroundColor: '#d1fae5', borderColor: '#10b981' }]}>
+      <View
+        key={item.id}
+        style={[
+          styles.sisipanContainer,
+          {
+            backgroundColor: themeColors.calloutBg,
+            borderColor: themeColors.calloutBorder,
+          },
+        ]}
+      >
         <View style={styles.sisipanHeader}>
-          <Text style={[styles.sisipanPosition, { color: '#065f46', fontSize: fontSize - 6 }]}>
-            ⬇️ {item.position}
-          </Text>
-          <Text style={[styles.sisipanTitle, { color: '#047857', fontSize: fontSize - 2 }]}>
+          <View style={styles.sisipanPosRow}>
+            <ArrowDown color={themeColors.calloutText} size={14} />
+            <Text style={[styles.sisipanPosition, { color: themeColors.calloutText, fontSize: badgeFontSize }]}>
+              {item.position}
+            </Text>
+          </View>
+          <Text
+            style={[
+              styles.sisipanTitle,
+              { color: themeColors.primary, fontSize: Math.max(16, fontSize - 2) },
+            ]}
+          >
             {item.title}
           </Text>
-          <View style={[styles.repeatBadge, { backgroundColor: '#047857' }]}>
-            <Text style={[styles.repeatText, { fontSize: fontSize - 6 }]}>
+          <View
+            style={[
+              styles.sisipanRepeatPill,
+              { backgroundColor: themeColors.primary, borderColor: themeColors.primary },
+            ]}
+          >
+            <Text style={[styles.sisipanRepeatText, { color: themeColors.onPrimary, fontSize: badgeFontSize }]}>
               {item.repeat}
             </Text>
           </View>
@@ -80,26 +183,69 @@ export default function YasinScreen() {
 
         {hasSeparateTranslations ? (
           <>
-            <Text style={[styles.sisipanArabic, { color: '#065f46', fontSize: fontSize + 2 }]}>
+            <Text
+              style={[
+                styles.sisipanArabic,
+                { color: themeColors.text, fontSize: sisipanArabicSize, lineHeight: sisipanArabicLineHeight },
+              ]}
+            >
               {arabicParts[0]}
             </Text>
-            <Text style={[styles.sisipanTranslation, { color: '#065f46', fontSize: fontSize - 4, marginBottom: 12 }]}>
+            <Text
+              style={[
+                styles.sisipanTranslation,
+                {
+                  color: themeColors.calloutText,
+                  fontSize: translationFontSize,
+                  lineHeight: translationLineHeight,
+                  marginBottom: spacing.md,
+                },
+              ]}
+            >
               {item.doa_translation}
             </Text>
 
-            <Text style={[styles.sisipanArabic, { color: '#065f46', fontSize: fontSize + 2 }]}>
+            <Text
+              style={[
+                styles.sisipanArabic,
+                { color: themeColors.text, fontSize: sisipanArabicSize, lineHeight: sisipanArabicLineHeight },
+              ]}
+            >
               {arabicParts[1]}
             </Text>
-            <Text style={[styles.sisipanTranslation, { color: '#065f46', fontSize: fontSize - 4 }]}>
+            <Text
+              style={[
+                styles.sisipanTranslation,
+                {
+                  color: themeColors.calloutText,
+                  fontSize: translationFontSize,
+                  lineHeight: translationLineHeight,
+                },
+              ]}
+            >
               {item.sholawat_translation}
             </Text>
           </>
         ) : (
           <>
-            <Text style={[styles.sisipanArabic, { color: '#065f46', fontSize: fontSize + 2 }]}>
+            <Text
+              style={[
+                styles.sisipanArabic,
+                { color: themeColors.text, fontSize: sisipanArabicSize, lineHeight: sisipanArabicLineHeight },
+              ]}
+            >
               {item.arabic}
             </Text>
-            <Text style={[styles.sisipanTranslation, { color: '#065f46', fontSize: fontSize - 4 }]}>
+            <Text
+              style={[
+                styles.sisipanTranslation,
+                {
+                  color: themeColors.calloutText,
+                  fontSize: translationFontSize,
+                  lineHeight: translationLineHeight,
+                },
+              ]}
+            >
               {item.translation}
             </Text>
           </>
@@ -109,27 +255,70 @@ export default function YasinScreen() {
   };
 
   const renderAyatParsial = (item: YasinAyatParsial) => {
+    const isAwal = item.bagian === 'awal';
     return (
       <View key={item.id} style={styles.ayatParsialContainer}>
         <View style={styles.ayatHeader}>
-          <View style={[styles.ayatNumber, { backgroundColor: themeColors.primary }]}>
-            <Text style={[styles.ayatNumberText, { fontSize: fontSize - 6 }]}>
+          <View
+            style={[
+              styles.ayatNumber,
+              {
+                backgroundColor: themeColors.primary,
+                minWidth: ayatBadgeSize,
+                height: ayatBadgeSize,
+                borderRadius: borderRadius.full,
+              },
+            ]}
+          >
+            <Text style={[styles.ayatNumberText, { color: themeColors.onPrimary, fontSize: badgeFontSize }]}>
               {item.nomor_ayat}
             </Text>
           </View>
-          <View style={[styles.parsialBadge, { backgroundColor: '#fce7f3', borderColor: '#ec4899' }]}>
-            <Text style={[styles.parsialText, { color: '#9f1239', fontSize: fontSize - 8 }]}>
-              {item.bagian === 'awal' ? '▶️ Awal Ayat' : '◀️ Lanjutan'}
+          <View
+            style={[
+              styles.parsialBadge,
+              {
+                backgroundColor: themeColors.badgeNeutralBg,
+                borderColor: themeColors.badgeNeutralBorder,
+              },
+            ]}
+          >
+            {isAwal ? (
+              <ChevronRight color={themeColors.badgeNeutralText} size={14} />
+            ) : (
+              <ChevronLeft color={themeColors.badgeNeutralText} size={14} />
+            )}
+            <Text
+              style={[
+                styles.parsialText,
+                { color: themeColors.badgeNeutralText, fontSize: Math.max(12, badgeFontSize - 1) },
+              ]}
+            >
+              {isAwal ? 'Awal Ayat' : 'Lanjutan Ayat'}
             </Text>
           </View>
         </View>
 
-        <Text style={[styles.arabicText, { color: themeColors.text, fontSize: fontSize + 4 }]}>
+        <Text
+          style={[
+            styles.arabicText,
+            { color: themeColors.text, fontSize: arabicFontSize, lineHeight: arabicLineHeight },
+          ]}
+        >
           {item.arabic}
         </Text>
 
         {item.translation && (
-          <Text style={[styles.translationText, { color: themeColors.textSecondary, fontSize: fontSize - 4 }]}>
+          <Text
+            style={[
+              styles.translationText,
+              {
+                color: themeColors.textSecondary,
+                fontSize: translationFontSize,
+                lineHeight: translationLineHeight,
+              },
+            ]}
+          >
             {item.translation}
           </Text>
         )}
@@ -140,11 +329,11 @@ export default function YasinScreen() {
   const renderContent = (item: YasinContent) => {
     switch (item.type) {
       case 'ayat':
-        return renderAyat(item as YasinAyat);
+        return renderAyat(item);
       case 'sisipan':
-        return renderSisipan(item as YasinSisipan);
+        return renderSisipan(item);
       case 'ayat_parsial':
-        return renderAyatParsial(item as YasinAyatParsial);
+        return renderAyatParsial(item);
       default:
         return null;
     }
@@ -158,30 +347,55 @@ export default function YasinScreen() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={[styles.mainTitle, { color: themeColors.primary, fontSize: fontSize + 8 }]}>
-          يس
-        </Text>
-        <Text style={[styles.subtitle, { color: themeColors.textSecondary, fontSize: fontSize - 2 }]}>
-          Surat Yasin dengan Fadhilah
-        </Text>
+        <View style={styles.innerContent}>
+          <Text
+            style={[
+              styles.mainTitle,
+              {
+                color: themeColors.primary,
+                fontSize: fontSize + 8,
+                lineHeight: Math.round((fontSize + 8) * 1.5),
+              },
+            ]}
+          >
+            يس
+          </Text>
+          <Text style={[styles.subtitle, { color: themeColors.textSecondary, fontSize: Math.max(14, fontSize - 2) }]}>
+            Surat Yasin dengan Fadhilah
+          </Text>
 
-        <Text style={[styles.basmalah, { color: themeColors.text, fontSize: fontSize + 6 }]}>
-          بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
-        </Text>
+          <Text
+            style={[
+              styles.basmalah,
+              {
+                color: themeColors.text,
+                fontSize: fontSize + 6,
+                lineHeight: Math.round((fontSize + 6) * 1.7),
+              },
+            ]}
+          >
+            بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+          </Text>
 
-        {yasinFadhilahData.map((item) => renderContent(item))}
+          {yasinFadhilahData.map((item) => renderContent(item))}
 
-        <View style={[styles.divider, { backgroundColor: themeColors.border }]} />
+          <View style={[styles.divider, { backgroundColor: themeColors.border }]} />
 
-        <Text style={[styles.closingText, { color: themeColors.primary, fontSize: fontSize + 4 }]}>
-          صَدَقَ اللهُ الْعَظِيْمُ
-        </Text>
+          <Text
+            style={[
+              styles.closingText,
+              {
+                color: themeColors.primary,
+                fontSize: fontSize + 4,
+                lineHeight: Math.round((fontSize + 4) * 1.6),
+              },
+            ]}
+          >
+            صَدَقَ اللهُ الْعَظِيْمُ
+          </Text>
 
-        <Text style={[styles.footer, { color: themeColors.textSecondary, fontSize: fontSize - 4 }]}>
-          Pondok Pesantren An-Nidhomiyyah Tuban
-        </Text>
-
-        <Footer />
+          <Footer />
+        </View>
       </ScrollView>
 
       <FontSizeSlider />
@@ -197,22 +411,24 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     paddingBottom: 120,
   },
+  innerContent: {
+    width: '100%',
+    maxWidth: 720,
+    alignSelf: 'center',
+  },
   mainTitle: {
     fontFamily: 'Amiri-Bold',
     textAlign: 'center',
     marginBottom: spacing.xs,
-    userSelect: 'none',
   },
   subtitle: {
     textAlign: 'center',
     marginBottom: spacing.lg,
-    userSelect: 'none',
   },
   basmalah: {
     fontFamily: 'Amiri-Bold',
     textAlign: 'center',
     marginBottom: spacing.xl,
-    userSelect: 'none',
   },
   ayatContainer: {
     marginBottom: spacing.lg,
@@ -224,116 +440,101 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   ayatNumber: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    paddingHorizontal: spacing.xs,
     justifyContent: 'center',
     alignItems: 'center',
   },
   ayatNumberText: {
-    color: '#FFFFFF',
     fontWeight: '700',
+    fontVariant: ['tabular-nums'],
     userSelect: 'none',
   },
   arabicText: {
     fontFamily: 'Amiri-Regular',
     textAlign: 'right',
-    lineHeight: 44,
     marginBottom: spacing.sm,
-    userSelect: 'none',
   },
-  instructionBadge: {
+  badgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs,
     padding: spacing.sm,
     borderRadius: borderRadius.md,
     borderWidth: 1,
     marginTop: spacing.sm,
   },
-  instructionText: {
+  badgeText: {
+    flexShrink: 1,
     fontWeight: '600',
     textAlign: 'center',
-    userSelect: 'none',
   },
   wiridSection: {
     marginTop: spacing.sm,
   },
-  wiridBadge: {
-    padding: spacing.sm,
-    borderRadius: borderRadius.md,
-    borderWidth: 1,
-    marginBottom: spacing.sm,
-  },
-  wiridInstructionText: {
-    fontWeight: '600',
-    textAlign: 'center',
-    userSelect: 'none',
-  },
   wiridArabic: {
     fontFamily: 'Amiri-Regular',
     textAlign: 'center',
-    lineHeight: 32,
-    userSelect: 'none',
   },
   sisipanContainer: {
     padding: spacing.lg,
     borderRadius: borderRadius.lg,
-    borderWidth: 2,
+    borderWidth: 1,
     marginVertical: spacing.lg,
   },
   sisipanHeader: {
     marginBottom: spacing.md,
   },
+  sisipanPosRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    marginBottom: spacing.xs,
+  },
   sisipanPosition: {
     fontWeight: '600',
-    marginBottom: spacing.xs,
-    userSelect: 'none',
   },
   sisipanTitle: {
     fontWeight: '700',
     marginBottom: spacing.sm,
-    userSelect: 'none',
   },
-  repeatBadge: {
-    padding: spacing.sm,
+  sisipanRepeatPill: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: spacing.sm + 4,
+    paddingVertical: spacing.xs + 2,
     borderRadius: borderRadius.md,
     borderWidth: 1,
-    marginTop: spacing.sm,
   },
-  repeatText: {
-    fontWeight: '600',
-    textAlign: 'center',
-    userSelect: 'none',
+  sisipanRepeatText: {
+    fontWeight: '700',
   },
   sisipanArabic: {
     fontFamily: 'Amiri-Regular',
     textAlign: 'right',
-    lineHeight: 40,
-    marginBottom: spacing.md,
-    userSelect: 'none',
+    marginBottom: spacing.sm,
   },
   sisipanTranslation: {
     fontStyle: 'italic',
-    lineHeight: 22,
-    textAlign: 'justify',
-    userSelect: 'none',
+    textAlign: 'left',
   },
   ayatParsialContainer: {
     marginBottom: spacing.lg,
   },
   parsialBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
     paddingHorizontal: spacing.sm,
     paddingVertical: 4,
-    borderRadius: borderRadius.sm,
+    borderRadius: borderRadius.md,
     borderWidth: 1,
   },
   parsialText: {
     fontWeight: '600',
-    userSelect: 'none',
   },
   translationText: {
     fontStyle: 'italic',
-    lineHeight: 22,
-    marginTop: spacing.sm,
-    userSelect: 'none',
+    marginTop: spacing.xs,
   },
   divider: {
     height: 1,
@@ -343,11 +544,5 @@ const styles = StyleSheet.create({
     fontFamily: 'Amiri-Bold',
     textAlign: 'center',
     marginBottom: spacing.md,
-    userSelect: 'none',
-  },
-  footer: {
-    textAlign: 'center',
-    fontStyle: 'italic',
-    userSelect: 'none',
   },
 });
