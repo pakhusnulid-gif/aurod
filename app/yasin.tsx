@@ -512,7 +512,7 @@ export default function YasinScreen() {
   return (
     <AppShell maxWidth={680}>
       <Navbar
-        title="Yasin Fadhilah"
+        title="Yasin Fadhilah Alfushohbi"
         showBack
         showReadingSettings
         onOpenReadingSettings={() => setSettingsOpen(true)}

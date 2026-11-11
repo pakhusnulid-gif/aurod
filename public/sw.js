@@ -1,4 +1,4 @@
-const CACHE_NAME = 'aurod-anidhomiyyah-v4';
+const CACHE_NAME = 'aurod-anidhomiyyah-v5';
 const PRECACHE_URLS = [
   '/',
   '/index.html',

@@ -7,16 +7,16 @@ import {
   ScrollView,
   Image,
   useWindowDimensions,
+  Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { ChevronRight, Download } from 'lucide-react-native';
 import {
-  BookOpen,
-  ScrollText,
-  Hand,
-  Layers,
-  ChevronRight,
-  Download,
-} from 'lucide-react-native';
+  YasinMenuIcon,
+  AurodMenuIcon,
+  TawassulMenuIcon,
+  TahlilMenuIcon,
+} from '@/components/MenuColoredIcons';
 import { AppShell } from '@/components/AppShell';
 import { Navbar } from '@/components/Navbar';
 import { HeroKubah } from '@/components/HeroKubah';
@@ -34,40 +34,65 @@ const MAJELIS_IMAGE = require('@/assets/images/majelis-rutinan.jpg');
 
 interface MenuItem {
   id: number;
-  title: string;
+  titleArabic: string;
+  titleLatin: string;
   route: '/yasin' | '/aurod' | '/tawassul' | '/tahlil';
-  icon: typeof BookOpen;
-  color: string;
+  IconComponent: React.ComponentType<{ size?: number }>;
+  accentColor: string;
+  bgLight: string;
+  borderLight: string;
+  bgDark: string;
+  borderDark: string;
 }
 
 const MENU_ITEMS: MenuItem[] = [
   {
     id: 1,
-    title: 'Yasin Fadhilah',
+    titleArabic: 'يٰس فَضِيْلَةُ أَلْفِ الصَّحْبِ',
+    titleLatin: 'Yasin Fadhilah Alfushohbi',
     route: '/yasin',
-    icon: BookOpen,
-    color: '#047857',
+    IconComponent: YasinMenuIcon,
+    accentColor: '#059669',
+    bgLight: '#ECFDF5',
+    borderLight: '#A7F3D0',
+    bgDark: '#062E22',
+    borderDark: 'rgba(52, 211, 153, 0.35)',
   },
   {
     id: 2,
-    title: 'Aurod',
+    titleArabic: 'أَوْرَادُ النِّظَامِيَّة',
+    titleLatin: 'Aurod An-Nidhomiyyah',
     route: '/aurod',
-    icon: ScrollText,
-    color: '#0F766E',
+    IconComponent: AurodMenuIcon,
+    accentColor: '#0D9488',
+    bgLight: '#F0FDFA',
+    borderLight: '#99F6E4',
+    bgDark: '#042F2E',
+    borderDark: 'rgba(45, 212, 191, 0.35)',
   },
   {
     id: 3,
-    title: 'Tawassul',
+    titleArabic: 'التَّوَسُّلُ',
+    titleLatin: 'Tawassul',
     route: '/tawassul',
-    icon: Hand,
-    color: '#065F46',
+    IconComponent: TawassulMenuIcon,
+    accentColor: '#D97706',
+    bgLight: '#FFFBEB',
+    borderLight: '#FDE68A',
+    bgDark: '#261C08',
+    borderDark: 'rgba(251, 191, 36, 0.35)',
   },
   {
     id: 4,
-    title: 'Tahlil',
+    titleArabic: 'التَّهْلِيْلُ',
+    titleLatin: 'Tahlil & Doa',
     route: '/tahlil',
-    icon: Layers,
-    color: '#115E59',
+    IconComponent: TahlilMenuIcon,
+    accentColor: '#047857',
+    bgLight: '#E8F5E9',
+    borderLight: '#C8E6C9',
+    bgDark: '#0D2B24',
+    borderDark: 'rgba(52, 211, 153, 0.3)',
   },
 ];
 
@@ -133,14 +158,31 @@ export default function HomeScreen() {
           </View>
 
           <View style={styles.sectionBlock}>
-            <Text style={[styles.sectionLabel, { color: themeColors.textSecondary }]}>
-              Amalan Santri
-            </Text>
+            <View style={styles.sectionHeaderRow}>
+              <Text style={[styles.sectionLabel, { color: themeColors.textSecondary }]}>
+                Amalan & Wirid Santri
+              </Text>
+              <Text
+                style={[
+                  styles.sectionArabicPill,
+                  {
+                    color: themeColors.primary,
+                    backgroundColor: theme === 'dark' ? '#062E22' : '#ECFDF5',
+                  },
+                ]}
+              >
+                الأَوْرَادُ وَالأَدْعِيَةُ
+              </Text>
+            </View>
+
             <View style={styles.menuGrid}>
               {menuRows.map((row, rowIndex) => (
                 <View key={rowIndex} style={styles.gridRow}>
                   {row.map((item) => {
-                    const IconComponent = item.icon;
+                    const Icon = item.IconComponent;
+                    const iconBg = theme === 'dark' ? item.bgDark : item.bgLight;
+                    const iconBorder = theme === 'dark' ? item.borderDark : item.borderLight;
+
                     return (
                       <TouchableOpacity
                         key={item.id}
@@ -155,13 +197,36 @@ export default function HomeScreen() {
                         onPress={() => router.push(item.route)}
                         activeOpacity={0.75}
                         accessibilityRole="button"
-                        accessibilityLabel={item.title}
+                        accessibilityLabel={`${item.titleLatin} - ${item.titleArabic}`}
                       >
-                        <View style={[styles.iconCircle, { backgroundColor: item.color }]}>
-                          <IconComponent color="#F8FAF9" size={22} />
+                        <View
+                          style={[
+                            styles.iconCircleBadge,
+                            {
+                              backgroundColor: iconBg,
+                              borderColor: iconBorder,
+                            },
+                          ]}
+                        >
+                          <Icon size={40} />
                         </View>
-                        <Text style={[styles.cardTitle, { color: themeColors.text }]} numberOfLines={1}>
-                          {item.title}
+                        <Text
+                          style={[
+                            styles.cardTitleArabic,
+                            { color: themeColors.text },
+                          ]}
+                          numberOfLines={2}
+                        >
+                          {item.titleArabic}
+                        </Text>
+                        <Text
+                          style={[
+                            styles.cardTitleLatin,
+                            { color: themeColors.textSecondary },
+                          ]}
+                          numberOfLines={1}
+                        >
+                          {item.titleLatin}
                         </Text>
                       </TouchableOpacity>
                     );
@@ -312,11 +377,24 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md + 2,
     gap: spacing.sm,
   },
+  sectionHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 2,
+  },
   sectionLabel: {
     fontSize: 12,
     fontWeight: '700',
     letterSpacing: 0.4,
-    marginBottom: 2,
+  },
+  sectionArabicPill: {
+    fontFamily: Platform.select({ web: 'Amiri-Bold, "Amiri", "Traditional Arabic", serif', default: 'Amiri-Bold' }),
+    fontSize: 13,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+    borderRadius: borderRadius.full,
+    overflow: 'hidden',
   },
   menuGrid: {
     gap: spacing.sm + 4,
@@ -327,31 +405,44 @@ const styles = StyleSheet.create({
   },
   gridCard: {
     flex: 1,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.sm + 4,
-    borderRadius: borderRadius.lg,
+    paddingVertical: spacing.md - 2,
+    paddingHorizontal: spacing.sm,
+    borderRadius: borderRadius.xl,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 102,
+    minHeight: 128,
     elevation: 2,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.06,
     shadowRadius: 8,
   },
-  iconCircle: {
-    width: 46,
-    height: 46,
-    borderRadius: borderRadius.full,
+  iconCircleBadge: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    borderWidth: 1.5,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: spacing.xs + 2,
+    marginBottom: spacing.xs + 3,
+    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
   },
-  cardTitle: {
-    fontSize: 15,
-    fontWeight: '700',
+  cardTitleArabic: {
+    fontFamily: Platform.select({ web: 'Amiri-Bold, "Amiri", "Traditional Arabic", serif', default: 'Amiri-Bold' }),
+    fontSize: 16.5,
+    lineHeight: 25,
     textAlign: 'center',
     userSelect: 'none',
+  },
+  cardTitleLatin: {
+    fontSize: 11.5,
+    fontWeight: '600',
+    textAlign: 'center',
+    userSelect: 'none',
+    marginTop: 2,
   },
   editorialCard: {
     flexDirection: 'row',
