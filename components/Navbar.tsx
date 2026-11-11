@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ArrowLeft, Moon, Sun, Type } from 'lucide-react-native';
+import { ArrowLeft, Moon, Repeat, Sun, Type } from 'lucide-react-native';
 import { useTheme } from '@/contexts/ThemeContext';
 import { colors, spacing, borderRadius } from '@/constants/theme';
 
@@ -14,6 +14,8 @@ interface NavbarProps {
   showBrandLogo?: boolean;
   showReadingSettings?: boolean;
   onOpenReadingSettings?: () => void;
+  showTasbih?: boolean;
+  onOpenTasbih?: () => void;
 }
 
 export function Navbar({
@@ -22,6 +24,8 @@ export function Navbar({
   showBrandLogo = false,
   showReadingSettings = false,
   onOpenReadingSettings,
+  showTasbih = false,
+  onOpenTasbih,
 }: NavbarProps) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -70,6 +74,16 @@ export function Navbar({
         </Text>
 
         <View style={styles.rightSection}>
+          {showTasbih && onOpenTasbih && (
+            <TouchableOpacity
+              onPress={onOpenTasbih}
+              style={styles.iconButton}
+              accessibilityRole="button"
+              accessibilityLabel="Buka penghitung tasbih"
+            >
+              <Repeat color={themeColors.text} size={20} />
+            </TouchableOpacity>
+          )}
           {showReadingSettings && onOpenReadingSettings && (
             <TouchableOpacity
               onPress={onOpenReadingSettings}
