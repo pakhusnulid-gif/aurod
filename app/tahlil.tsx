@@ -1,5 +1,12 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, useWindowDimensions } from 'react-native';
+import React, { useRef, useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  useWindowDimensions,
+} from 'react-native';
 import { Repeat } from 'lucide-react-native';
 import { AppShell } from '@/components/AppShell';
 import { Navbar } from '@/components/Navbar';
@@ -10,26 +17,80 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { colors, spacing, borderRadius } from '@/constants/theme';
 import { tahlilData } from '@/constants/tahlilData';
 
+const JUMP_CHIPS = [
+  { key: 'hadhorot', label: 'Hadhorot' },
+  { key: 'surah', label: 'Surat Pendek' },
+  { key: 'baqarah', label: 'Al-Baqarah' },
+  { key: 'tahlil', label: 'Tahlil 41x' },
+  { key: 'tasbih', label: 'Tasbih' },
+  { key: 'doa', label: 'Doa Tahlil' },
+  { key: 'penutup', label: 'Penutup' },
+];
+
 export default function TahlilScreen() {
   const { theme, fontSize } = useTheme();
   const { width } = useWindowDimensions();
   const themeColors = colors[theme];
+  const scrollViewRef = useRef<ScrollView>(null);
+  const sectionOffsets = useRef<Record<string, number>>({});
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [tasbihState, setTasbihState] = useState<{ label: string; target: number } | null>(null);
 
   const horizontalPad = width < 480 ? spacing.md : spacing.lg;
   const arabicLineHeight = Math.round(fontSize * 1.85);
 
+  const handleJump = (key: string) => {
+    const y = sectionOffsets.current[key];
+    if (typeof y === 'number') {
+      scrollViewRef.current?.scrollTo({ y: Math.max(0, y - 12), animated: true });
+    }
+  };
+
   return (
     <AppShell maxWidth={680}>
       <Navbar
-        title="Tahlil"
+        title="Tahlil & Doa"
         showBack
         showReadingSettings
         onOpenReadingSettings={() => setSettingsOpen(true)}
       />
 
+      <View
+        style={[
+          styles.jumpBarWrapper,
+          { backgroundColor: themeColors.background, borderBottomColor: themeColors.border },
+        ]}
+      >
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.jumpBarContent}
+        >
+          {JUMP_CHIPS.map((chip) => (
+            <TouchableOpacity
+              key={chip.key}
+              onPress={() => handleJump(chip.key)}
+              activeOpacity={0.75}
+              accessibilityRole="button"
+              accessibilityLabel={`Lompat ke bagian ${chip.label}`}
+              style={[
+                styles.jumpChip,
+                {
+                  backgroundColor: themeColors.surface,
+                  borderColor: themeColors.border,
+                },
+              ]}
+            >
+              <Text style={[styles.jumpChipText, { color: themeColors.primary }]}>
+                {chip.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
+
       <ScrollView
+        ref={scrollViewRef}
         contentContainerStyle={[styles.content, { paddingHorizontal: horizontalPad }]}
         showsVerticalScrollIndicator={false}
       >
@@ -47,68 +108,97 @@ export default function TahlilScreen() {
         </Text>
 
         <Text style={[styles.subtitle, { color: themeColors.textSecondary }]}>
-          Majelis Tahlil
+          Majelis Tahlil Pondok Pesantren An-Nidhomiyyah
         </Text>
 
-        {tahlilData.map((item) => (
-          <View key={item.id} style={styles.section}>
-            <Text style={[styles.arabicText, { color: themeColors.text, fontSize, lineHeight: arabicLineHeight }]}>
-              {item.arabic}
-            </Text>
+        {tahlilData.map((item) => {
+          const repeatCounts = item.repeats ?? (item.repeat ? [item.repeat] : []);
 
-            {item.repeat && (
-              <TouchableOpacity
-                onPress={() =>
-                  setTasbihState({
-                    label: `Bacaan Tahlil (${item.repeat}x)`,
-                    target: item.repeat!,
-                  })
-                }
-                activeOpacity={0.75}
-                accessibilityRole="button"
-                accessibilityLabel={`Buka penghitung tasbih ${item.repeat} kali`}
-                style={[
-                  styles.repeatPill,
+          return (
+            <View
+              key={item.id}
+              style={[
+                styles.section,
+                item.isColophon && [
+                  styles.colophonCard,
                   {
-                    backgroundColor: themeColors.badgeSuccessBg,
-                    borderColor: themeColors.badgeSuccessBorder,
+                    backgroundColor: themeColors.calloutBg,
+                    borderColor: themeColors.calloutBorder,
+                  },
+                ],
+              ]}
+              onLayout={
+                item.sectionKey
+                  ? (e) => {
+                      sectionOffsets.current[item.sectionKey!] = e.nativeEvent.layout.y;
+                    }
+                  : undefined
+              }
+            >
+              {item.sectionLabel && (
+                <View
+                  style={[
+                    styles.sectionLabelBadge,
+                    {
+                      backgroundColor: themeColors.badgeNeutralBg,
+                      borderColor: themeColors.badgeNeutralBorder,
+                    },
+                  ]}
+                >
+                  <Text style={[styles.sectionLabelText, { color: themeColors.badgeNeutralText }]}>
+                    {item.sectionLabel}
+                  </Text>
+                </View>
+              )}
+
+              <Text
+                style={[
+                  item.isColophon ? styles.colophonText : styles.arabicText,
+                  {
+                    color: item.isColophon ? themeColors.calloutText : themeColors.text,
+                    fontSize: item.isColophon ? Math.max(16, fontSize - 4) : fontSize,
+                    lineHeight: item.isColophon
+                      ? Math.round(Math.max(16, fontSize - 4) * 1.7)
+                      : arabicLineHeight,
                   },
                 ]}
               >
-                <Repeat color={themeColors.badgeSuccessText} size={14} />
-                <Text style={[styles.repeatText, { color: themeColors.badgeSuccessText }]}>
-                  Dibaca {item.repeat}x (Ketuk untuk Tasbih)
-                </Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        ))}
+                {item.arabic}
+              </Text>
 
-        <View
-          style={[
-            styles.closingSection,
-            {
-              backgroundColor: themeColors.calloutBg,
-              borderColor: themeColors.calloutBorder,
-            },
-          ]}
-        >
-          <Text
-            style={[
-              styles.closingText,
-              {
-                color: themeColors.primary,
-                fontSize: fontSize + 2,
-                lineHeight: Math.round((fontSize + 2) * 1.6),
-              },
-            ]}
-          >
-            الْفَاتِحَة
-          </Text>
-          <Text style={[styles.closingSubtext, { color: themeColors.calloutText }]}>
-            Ditutup dengan membaca Al-Fatihah
-          </Text>
-        </View>
+              {repeatCounts.length > 0 && (
+                <View style={styles.repeatRow}>
+                  {repeatCounts.map((count) => (
+                    <TouchableOpacity
+                      key={count}
+                      onPress={() =>
+                        setTasbihState({
+                          label: `Bacaan Tahlil (${count}x)`,
+                          target: count,
+                        })
+                      }
+                      activeOpacity={0.75}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Buka penghitung tasbih ${count} kali`}
+                      style={[
+                        styles.repeatPill,
+                        {
+                          backgroundColor: themeColors.badgeSuccessBg,
+                          borderColor: themeColors.badgeSuccessBorder,
+                        },
+                      ]}
+                    >
+                      <Repeat color={themeColors.badgeSuccessText} size={14} />
+                      <Text style={[styles.repeatText, { color: themeColors.badgeSuccessText }]}>
+                        Dibaca {count}x (Ketuk Tasbih)
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+            </View>
+          );
+        })}
 
         <Footer />
       </ScrollView>
@@ -130,6 +220,27 @@ export default function TahlilScreen() {
 }
 
 const styles = StyleSheet.create({
+  jumpBarWrapper: {
+    borderBottomWidth: 1,
+    paddingVertical: spacing.xs + 2,
+  },
+  jumpBarContent: {
+    paddingHorizontal: spacing.md,
+    gap: spacing.xs + 2,
+  },
+  jumpChip: {
+    minHeight: 36,
+    paddingHorizontal: spacing.sm + 4,
+    paddingVertical: 6,
+    borderRadius: borderRadius.full,
+    borderWidth: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  jumpChipText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
   content: {
     paddingTop: spacing.lg,
     paddingBottom: spacing.xxl,
@@ -148,16 +259,46 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
   },
   section: {
-    marginBottom: spacing.xl,
+    marginBottom: spacing.lg,
+  },
+  sectionLabelBadge: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: spacing.sm + 2,
+    paddingVertical: 4,
+    borderRadius: borderRadius.md,
+    borderWidth: 1,
+    marginBottom: spacing.xs,
+  },
+  sectionLabelText: {
+    fontSize: 12,
+    fontWeight: '700',
+    writingDirection: 'ltr',
   },
   arabicText: {
     fontFamily: 'Amiri-Regular',
     textAlign: 'right',
     writingDirection: 'rtl',
+    marginTop: spacing.xs,
+  },
+  colophonCard: {
+    padding: spacing.md,
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    alignItems: 'center',
+  },
+  colophonText: {
+    fontFamily: 'Amiri-Regular',
+    textAlign: 'center',
+    writingDirection: 'rtl',
+  },
+  repeatRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: spacing.xs + 2,
     marginTop: spacing.sm,
   },
   repeatPill: {
-    alignSelf: 'center',
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
@@ -166,28 +307,9 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xs + 2,
     borderRadius: borderRadius.full,
     borderWidth: 1,
-    marginTop: spacing.sm,
   },
   repeatText: {
     fontSize: 13,
     fontWeight: '600',
-  },
-  closingSection: {
-    padding: spacing.lg,
-    borderRadius: borderRadius.lg,
-    borderWidth: 1,
-    alignItems: 'center',
-    marginTop: spacing.md,
-    marginBottom: spacing.md,
-  },
-  closingText: {
-    fontFamily: 'Amiri-Bold',
-    writingDirection: 'rtl',
-    marginBottom: spacing.xs,
-  },
-  closingSubtext: {
-    fontSize: 13,
-    fontWeight: '500',
-    writingDirection: 'ltr',
   },
 });
