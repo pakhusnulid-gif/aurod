@@ -49,7 +49,7 @@ const MENU_ITEMS: MenuItem[] = [
   {
     id: 1,
     titleArabic: 'يٰس فَضِيْلَةُ أَلْفِ الصَّحْبِ',
-    titleLatin: 'Yasin Fadhilah Alfushohbi',
+    titleLatin: 'Yasin Fadhilah Alfas Shohbi',
     route: '/yasin',
     IconComponent: YasinMenuIcon,
     accentColor: '#059669',

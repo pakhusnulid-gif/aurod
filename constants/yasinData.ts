@@ -16,6 +16,7 @@ export interface YasinSisipan {
   title: string;
   repeat: string;
   arabic: string;
+  guidance?: string;
   translation: string;
   doa_translation?: string;
   sholawat_translation?: string;
@@ -26,6 +27,7 @@ export interface YasinAyatParsial {
   type: "ayat_parsial";
   nomor_ayat: number;
   bagian: "awal" | "akhir";
+  label?: string;
   arabic: string;
   translation?: string;
 }
@@ -75,7 +77,8 @@ export const yasinFadhilahData: YasinContent[] = [
 
   {
     id: "sisipan_2", type: "sisipan", position: "Setelah Ayat 27", title: "Doa Qodho Hajat", repeat: "Dibaca 1x",
-    arabic: "( اَللَّهُمَّ أَكْرِمْنِي بِقَضَاءِ حَاجَتِي وَأَلْزِمْنِي بِطَاعَتِكَ )\n\nLalu sebutkan hajatnya",
+    arabic: "( اَللَّهُمَّ أَكْرِمْنِي بِقَضَاءِ حَاجَتِي وَأَلْزِمْنِي بِطَاعَتِكَ )",
+    guidance: "Lalu menyebut hajatnya",
     translation: "Yaa Allah mulyakanlah aku dengan mengijabahi do'aku dan tetapkanlah aku untuk selalu taat kepadamu."
   },
 
@@ -94,8 +97,8 @@ export const yasinFadhilahData: YasinContent[] = [
   {
     id: 38, type: "ayat", nomor_ayat: 38,
     arabic: "وَالشَّمْسُ تَجْرِي لِمُسْتَقَرٍّ لَّهَا ۚ ذَٰلِكَ تَقْدِيرُ الْعَزِيزِ الْعَلِيمِ",
-    wirid_instruction: "Ulangi bagian 'Dzalika taqdirul...' sebanyak 41x",
-    wirid_arabic: "ذَٰلِكَ تَقْدِيرُ الْعَزِيزِ الْعَلِيمِ ×٤١"
+    wirid_instruction: "Ulangi bagian 'Dzalika taqdirul...' sebanyak 14x",
+    wirid_arabic: "ذٰلِكَ تَقْدِيْرُ الْعَزِيْزِ الْعَلِيْمِ ×١٤"
   },
 
   {
@@ -136,9 +139,9 @@ export const yasinFadhilahData: YasinContent[] = [
 
   {
     id: "sisipan_4", type: "sisipan", position: "Setelah Ayat 58", title: "Doa Keselamatan", repeat: "14x (Doa) & 1x (Sholawat)",
-    arabic: "(اَللَّهُمَّ سَلِّمْنِيْ مِنْ آفَاتِ الدُّنْيَا وَالْآخِرَةِ وَفِتْنَتِهَا) ×١٤\n\nاَللَّهُمَّ صَلِّ وَسَلِّمْ وَبَارِكْ عَلَى سَيِّدِنَا مُحَمَّدٍ صَلَاةً تُسَهِّلُنِيْ وَتُكَثِّرُنِيْ وَتُبَارِكُنِيْ مِدْرَارَ أَمْوَالِي وَأَرْزَاقِي وَنَعْمَائِي، وَعَلَى آلِهِ وَصَحْبِهِ وَسَلِّمْ تَسْلِيمًا مِدْرَارًا",
-    translation: "Yaa Allah selamatkanlah aku dari perkara-perkara yang membahayakan dunia dan akhirat serta fitnah-fitnah yang ada.",
-    doa_translation: "Yaa Allah selamatkanlah aku dari perkara-perkara yang membahayakan dunia dan akhirat serta fitnah-fitnah yang ada.",
+    arabic: "(اَللَّهُمَّ سَلِّمْنِيْ مِنْ آفَاتِ الدُّنْيَا وَالْآخِرَةِ وَفِتْنَتِهِمَا) ×١٤\n\nاَللَّهُمَّ صَلِّ وَسَلِّمْ وَبَارِكْ عَلَى سَيِّدِنَا مُحَمَّدٍ صَلَاةً تُسَهِّلُنِيْ وَتُكَثِّرُنِيْ وَتُبَارِكُنِيْ مِدْرَارَ أَمْوَالِي وَأَرْزَاقِي وَنَعْمَائِي، وَعَلَى آلِهِ وَصَحْبِهِ وَسَلِّمْ تَسْلِيمًا مِدْرَارًا",
+    translation: "Yaa Allah selamatkanlah aku dari perkara-perkara yang membahayakan dunia dan akhirat serta fitnah keduanya.",
+    doa_translation: "Yaa Allah selamatkanlah aku dari perkara-perkara yang membahayakan dunia dan akhirat serta fitnah keduanya.",
     sholawat_translation: "Yaa Allah Curahkanlah rahmat salam dan barokah atas Nabi Muhammad SAW. Keluarga serta sahabat-sahabat beliau dengan sholawat yang menjadi sebab Engkau mudahkan aku, Engkau perbanyak (hartaku) padaku, dan Engkau berkahi aku atas derasnya harta, rizki dan ni'mat-ni'mat-Mu."
   },
 
@@ -182,7 +185,9 @@ export const yasinFadhilahData: YasinContent[] = [
 
   {
     id: "81_end", type: "ayat_parsial", nomor_ayat: 81, bagian: "akhir",
-    arabic: "وَهُوَ الْخَلَّاقُ الْعَلِيمُ"
+    label: "Mengulang Ayat 81 (Awal s.d. Akhir)",
+    arabic: "أَوَلَيْسَ الَّذِي خَلَقَ السَّمَاوَاتِ وَالْأَرْضَ بِقَادِرٍ عَلَىٰ أَنْ يَخْلُقَ مِثْلَهُم ۚ بَلَىٰ وَهُوَ الْخَلَّاقُ الْعَلِيْمُ",
+    translation: "Dan tidakkah Tuhan yang menciptakan langit dan bumi itu berkuasa menciptakan yang serupa dengan itu? Benar, dan Dialah Yang Maha Pencipta lagi Maha Mengetahui."
   },
 
   // Expanded quran_block range 82-83

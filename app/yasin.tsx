@@ -55,7 +55,6 @@ export default function YasinScreen() {
   const translationLineHeight = Math.round(translationFontSize * 1.55);
   const badgeFontSize = Math.min(Math.max(fontSize - 8, 13), 16);
   const badgeLineHeight = Math.round(badgeFontSize * 1.4);
-  const ayatBadgeSize = Math.max(32, Math.min(40, badgeFontSize + 18));
 
   const handleJump = (key: string) => {
     const y = sectionOffsets.current[key];
@@ -390,6 +389,32 @@ export default function YasinScreen() {
             )}
           </>
         )}
+
+        {item.guidance && (
+          <View
+            style={[
+              styles.guidanceBox,
+              {
+                backgroundColor: themeColors.badgeWarningBg,
+                borderColor: themeColors.badgeWarningBorder,
+              },
+            ]}
+          >
+            <Info color={themeColors.badgeWarningText} size={15} />
+            <Text
+              style={[
+                styles.guidanceText,
+                {
+                  color: themeColors.badgeWarningText,
+                  fontSize: badgeFontSize,
+                  lineHeight: badgeLineHeight,
+                },
+              ]}
+            >
+              {item.guidance}
+            </Text>
+          </View>
+        )}
       </View>
     );
   };
@@ -451,7 +476,7 @@ export default function YasinScreen() {
                     { color: themeColors.badgeNeutralText, fontSize: Math.max(12, badgeFontSize - 1) },
                   ]}
                 >
-                  {isAwal ? `Awal Ayat ${item.nomor_ayat}` : `Lanjutan Ayat ${item.nomor_ayat}`}
+                  {item.label ?? (isAwal ? `Awal Ayat ${item.nomor_ayat}` : `Lanjutan Ayat ${item.nomor_ayat}`)}
                 </Text>
               </View>
             </View>
@@ -512,7 +537,7 @@ export default function YasinScreen() {
   return (
     <AppShell maxWidth={680}>
       <Navbar
-        title="Yasin Fadhilah Alfushohbi"
+        title="Yasin Fadhilah Alfas Shohbi"
         showBack
         showReadingSettings
         onOpenReadingSettings={() => setSettingsOpen(true)}
@@ -557,21 +582,53 @@ export default function YasinScreen() {
         contentContainerStyle={[styles.content, { paddingHorizontal: horizontalPad }]}
         showsVerticalScrollIndicator={false}
       >
-        <Text
+        <View
           style={[
-            styles.mainTitle,
+            styles.introHeader,
             {
-              color: themeColors.primary,
-              fontSize: fontSize + 8,
-              lineHeight: Math.round((fontSize + 8) * 1.5),
+              backgroundColor: themeColors.surface,
+              borderColor: themeColors.border,
+              padding: sisipanPad,
             },
           ]}
         >
-          يس
-        </Text>
-        <Text style={[styles.subtitle, { color: themeColors.textSecondary, fontSize: Math.max(14, fontSize - 2) }]}>
-          Surat Yasin dengan Fadhilah
-        </Text>
+          <Text
+            style={[
+              styles.mainTitle,
+              {
+                color: themeColors.primary,
+                fontSize: Math.min(fontSize + 6, 34),
+                lineHeight: Math.round(Math.min(fontSize + 6, 34) * 1.65),
+              },
+            ]}
+          >
+            يٰس فَضِيْلَةُ أَلْفِ الصَّحْبِ
+          </Text>
+          <Text
+            style={[
+              styles.subtitle,
+              {
+                color: themeColors.text,
+                fontSize: Math.max(15, Math.min(fontSize - 3, 20)),
+              },
+            ]}
+          >
+            Yasin Fadhilah Alfas Shohbi
+          </Text>
+          <View style={[styles.introDivider, { backgroundColor: themeColors.border }]} />
+          <Text
+            style={[
+              styles.compilerArabic,
+              {
+                color: themeColors.textSecondary,
+                fontSize: Math.max(17, Math.min(fontSize - 2, 24)),
+                lineHeight: Math.round(Math.max(17, Math.min(fontSize - 2, 24)) * 1.75),
+              },
+            ]}
+          >
+            لِلشَّيْخِ أَحْمَدَ مُشَفَّعْ بْنِ مَعْصُوْمٍ خَادِمِ مَعْهَدِ النِّظَامِيَّةِ طُوْبَان
+          </Text>
+        </View>
 
         <Text
           style={[
@@ -648,6 +705,12 @@ const styles = StyleSheet.create({
     paddingTop: spacing.lg,
     paddingBottom: spacing.xxl,
   },
+  introHeader: {
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    marginBottom: spacing.lg,
+    alignItems: 'center',
+  },
   mainTitle: {
     fontFamily: 'Amiri-Bold',
     textAlign: 'center',
@@ -655,9 +718,19 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   subtitle: {
+    fontWeight: '700',
     textAlign: 'center',
     writingDirection: 'ltr',
-    marginBottom: spacing.lg,
+  },
+  introDivider: {
+    width: '60%',
+    height: StyleSheet.hairlineWidth,
+    marginVertical: spacing.sm + 2,
+  },
+  compilerArabic: {
+    fontFamily: 'Amiri-Regular',
+    textAlign: 'center',
+    writingDirection: 'rtl',
   },
   basmalah: {
     fontFamily: 'Amiri-Bold',
@@ -779,6 +852,22 @@ const styles = StyleSheet.create({
   sisipanTranslation: {
     fontStyle: 'italic',
     textAlign: 'left',
+    writingDirection: 'ltr',
+  },
+  guidanceBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs + 2,
+    borderRadius: borderRadius.md,
+    borderWidth: 1,
+    paddingHorizontal: spacing.sm + 2,
+    paddingVertical: spacing.xs + 2,
+    marginTop: spacing.md,
+    alignSelf: 'flex-start',
+  },
+  guidanceText: {
+    flexShrink: 1,
+    fontWeight: '600',
     writingDirection: 'ltr',
   },
   ayatParsialContainer: {
