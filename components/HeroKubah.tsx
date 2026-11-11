@@ -107,19 +107,19 @@ export function HeroKubah({
               <Text style={[styles.tzLabel, { color: themeColors.heroSubtext }]}>
                 WIB
               </Text>
-              <View
-                style={[
-                  styles.countdownPill,
-                  {
-                    backgroundColor: themeColors.heroPillBg,
-                    borderColor: themeColors.heroPillBorder,
-                  },
-                ]}
-              >
-                <Text style={[styles.countdownText, { color: themeColors.heroText }]}>
-                  {countdown.countdownText}
-                </Text>
-              </View>
+            </View>
+            <View
+              style={[
+                styles.countdownPill,
+                {
+                  backgroundColor: themeColors.heroPillBg,
+                  borderColor: themeColors.heroPillBorder,
+                },
+              ]}
+            >
+              <Text style={[styles.countdownText, { color: themeColors.heroText }]}>
+                {countdown.countdownText}
+              </Text>
             </View>
           </View>
 
@@ -149,15 +149,15 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   overlay: {
-    paddingTop: spacing.sm + 2,
+    paddingTop: spacing.sm,
     paddingHorizontal: spacing.md,
-    paddingBottom: spacing.lg + 4,
+    paddingBottom: spacing.md + 6,
   },
   topRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: spacing.xs + 2,
+    marginBottom: spacing.xs,
     gap: spacing.xs,
   },
   locationPill: {
@@ -194,11 +194,13 @@ const styles = StyleSheet.create({
   },
   timeRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs + 2,
+    alignItems: 'baseline',
+    justifyContent: 'center',
+    gap: spacing.xs + 1,
   },
   nextClock: {
     fontSize: 27,
+    lineHeight: 32,
     fontWeight: '800',
     fontVariant: ['tabular-nums'],
     letterSpacing: 0.5,
@@ -206,14 +208,13 @@ const styles = StyleSheet.create({
   tzLabel: {
     fontSize: 12,
     fontWeight: '700',
-    marginTop: 6,
   },
   countdownPill: {
-    paddingHorizontal: spacing.sm + 2,
-    paddingVertical: 3,
+    paddingHorizontal: spacing.sm + 4,
+    paddingVertical: 2,
     borderRadius: borderRadius.full,
     borderWidth: 1,
-    marginLeft: 2,
+    marginTop: 4,
   },
   countdownText: {
     fontSize: 12,

@@ -118,11 +118,11 @@ const MENU_ITEMS: MenuItem[] = [
     titleLatin: 'Web Kasan',
     externalUrl: 'https://kasantuban.org',
     IconComponent: WebKasanMenuIcon,
-    accentColor: '#0284C7',
-    bgLight: '#E0F2FE',
-    borderLight: '#7DD3FC',
-    bgDark: '#082F49',
-    borderDark: 'rgba(56, 189, 248, 0.35)',
+    accentColor: '#059669',
+    bgLight: '#FFFFFF',
+    borderLight: '#A7F3D0',
+    bgDark: '#FFFFFF',
+    borderDark: 'rgba(52, 211, 153, 0.55)',
   },
 ];
 
@@ -258,7 +258,7 @@ export default function HomeScreen() {
                             },
                           ]}
                         >
-                          <Icon size={25} />
+                          <Icon size={item.id === 6 ? 31 : 25} />
                         </View>
                         <Text
                           style={[

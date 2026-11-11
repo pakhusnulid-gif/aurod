@@ -1,9 +1,9 @@
 import React from 'react';
+import { Image } from 'react-native';
 import Svg, {
   Path,
   Rect,
   Circle,
-  Ellipse,
   Polygon,
   Line,
   G,
@@ -11,6 +11,8 @@ import Svg, {
   LinearGradient as SvgLinearGradient,
   Stop,
 } from 'react-native-svg';
+
+const KASAN_LOGO = require('@/assets/images/logo-kasan.png');
 
 interface IconProps {
   size?: number;
@@ -460,61 +462,15 @@ export const SholawatFatihMenuIcon: React.FC<IconProps> = ({ size = 42 }) => {
 
 /**
  * 6. Web Kasan Icon
- * Desain: Bola dunia bernuansa zamrud & emas dengan bintang portal resmi kasantuban.org
+ * Logo resmi Keluarga Alumni Santri An-Nidhomiyyah (KASAN) Tuban
  */
 export const WebKasanMenuIcon: React.FC<IconProps> = ({ size = 42 }) => {
   return (
-    <Svg width={size} height={size} viewBox="0 0 64 64" fill="none">
-      <Defs>
-        <SvgLinearGradient id="webGlobeGrad" x1="0" y1="0" x2="1" y2="1">
-          <Stop offset="0%" stopColor="#38BDF8" />
-          <Stop offset="55%" stopColor="#0284C7" />
-          <Stop offset="100%" stopColor="#0369A1" />
-        </SvgLinearGradient>
-        <SvgLinearGradient id="webRingGrad" x1="0" y1="0" x2="1" y2="1">
-          <Stop offset="0%" stopColor="#FDE047" />
-          <Stop offset="100%" stopColor="#D97706" />
-        </SvgLinearGradient>
-      </Defs>
-
-      {/* Lingkaran Bola Dunia */}
-      <Circle
-        cx="32"
-        cy="33"
-        r="20"
-        fill="url(#webGlobeGrad)"
-        stroke="#E0F2FE"
-        strokeWidth="1.5"
-      />
-
-      {/* Garis Meridian & Lintang */}
-      <Ellipse
-        cx="32"
-        cy="33"
-        rx="9.5"
-        ry="20"
-        fill="none"
-        stroke="#BAE6FD"
-        strokeWidth="1.4"
-      />
-      <Path d="M12.5 33 H51.5" stroke="#BAE6FD" strokeWidth="1.4" />
-      <Path d="M15.5 23.5 C24 26 40 26 48.5 23.5" stroke="#BAE6FD" strokeWidth="1.2" fill="none" />
-      <Path d="M15.5 42.5 C24 40 40 40 48.5 42.5" stroke="#BAE6FD" strokeWidth="1.2" fill="none" />
-
-      {/* Sabuk Orbit & Aksen Emas */}
-      <Path
-        d="M11 40 C22 22 44 17 55 21"
-        stroke="url(#webRingGrad)"
-        strokeWidth="2.2"
-        strokeLinecap="round"
-        fill="none"
-      />
-
-      {/* Bintang Portal Kanan Atas */}
-      <Path
-        d="M49 11 L50.6 15.4 L55 17 L50.6 18.6 L49 23 L47.4 18.6 L43 17 L47.4 15.4 Z"
-        fill="#FDE047"
-      />
-    </Svg>
+    <Image
+      source={KASAN_LOGO}
+      style={{ width: size, height: size, borderRadius: size / 2 }}
+      resizeMode="contain"
+      accessibilityLabel="Logo Web Kasan"
+    />
   );
 };
