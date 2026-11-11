@@ -1,6 +1,14 @@
 import { ScrollViewStyleReset } from 'expo-router/html';
 import type { PropsWithChildren } from 'react';
 
+const EARLY_INSTALL_PROMPT_CAPTURE = `
+window.__deferredPwaPrompt = null;
+window.addEventListener('beforeinstallprompt', function (e) {
+  e.preventDefault();
+  window.__deferredPwaPrompt = e;
+});
+`;
+
 export default function RootHtml({ children }: PropsWithChildren) {
   return (
     <html lang="id">
@@ -17,12 +25,18 @@ export default function RootHtml({ children }: PropsWithChildren) {
           content="Aplikasi Aurod An-Nidhomiyyah Pondok Pesantren An-Nidhomiyyah Tuban untuk membaca Yasin Fadhilah, Aurod, Tawassul, Tahlil, dan jadwal salat."
         />
         <meta name="theme-color" content="#047857" />
+        <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Aurod" />
+        <link rel="icon" type="image/png" href="/icon-192.png" />
+        <link rel="apple-touch-icon" sizes="192x192" href="/icon-192.png" />
+        <link rel="apple-touch-icon" sizes="512x512" href="/icon-512.png" />
         <link rel="manifest" href="/manifest.json" />
+        <script dangerouslySetInnerHTML={{ __html: EARLY_INSTALL_PROMPT_CAPTURE }} />
         <ScrollViewStyleReset />
       </head>
       <body>{children}</body>
     </html>
   );
 }
-

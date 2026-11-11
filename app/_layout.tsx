@@ -74,9 +74,22 @@ export default function RootLayout() {
     if (Platform.OS === 'web' && typeof window !== 'undefined') {
       const registerServiceWorker = () => {
         if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.register('/sw.js').catch((error) => {
-            console.error('Service Worker registration failed:', error);
-          });
+          navigator.serviceWorker
+            .register('/sw.js')
+            .then((registration) => {
+              registration.addEventListener('updatefound', () => {
+                const newWorker = registration.installing;
+                if (!newWorker) return;
+                newWorker.addEventListener('statechange', () => {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    newWorker.postMessage({ type: 'SKIP_WAITING' });
+                  }
+                });
+              });
+            })
+            .catch((error) => {
+              console.error('Service Worker registration failed:', error);
+            });
         }
       };
 
@@ -93,11 +106,32 @@ export default function RootLayout() {
         return link;
       });
 
+      ensureHeadTag('link[rel="apple-touch-icon"]', () => {
+        const touchIcon = document.createElement('link');
+        touchIcon.rel = 'apple-touch-icon';
+        touchIcon.href = '/icon-192.png';
+        return touchIcon;
+      });
+
       ensureHeadTag('meta[name="apple-mobile-web-app-capable"]', () => {
         const metaApple = document.createElement('meta');
         metaApple.name = 'apple-mobile-web-app-capable';
         metaApple.content = 'yes';
         return metaApple;
+      });
+
+      ensureHeadTag('meta[name="apple-mobile-web-app-title"]', () => {
+        const metaTitle = document.createElement('meta');
+        metaTitle.name = 'apple-mobile-web-app-title';
+        metaTitle.content = 'Aurod';
+        return metaTitle;
+      });
+
+      ensureHeadTag('meta[name="mobile-web-app-capable"]', () => {
+        const metaMobile = document.createElement('meta');
+        metaMobile.name = 'mobile-web-app-capable';
+        metaMobile.content = 'yes';
+        return metaMobile;
       });
 
       const metaViewport = document.querySelector('meta[name="viewport"]');

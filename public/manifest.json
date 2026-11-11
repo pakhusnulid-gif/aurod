@@ -1,8 +1,10 @@
 {
+  "id": "/",
   "name": "Aurod An-Nidhomiyyah",
   "short_name": "Aurod",
-  "description": "Aplikasi Aurod An-Nidhomiyyah untuk membaca wirid, Yasin Fadhilah, tawassul, dan tahlil",
+  "description": "Aplikasi Aurod An-Nidhomiyyah untuk membaca Yasin Fadhilah, Aurod, Tawassul, Tahlil, dan jadwal salat secara offline.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "display_override": ["standalone", "fullscreen"],
   "background_color": "#F8FAF9",
@@ -14,13 +16,55 @@
       "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Yasin Fadhilah",
+      "short_name": "Yasin",
+      "description": "Baca Surat Yasin Fadhilah dan doa sisipan",
+      "url": "/yasin",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Aurod",
+      "short_name": "Aurod",
+      "description": "Baca Wirid Harian dan Silsilah Sanad",
+      "url": "/aurod",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Tawassul",
+      "short_name": "Tawassul",
+      "description": "Bacaan Tawassul lengkap",
+      "url": "/tawassul",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Tahlil",
+      "short_name": "Tahlil",
+      "description": "Bacaan Majelis Tahlil",
+      "url": "/tahlil",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
     }
   ],
   "categories": ["education", "religion"],

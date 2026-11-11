@@ -15,14 +15,17 @@ import {
   Hand,
   Layers,
   ChevronRight,
+  Download,
 } from 'lucide-react-native';
 import { AppShell } from '@/components/AppShell';
 import { Navbar } from '@/components/Navbar';
 import { HeroKubah } from '@/components/HeroKubah';
 import { PrayerTimes } from '@/components/PrayerTimes';
 import { PrayerDetailModal } from '@/components/PrayerDetailModal';
+import { PwaInstallModal } from '@/components/PwaInstallModal';
 import { Footer } from '@/components/Footer';
 import { useTheme } from '@/contexts/ThemeContext';
+import { usePwaInstall } from '@/hooks/usePwaInstall';
 import { colors, spacing, borderRadius } from '@/constants/theme';
 import { getCurrentLocation, LocationData } from '@/utils/locationService';
 
@@ -32,7 +35,6 @@ const MAJELIS_IMAGE = require('@/assets/images/majelis-rutinan.jpg');
 interface MenuItem {
   id: number;
   title: string;
-  subtitle: string;
   route: '/yasin' | '/aurod' | '/tawassul' | '/tahlil';
   icon: typeof BookOpen;
   color: string;
@@ -42,7 +44,6 @@ const MENU_ITEMS: MenuItem[] = [
   {
     id: 1,
     title: 'Yasin Fadhilah',
-    subtitle: '83 Ayat & Doa',
     route: '/yasin',
     icon: BookOpen,
     color: '#047857',
@@ -50,7 +51,6 @@ const MENU_ITEMS: MenuItem[] = [
   {
     id: 2,
     title: 'Aurod',
-    subtitle: 'Wirid Harian',
     route: '/aurod',
     icon: ScrollText,
     color: '#0F766E',
@@ -58,7 +58,6 @@ const MENU_ITEMS: MenuItem[] = [
   {
     id: 3,
     title: 'Tawassul',
-    subtitle: 'Kirimkan Doa',
     route: '/tawassul',
     icon: Hand,
     color: '#065F46',
@@ -66,7 +65,6 @@ const MENU_ITEMS: MenuItem[] = [
   {
     id: 4,
     title: 'Tahlil',
-    subtitle: 'Majelis Tahlil',
     route: '/tahlil',
     icon: Layers,
     color: '#115E59',
@@ -87,6 +85,8 @@ export default function HomeScreen() {
   const themeColors = colors[theme];
   const [location, setLocation] = useState<LocationData>(DEFAULT_LOCATION);
   const [prayerModalOpen, setPrayerModalOpen] = useState(false);
+
+  const pwaInstall = usePwaInstall();
 
   useEffect(() => {
     let isMounted = true;
@@ -155,16 +155,13 @@ export default function HomeScreen() {
                         onPress={() => router.push(item.route)}
                         activeOpacity={0.75}
                         accessibilityRole="button"
-                        accessibilityLabel={`${item.title}, ${item.subtitle}`}
+                        accessibilityLabel={item.title}
                       >
                         <View style={[styles.iconCircle, { backgroundColor: item.color }]}>
                           <IconComponent color="#F8FAF9" size={22} />
                         </View>
                         <Text style={[styles.cardTitle, { color: themeColors.text }]} numberOfLines={1}>
                           {item.title}
-                        </Text>
-                        <Text style={[styles.cardSubtitle, { color: themeColors.textSecondary }]} numberOfLines={1}>
-                          {item.subtitle}
                         </Text>
                       </TouchableOpacity>
                     );
@@ -238,6 +235,35 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
 
+          {pwaInstall.isWeb && !pwaInstall.isInstalled && (
+            <TouchableOpacity
+              onPress={pwaInstall.openModal}
+              activeOpacity={0.78}
+              accessibilityRole="button"
+              accessibilityLabel="Buka panduan pasang aplikasi ke layar utama"
+              style={[
+                styles.installBanner,
+                {
+                  backgroundColor: themeColors.calloutBg,
+                  borderColor: themeColors.calloutBorder,
+                },
+              ]}
+            >
+              <View style={[styles.installIconWrap, { backgroundColor: themeColors.primary }]}>
+                <Download color={themeColors.onPrimary} size={18} />
+              </View>
+              <View style={styles.installTextWrap}>
+                <Text style={[styles.installTitle, { color: themeColors.primary }]}>
+                  Pasang Aplikasi ke Layar Utama
+                </Text>
+                <Text style={[styles.installSub, { color: themeColors.calloutText }]}>
+                  Bisa dibuka offline di Android & iPhone
+                </Text>
+              </View>
+              <ChevronRight color={themeColors.primary} size={18} />
+            </TouchableOpacity>
+          )}
+
           <Footer />
         </View>
       </ScrollView>
@@ -250,6 +276,20 @@ export default function HomeScreen() {
         city={location.city}
         region={location.region}
       />
+
+      {pwaInstall.isWeb && (
+        <PwaInstallModal
+          visible={pwaInstall.modalVisible}
+          platformType={pwaInstall.platformType}
+          isInAppBrowser={pwaInstall.isInAppBrowser}
+          isIosNonSafari={pwaInstall.isIosNonSafari}
+          canInstallNatively={pwaInstall.canInstallNatively}
+          onTriggerNativeInstall={pwaInstall.triggerNativeInstall}
+          onCopyUrl={pwaInstall.copyAppUrl}
+          onDismissLater={pwaInstall.dismissLater}
+          onDismissForever={pwaInstall.dismissForever}
+        />
+      )}
     </AppShell>
   );
 }
@@ -293,7 +333,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 116,
+    minHeight: 102,
     elevation: 2,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
@@ -310,12 +350,6 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 15,
     fontWeight: '700',
-    textAlign: 'center',
-    marginBottom: 2,
-    userSelect: 'none',
-  },
-  cardSubtitle: {
-    fontSize: 11,
     textAlign: 'center',
     userSelect: 'none',
   },
@@ -350,6 +384,33 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   editorialSub: {
+    fontSize: 12,
+  },
+  installBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: spacing.sm + 4,
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    gap: spacing.sm + 2,
+    minHeight: 62,
+  },
+  installIconWrap: {
+    width: 38,
+    height: 38,
+    borderRadius: borderRadius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  installTextWrap: {
+    flex: 1,
+    gap: 1,
+  },
+  installTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  installSub: {
     fontSize: 12,
   },
 });
