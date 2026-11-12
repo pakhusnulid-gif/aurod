@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -26,24 +26,12 @@ import {
 } from '@/constants/yasinData';
 import { parseRepeatTarget } from '@/utils/repeatTarget';
 
-const JUMP_CHIPS = [
-  { key: '1', label: 'Ayat 1' },
-  { key: 'sisipan_1', label: 'Sisipan 1' },
-  { key: '38', label: 'Ayat 38' },
-  { key: 'sisipan_3', label: 'Sisipan 3' },
-  { key: '58', label: 'Ayat 58' },
-  { key: 'sisipan_4', label: 'Sisipan 4' },
-  { key: '81', label: 'Ayat 81' },
-];
-
 export default function YasinScreen() {
   const { theme, fontSize, arabicFont, showTranslation } = useTheme();
   const arabicFontRegular = getArabicFontFamily(arabicFont, 'regular');
   const arabicFontBold = getArabicFontFamily(arabicFont, 'bold');
   const { width } = useWindowDimensions();
   const themeColors = colors[theme];
-  const scrollViewRef = useRef<ScrollView>(null);
-  const sectionOffsets = useRef<Record<string, number>>({});
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [tasbihState, setTasbihState] = useState<{ label: string; target: number } | null>(null);
   const [copiedAyat, setCopiedAyat] = useState<number | null>(null);
@@ -58,13 +46,6 @@ export default function YasinScreen() {
   const translationLineHeight = Math.round(translationFontSize * 1.55);
   const badgeFontSize = Math.min(Math.max(fontSize - 8, 13), 16);
   const badgeLineHeight = Math.round(badgeFontSize * 1.4);
-
-  const handleJump = (key: string) => {
-    const y = sectionOffsets.current[key];
-    if (typeof y === 'number') {
-      scrollViewRef.current?.scrollTo({ y: Math.max(0, y - 12), animated: true });
-    }
-  };
 
   const openTasbih = (label: string, text?: string) => {
     const target = parseRepeatTarget(text);
@@ -119,9 +100,6 @@ export default function YasinScreen() {
               theme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
           },
         ]}
-        onLayout={(e) => {
-          sectionOffsets.current[String(item.id)] = e.nativeEvent.layout.y;
-        }}
       >
         <View style={styles.ayatMainRow}>
           {/* Action button on far left, matching NU Online */}
@@ -279,9 +257,6 @@ export default function YasinScreen() {
     return (
       <View
         key={item.id}
-        onLayout={(e) => {
-          sectionOffsets.current[String(item.id)] = e.nativeEvent.layout.y;
-        }}
         style={[
           styles.sisipanContainer,
           {
@@ -459,9 +434,6 @@ export default function YasinScreen() {
               theme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
           },
         ]}
-        onLayout={(e) => {
-          sectionOffsets.current[String(item.id)] = e.nativeEvent.layout.y;
-        }}
       >
         <View style={styles.ayatMainRow}>
           <TouchableOpacity
@@ -572,42 +544,7 @@ export default function YasinScreen() {
         onOpenReadingSettings={() => setSettingsOpen(true)}
       />
 
-      <View
-        style={[
-          styles.jumpBarWrapper,
-          { backgroundColor: themeColors.background, borderBottomColor: themeColors.border },
-        ]}
-      >
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.jumpBarContent}
-        >
-          {JUMP_CHIPS.map((chip) => (
-            <TouchableOpacity
-              key={chip.key}
-              onPress={() => handleJump(chip.key)}
-              activeOpacity={0.75}
-              accessibilityRole="button"
-              accessibilityLabel={`Lompat ke ${chip.label}`}
-              style={[
-                styles.jumpChip,
-                {
-                  backgroundColor: themeColors.surface,
-                  borderColor: themeColors.border,
-                },
-              ]}
-            >
-              <Text style={[styles.jumpChipText, { color: themeColors.primary }]}>
-                {chip.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
-
       <ScrollView
-        ref={scrollViewRef}
         contentContainerStyle={[styles.content, { paddingHorizontal: horizontalPad }]}
         showsVerticalScrollIndicator={false}
       >
@@ -713,27 +650,6 @@ export default function YasinScreen() {
 }
 
 const styles = StyleSheet.create({
-  jumpBarWrapper: {
-    borderBottomWidth: 1,
-    paddingVertical: spacing.xs + 2,
-  },
-  jumpBarContent: {
-    paddingHorizontal: spacing.md,
-    gap: spacing.xs + 2,
-  },
-  jumpChip: {
-    minHeight: 36,
-    paddingHorizontal: spacing.sm + 4,
-    paddingVertical: 6,
-    borderRadius: borderRadius.full,
-    borderWidth: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  jumpChipText: {
-    fontSize: 12,
-    fontWeight: '600',
-  },
   content: {
     paddingTop: spacing.lg,
     paddingBottom: spacing.xxl,
