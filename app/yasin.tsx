@@ -44,8 +44,12 @@ export default function YasinScreen() {
   const arabicLineHeight = Math.round(arabicFontSize * 1.85);
   const translationFontSize = Math.max(14, fontSize - 4);
   const translationLineHeight = Math.round(translationFontSize * 1.55);
-  const badgeFontSize = Math.min(Math.max(fontSize - 8, 13), 16);
+  const badgeFontSize = Math.max(14, Math.min(fontSize - 4, 18));
   const badgeLineHeight = Math.round(badgeFontSize * 1.4);
+  const repeatFontSize = Math.max(15, Math.min(fontSize - 1, 19));
+  const repeatLineHeight = Math.round(repeatFontSize * 1.35);
+  const sisipanRepeatFontSize = Math.max(16, Math.min(fontSize, 20));
+  const sisipanRepeatLineHeight = Math.round(sisipanRepeatFontSize * 1.3);
 
   const openTasbih = (label: string, text?: string) => {
     const target = parseRepeatTarget(text);
@@ -87,7 +91,7 @@ export default function YasinScreen() {
     const instructionTarget = parseRepeatTarget(item.instruction);
     const wiridTarget = parseRepeatTarget(item.wirid_instruction);
     const isCopied = copiedAyat === item.nomor_ayat;
-    const markerSize = Math.max(26, Math.min(32, Math.round(arabicFontSize * 0.95)));
+    const markerSize = Math.max(36, Math.min(48, Math.round(arabicFontSize * 1.18)));
     const markerColor = theme === 'dark' ? '#C5A880' : '#A27B36';
 
     return (
@@ -156,11 +160,11 @@ export default function YasinScreen() {
               },
             ]}
           >
-            <Repeat color={themeColors.badgeSuccessText} size={15} />
+            <Repeat color={themeColors.badgeSuccessText} size={Math.max(16, repeatFontSize - 1)} />
             <Text
               style={[
                 styles.badgeText,
-                { color: themeColors.badgeSuccessText, fontSize: badgeFontSize, lineHeight: badgeLineHeight },
+                { color: themeColors.badgeSuccessText, fontSize: repeatFontSize, lineHeight: repeatLineHeight },
               ]}
             >
               {item.repeat}
@@ -183,11 +187,11 @@ export default function YasinScreen() {
               },
             ]}
           >
-            <Info color={themeColors.badgeWarningText} size={15} />
+            <Info color={themeColors.badgeWarningText} size={Math.max(16, repeatFontSize - 1)} />
             <Text
               style={[
                 styles.badgeText,
-                { color: themeColors.badgeWarningText, fontSize: badgeFontSize, lineHeight: badgeLineHeight },
+                { color: themeColors.badgeWarningText, fontSize: repeatFontSize, lineHeight: repeatLineHeight },
               ]}
             >
               {item.instruction}
@@ -214,11 +218,11 @@ export default function YasinScreen() {
                 },
               ]}
             >
-              <Repeat color={themeColors.badgeInfoText} size={15} />
+              <Repeat color={themeColors.badgeInfoText} size={Math.max(16, repeatFontSize - 1)} />
               <Text
                 style={[
                   styles.badgeText,
-                  { color: themeColors.badgeInfoText, fontSize: badgeFontSize, lineHeight: badgeLineHeight },
+                  { color: themeColors.badgeInfoText, fontSize: repeatFontSize, lineHeight: repeatLineHeight },
                 ]}
               >
                 {item.wirid_instruction}
@@ -286,12 +290,23 @@ export default function YasinScreen() {
             disabled={!repeatTarget}
             onPress={() => openTasbih(item.title, item.repeat)}
             accessibilityRole={repeatTarget ? 'button' : 'text'}
+            accessibilityLabel={`${item.repeat}${repeatTarget ? ', buka tasbih' : ''}`}
             style={[
               styles.sisipanRepeatPill,
               { backgroundColor: themeColors.primary, borderColor: themeColors.primary },
             ]}
           >
-            <Text style={[styles.sisipanRepeatText, { color: themeColors.onPrimary, fontSize: badgeFontSize }]}>
+            <Repeat color={themeColors.onPrimary} size={Math.max(16, sisipanRepeatFontSize - 1)} />
+            <Text
+              style={[
+                styles.sisipanRepeatText,
+                {
+                  color: themeColors.onPrimary,
+                  fontSize: sisipanRepeatFontSize,
+                  lineHeight: sisipanRepeatLineHeight,
+                },
+              ]}
+            >
               {item.repeat}
               {repeatTarget ? ' · Tasbih' : ''}
             </Text>
@@ -399,7 +414,7 @@ export default function YasinScreen() {
               },
             ]}
           >
-            <Info color={themeColors.badgeWarningText} size={15} />
+            <Info color={themeColors.badgeWarningText} size={Math.max(16, badgeFontSize - 1)} />
             <Text
               style={[
                 styles.guidanceText,
@@ -420,7 +435,7 @@ export default function YasinScreen() {
 
   const renderAyatParsial = (item: YasinAyatParsial) => {
     const isAwal = item.bagian === 'awal';
-    const markerSize = Math.max(26, Math.min(32, Math.round(arabicFontSize * 0.95)));
+    const markerSize = Math.max(36, Math.min(48, Math.round(arabicFontSize * 1.18)));
     const markerColor = theme === 'dark' ? '#C5A880' : '#A27B36';
     const isCopied = copiedAyat === item.nomor_ayat;
 
@@ -734,10 +749,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: spacing.xs,
-    minHeight: 34,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
+    gap: spacing.xs + 2,
+    minHeight: 38,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs + 2,
     borderRadius: borderRadius.md,
     borderWidth: 1,
     marginTop: spacing.xs + 2,
@@ -781,11 +796,14 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   sisipanRepeatPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs + 2,
     alignSelf: 'flex-start',
-    minHeight: 36,
+    minHeight: 40,
     justifyContent: 'center',
-    paddingHorizontal: spacing.sm + 4,
-    paddingVertical: spacing.xs + 2,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs + 3,
     borderRadius: borderRadius.md,
     borderWidth: 1,
   },

@@ -19,7 +19,7 @@ const ROSETTE_PATH =
 
 export const AyahMarker: React.FC<AyahMarkerProps> = ({
   number,
-  size = 28,
+  size = 36,
   color = '#C5A880', // Elegant Quranic gold accent matching NU Online
   textColor,
   style,
@@ -28,7 +28,7 @@ export const AyahMarker: React.FC<AyahMarkerProps> = ({
   const arabicFontFamily = getArabicFontFamily(arabicFont, 'bold');
   const arabicStr = toArabicDigits(number);
   const isTwoOrMoreDigits = arabicStr.length >= 2;
-  const numFontSize = Math.round(size * (isTwoOrMoreDigits ? 0.38 : 0.44));
+  const numFontSize = Math.round(size * (isTwoOrMoreDigits ? 0.48 : 0.54));
 
   return (
     <View
