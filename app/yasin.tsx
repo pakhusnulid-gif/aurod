@@ -91,7 +91,7 @@ export default function YasinScreen() {
     const instructionTarget = parseRepeatTarget(item.instruction);
     const wiridTarget = parseRepeatTarget(item.wirid_instruction);
     const isCopied = copiedAyat === item.nomor_ayat;
-    const markerSize = Math.max(36, Math.min(48, Math.round(arabicFontSize * 1.18)));
+    const markerSize = Math.max(38, Math.min(52, Math.round(arabicFontSize * 1.25)));
     const markerColor = theme === 'dark' ? '#C5A880' : '#A27B36';
 
     return (
@@ -435,7 +435,7 @@ export default function YasinScreen() {
 
   const renderAyatParsial = (item: YasinAyatParsial) => {
     const isAwal = item.bagian === 'awal';
-    const markerSize = Math.max(36, Math.min(48, Math.round(arabicFontSize * 1.18)));
+    const markerSize = Math.max(38, Math.min(52, Math.round(arabicFontSize * 1.25)));
     const markerColor = theme === 'dark' ? '#C5A880' : '#A27B36';
     const isCopied = copiedAyat === item.nomor_ayat;
 

@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, ViewStyle, StyleProp, Platform } from 'react-native';
-import Svg, { Path, Circle } from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
 import { useTheme } from '@/contexts/ThemeContext';
+import { colors } from '@/constants/theme';
 import { getArabicFontFamily } from '@/constants/arabicFonts';
 import { toArabicDigits } from '@/utils/arabicNumerals';
 
@@ -10,6 +11,7 @@ interface AyahMarkerProps {
   size?: number;
   color?: string;
   textColor?: string;
+  opacity?: number;
   style?: StyleProp<ViewStyle>;
 }
 
@@ -22,13 +24,21 @@ export const AyahMarker: React.FC<AyahMarkerProps> = ({
   size = 36,
   color = '#C5A880', // Elegant Quranic gold accent matching NU Online
   textColor,
+  opacity,
   style,
 }) => {
-  const { arabicFont } = useTheme();
+  const { theme, arabicFont } = useTheme();
+  const themeColors = colors[theme];
   const arabicFontFamily = getArabicFontFamily(arabicFont, 'bold');
   const arabicStr = toArabicDigits(number);
+
+  // Dynamic font size: ~65% of rosette diameter for single digits, ~60% for 2 digits (60-70% range)
   const isTwoOrMoreDigits = arabicStr.length >= 2;
-  const numFontSize = Math.round(size * (isTwoOrMoreDigits ? 0.48 : 0.54));
+  const numFontSize = Math.round(size * (isTwoOrMoreDigits ? 0.60 : 0.65));
+
+  // High contrast text with more subdued rosette ornament
+  const effectiveTextColor = textColor || themeColors.text;
+  const rosetteOpacity = opacity ?? (theme === 'dark' ? 0.65 : 0.55);
 
   return (
     <View
@@ -43,38 +53,31 @@ export const AyahMarker: React.FC<AyahMarkerProps> = ({
       accessibilityLabel={`Ayat ${number}`}
     >
       <Svg width={size} height={size} viewBox="0 0 32 32" style={StyleSheet.absoluteFill}>
-        {/* Outer 12-lobed decorative rosette */}
+        {/* Single 12-lobed Quranic rosette with open, roomy center (inner ring removed) */}
         <Path
           d={ROSETTE_PATH}
           stroke={color}
           strokeWidth="1.15"
           fill="none"
-        />
-        {/* Inner concentric ring */}
-        <Circle
-          cx="16"
-          cy="16"
-          r="10.5"
-          stroke={color}
-          strokeWidth="0.8"
-          fill="none"
-          opacity={0.85}
+          opacity={rosetteOpacity}
         />
       </Svg>
 
-      <Text
-        style={[
-          styles.numberText,
-          {
-            fontFamily: arabicFontFamily,
-            fontSize: numFontSize,
-            lineHeight: Math.round(numFontSize * 1.2),
-            color: textColor || color,
-          },
-        ]}
-      >
-        {arabicStr}
-      </Text>
+      <View style={styles.numberWrapper} pointerEvents="none">
+        <Text
+          style={[
+            styles.numberText,
+            {
+              fontFamily: arabicFontFamily,
+              fontSize: numFontSize,
+              lineHeight: Math.round(numFontSize * 1.1),
+              color: effectiveTextColor,
+            },
+          ]}
+        >
+          {arabicStr}
+        </Text>
+      </View>
     </View>
   );
 };
@@ -93,11 +96,17 @@ const styles = StyleSheet.create({
       },
     }),
   },
+  numberWrapper: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   numberText: {
-    fontFamily: 'Amiri-Bold',
+    fontWeight: 'bold',
     textAlign: 'center',
     writingDirection: 'rtl',
     includeFontPadding: false,
+    textAlignVertical: 'center',
     userSelect: 'none',
   },
 });
